@@ -1,0 +1,9 @@
+spring:
+  main:
+    banner-mode: off
+    web-application-type: none
+  ai:
+    mcp:
+      server:
+        name: thingsboard-mcp-server
+        version: 4.0.0
