@@ -9,4 +9,4 @@ thingsboard:
   url: "${THINGSBOARD_URL:}"
   username: "${THINGSBOARD_USERNAME:}"
   password: "${THINGSBOARD_PASSWORD:}"
-  login-interval-seconds: "${THINGSBOARD_INTERVAL_SECONDS:1800}"
+  login-interval-seconds: "${THINGSBOARD_LOGIN_INTERVAL_SECONDS:1800}"

@@ -9,11 +9,22 @@ It integrates seamlessly with **MCP (Model Context Protocol)** clients—such as
 
 ## Features
 
-- **Entity Operations**: View devices, assets, and customers from ThingsBoard.
-- **Telemetry Access**: Retrieve attributes and time-series data for devices, assets, or customers.
-- **Telemetry Insert/Update**: Save attributes or time-series data for devices, assets, or customers in ThingsBoard.
-- **Relations**: Discover relationships between devices, assets, and customers.
-- **Alarms**: Fetch alarms related to specific entities from ThingsBoard.
+- **Entity Operations**
+  - **Devices**: View device details, credentials, profiles, and manage device relationships
+  - **Assets**: View and manage assets, asset profiles, and asset relationships
+  - **Customers**: Access customer information, titles, and manage customer relationships
+  - **Users**: Manage users, tokens, activation links, and user assignments
+- **Telemetry Management**
+  - **Attribute Access**: Retrieve attribute keys and values by scope for any entity
+  - **Time-series Access**: Get time-series data with various aggregation options
+  - **Telemetry Insert/Update**: Save attributes or time-series data with optional TTL settings
+- **Relations**: Discover and navigate relationships between entities with direction-based queries
+- **Alarms**: Fetch alarms, alarm types, and severity information for specific entities
+- **Administration**
+  - **System Settings**: Access and manage administration settings
+  - **Security Settings**: View security policies and JWT configuration
+  - **Version Control**: Manage repository and auto-commit settings
+  - **System Information**: Check for updates and retrieve usage statistics
 
 ## Installation
 
@@ -28,7 +39,7 @@ You can run the server using Docker. Either build the image locally or use the o
 #### Build the Docker Image
 
 ```bash
-docker build -t mcp-thingsboard .
+docker build -t mcp/thingsboard .
 ```
 
 #### Example Configuration (Claude Desktop)
@@ -68,11 +79,12 @@ To launch the server as a container when your MCP client starts (e.g., Claude De
 
 The MCP server requires the following environment variables to connect to your ThingsBoard instance:
 
-| Variable               | Description                                     |
-|------------------------|-------------------------------------------------|
-| `THINGSBOARD_URL`      | The base URL of your ThingsBoard instance       |
-| `THINGSBOARD_USERNAME` | Username used to authenticate with ThingsBoard  |
-| `THINGSBOARD_PASSWORD` | Password used to authenticate with ThingsBoard  |
+| Variable                             | Description                                               | Default |
+|--------------------------------------|-----------------------------------------------------------|---------|
+| `THINGSBOARD_URL`                    | The base URL of your ThingsBoard instance                 |         |
+| `THINGSBOARD_USERNAME`               | Username used to authenticate with ThingsBoard            |         |
+| `THINGSBOARD_PASSWORD`               | Password used to authenticate with ThingsBoard            |         |
+| `THINGSBOARD_LOGIN_INTERVAL_SECONDS` | Login session refresh interval in seconds                 | 1800    |
 
 These variables can be set either:
 
