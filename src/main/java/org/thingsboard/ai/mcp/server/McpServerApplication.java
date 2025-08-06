@@ -10,7 +10,7 @@ import org.thingsboard.ai.mcp.server.tools.AlarmTools;
 import org.thingsboard.ai.mcp.server.tools.AssetTools;
 import org.thingsboard.ai.mcp.server.tools.CustomerTools;
 import org.thingsboard.ai.mcp.server.tools.DeviceTools;
-import org.thingsboard.ai.mcp.server.tools.EntityQueryTools;
+import org.thingsboard.ai.mcp.server.tools.RelationTools;
 import org.thingsboard.ai.mcp.server.tools.TelemetryTools;
 import org.thingsboard.ai.mcp.server.tools.UserTools;
 
@@ -28,10 +28,10 @@ public class McpServerApplication {
                                                      AdminTools adminTools,
                                                      UserTools userTools,
                                                      AlarmTools alarmTools,
-                                                     EntityQueryTools entityQueryTools,
+                                                     RelationTools relationTools,
                                                      TelemetryTools telemetryTools) {
         return MethodToolCallbackProvider.builder()
-                .toolObjects(deviceTools, assetTools, customerTools, adminTools, userTools, alarmTools, entityQueryTools, telemetryTools)
+                .toolObjects(deviceTools, assetTools, customerTools, adminTools, userTools, alarmTools, relationTools, telemetryTools)
                 .build();
     }
 
