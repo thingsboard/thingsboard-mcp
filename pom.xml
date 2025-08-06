@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.5</version>
+        <version>3.4.8</version>
         <relativePath /> <!-- lookup parent from repository -->
     </parent>
 
@@ -20,6 +20,8 @@
 
     <properties>
         <lombok.version>1.18.32</lombok.version>
+        <spring.ai.version>1.0.0</spring.ai.version>
+        <thingsboard.version>4.0.0</thingsboard.version>
     </properties>
 
     <dependencyManagement>
@@ -27,19 +29,19 @@
             <dependency>
                 <groupId>org.springframework.ai</groupId>
                 <artifactId>spring-ai-bom</artifactId>
-                <version>1.0.0</version>
+                <version>${spring.ai.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.thingsboard.common</groupId>
                 <artifactId>data</artifactId>
-                <version>4.0.0</version>
+                <version>${thingsboard.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.thingsboard</groupId>
                 <artifactId>rest-client</artifactId>
-                <version>4.0.0</version>
+                <version>${thingsboard.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>

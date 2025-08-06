@@ -1,81 +1,71 @@
 package org.thingsboard.ai.mcp.server.tools;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.ai.tool.annotation.Tool;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.common.util.JacksonUtil;
-import org.thingsboard.server.common.data.AdminSettings;
 
-import java.util.Optional;
+import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.SYSTEM_AUTHORITY_PARAGRAPH;
+import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.TENANT_AUTHORITY_PARAGRAPH;
 
 @Service
+@RequiredArgsConstructor
 public class AdminTools {
 
-    @Autowired
-    private RestClientService clientService;
+    private final RestClientService clientService;
 
-    /**
-     * Retrieves admin settings by key.
-     *
-     * @param key the settings key
-     * @return JSON string representation of the settings or "Not found"
-     */
-    @Tool(description = "Get admin settings by key")
-    public String getAdminSettings(String key) {
-        Optional<AdminSettings> settings = clientService.getClient().getAdminSettings(key);
-        return settings.map(JacksonUtil::toString).orElse("Not found");
+    @Tool(description = "Get the Administration Settings object using specified string key. Referencing non-existing key will cause an error. " + SYSTEM_AUTHORITY_PARAGRAPH)
+    public String getAdminSettings(@ToolParam(description = "A string value of the key (e.g. 'general', 'mail', etc") String key) {
+        return JacksonUtil.toString(clientService.getClient().getAdminSettings(key));
     }
 
-
-    /**
-     * Checks if there are available updates in ThingsBoard.
-     *
-     * @return JSON string with update info or "No updates available"
-     */
-    @Tool(description = "Check for ThingsBoard updates")
-    public String checkUpdates() {
-        return clientService.getClient().checkUpdates().map(JacksonUtil::toString).orElse("No updates available");
-    }
-
-    /**
-     * Retrieves security settings.
-     *
-     * @return JSON string of the settings or "Not found"
-     */
-    @Tool(description = "Get security settings")
+    @Tool(description = "Get the Security settings object that contains password policy, lockout limits, notification email, " +
+            "mobile secret key length, and TTL values for activation & password-reset tokens (1–24 hours). " + SYSTEM_AUTHORITY_PARAGRAPH)
     public String getSecuritySettings() {
-        return clientService.getClient().getSecuritySettings().map(JacksonUtil::toString).orElse("Not found");
+        return JacksonUtil.toString(clientService.getClient().getSecuritySettings());
     }
 
-    /**
-     * Retrieves JWT settings.
-     *
-     * @return JSON string or "Not found"
-     */
-    @Tool(description = "Get JWT settings")
+    @Tool(description = "Get JWT settings object that contains JWT token policy, etc. " + SYSTEM_AUTHORITY_PARAGRAPH)
     public String getJwtSettings() {
-        return clientService.getClient().getJwtSettings().map(JacksonUtil::toString).orElse("Not found");
+        return JacksonUtil.toString(clientService.getClient().getJwtSettings());
     }
 
-    /**
-     * Retrieves system information.
-     *
-     * @return JSON string with system info
-     */
-    @Tool(description = "Get system info")
+    @Tool(description = "Get the repository settings object for version control. " + TENANT_AUTHORITY_PARAGRAPH)
+    public String getRepositorySettings() {
+        return JacksonUtil.toString(clientService.getClient().getRepositorySettings());
+    }
+
+    @Tool(description = "Check whether the repository settings exists for version control. " + TENANT_AUTHORITY_PARAGRAPH)
+    public Boolean repositorySettingsExists() {
+        return clientService.getClient().repositorySettingsExists();
+    }
+
+    @Tool(description = "Get the auto commit settings object for version control. " + TENANT_AUTHORITY_PARAGRAPH)
+    public String getAutoCommitSettings() {
+        return JacksonUtil.toString(clientService.getClient().getAutoCommitSettings());
+    }
+
+    @Tool(description = "Check whether the auto commit settings exists for version control. " + TENANT_AUTHORITY_PARAGRAPH)
+    public Boolean autoCommitSettingsExists() {
+        return clientService.getClient().autoCommitSettingsExists();
+    }
+
+    @Tool(description = "Check for new ThingsBoard platform releases. " + SYSTEM_AUTHORITY_PARAGRAPH)
+    public String checkUpdates() {
+        return JacksonUtil.toString(clientService.getClient().checkUpdates());
+    }
+
+    @Tool(description = "Get main information about system. " + SYSTEM_AUTHORITY_PARAGRAPH)
     public String getSystemInfo() {
         return JacksonUtil.toString(clientService.getClient().getSystemInfo());
     }
 
-
-    /**
-     * Retrieves current usage info for the platform.
-     *
-     * @return JSON string of usage data
-     */
-    @Tool(description = "Get usage info")
+    @Tool(description = "Retrieves usage statistics for the current tenant, including number of devices, assets, customers, users, dashboards, edges, " +
+            "transportMessages, jsExecutions, tbelExecutions, emails, sms, alarms. " + TENANT_AUTHORITY_PARAGRAPH)
     public String getUsageInfo() {
         return JacksonUtil.toString(clientService.getClient().getUsageInfo());
     }
+
 }

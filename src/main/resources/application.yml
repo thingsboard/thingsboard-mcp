@@ -1,9 +1,12 @@
-spring:
-  main:
-    banner-mode: off
-    web-application-type: none
-  ai:
-    mcp:
-      server:
-        name: thingsboard-mcp-server
-        version: 4.0.0
+# General spring parameters
+spring.main.banner-mode: off
+spring.main.web-application-type: none
+spring.ai.mcp.server.name: thingsboard-mcp-server
+spring.ai.mcp.server.version: 4.0.0
+
+# ThingsBoard auth parameters
+thingsboard:
+  url: "${THINGSBOARD_URL:}"
+  username: "${THINGSBOARD_USERNAME:}"
+  password: "${THINGSBOARD_PASSWORD:}"
+  login-interval-seconds: "${THINGSBOARD_INTERVAL_SECONDS:1800}"
