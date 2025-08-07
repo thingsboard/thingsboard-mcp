@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.common.util.JacksonUtil;
 
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.SYSTEM_AUTHORITY_PARAGRAPH;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.TENANT_AUTHORITY_PARAGRAPH;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.SYSTEM_AUTHORITY_PARAGRAPH;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.TENANT_AUTHORITY_PARAGRAPH;
 
 @Service
 @RequiredArgsConstructor

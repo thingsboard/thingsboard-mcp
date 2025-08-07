@@ -15,28 +15,28 @@ import org.thingsboard.server.common.data.page.SortOrder;
 import java.util.List;
 import java.util.UUID;
 
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.ATTRIBUTES_JSON_REQUEST_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.ATTRIBUTES_KEYS_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.ATTRIBUTES_SCOPE_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.ATTRIBUTE_DATA_EXAMPLE;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.DEVICE_ID_PARAM_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.ENTITY_GET_ATTRIBUTE_SCOPES;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.ENTITY_ID_PARAM_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.ENTITY_SAVE_ATTRIBUTE_SCOPES;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.ENTITY_TYPE_PARAM_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.INVALID_ENTITY_ID_OR_ENTITY_TYPE_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.LATEST_TS_NON_STRICT_DATA_EXAMPLE;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.LATEST_TS_STRICT_DATA_EXAMPLE;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.MARKDOWN_CODE_BLOCK_END;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.MARKDOWN_CODE_BLOCK_START;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.SAVE_ATTRIBUTES_REQUEST_PAYLOAD;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.SAVE_TIMESERIES_REQUEST_PAYLOAD;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.SORT_ORDER_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.STRICT_DATA_TYPES_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.TELEMETRY_JSON_REQUEST_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.TELEMETRY_KEYS_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.TS_STRICT_DATA_EXAMPLE;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.ATTRIBUTES_JSON_REQUEST_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.ATTRIBUTES_KEYS_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.ATTRIBUTES_SCOPE_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.ATTRIBUTE_DATA_EXAMPLE;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.DEVICE_ID_PARAM_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.ENTITY_GET_ATTRIBUTE_SCOPES;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.ENTITY_ID_PARAM_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.ENTITY_SAVE_ATTRIBUTE_SCOPES;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.ENTITY_TYPE_PARAM_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.INVALID_ENTITY_ID_OR_ENTITY_TYPE_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.LATEST_TS_NON_STRICT_DATA_EXAMPLE;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.LATEST_TS_STRICT_DATA_EXAMPLE;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.MARKDOWN_CODE_BLOCK_END;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.MARKDOWN_CODE_BLOCK_START;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.SAVE_ATTRIBUTES_REQUEST_PAYLOAD;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.SAVE_TIMESERIES_REQUEST_PAYLOAD;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.SORT_ORDER_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.STRICT_DATA_TYPES_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.TELEMETRY_JSON_REQUEST_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.TELEMETRY_KEYS_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.TS_STRICT_DATA_EXAMPLE;
 
 @Service
 @RequiredArgsConstructor
@@ -173,7 +173,7 @@ public class TelemetryTools {
             + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
     public String saveDeviceAttributes(
             @ToolParam(description = DEVICE_ID_PARAM_DESCRIPTION) String deviceId,
-            @ToolParam(description = ATTRIBUTES_SCOPE_DESCRIPTION + " Allowable values: 'SERVER_SCOPE', 'SHARED_SCOPE', 'CLIENT_SCOPE'") String scope,
+            @ToolParam(description = ATTRIBUTES_SCOPE_DESCRIPTION + " Allowable values: 'SERVER_SCOPE', 'SHARED_SCOPE'") String scope,
             @ToolParam(description = ATTRIBUTES_JSON_REQUEST_DESCRIPTION) String jsonBody) {
         boolean result = clientService.getClient().saveDeviceAttributes(new DeviceId(UUID.fromString(deviceId)), scope, JacksonUtil.toJsonNode(jsonBody));
         if (result) {

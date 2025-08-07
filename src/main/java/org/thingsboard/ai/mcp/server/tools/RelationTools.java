@@ -11,11 +11,11 @@ import org.thingsboard.server.common.data.id.EntityId;
 import org.thingsboard.server.common.data.id.EntityIdFactory;
 import org.thingsboard.server.common.data.relation.RelationTypeGroup;
 
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.ENTITY_ID_PARAM_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.ENTITY_TYPE_PARAM_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.RELATION_INFO_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.RELATION_TYPE_GROUP_PARAM_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.RELATION_TYPE_PARAM_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.ENTITY_ID_PARAM_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.ENTITY_TYPE_PARAM_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.RELATION_INFO_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.RELATION_TYPE_GROUP_PARAM_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.RELATION_TYPE_PARAM_DESCRIPTION;
 
 @Service
 @RequiredArgsConstructor

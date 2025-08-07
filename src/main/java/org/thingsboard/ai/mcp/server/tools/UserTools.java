@@ -15,20 +15,20 @@ import org.thingsboard.server.common.data.page.PageLink;
 
 import java.util.UUID;
 
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.ALARM_ID_PARAM_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.CUSTOMER_ID_PARAM_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.CUSTOMER_TEXT_SEARCH_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.PAGE_DATA_PARAMETERS;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.PAGE_NUMBER_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.PAGE_SIZE_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.SORT_ORDER_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.SORT_PROPERTY_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.SYSTEM_OR_TENANT_AUTHORITY_PARAGRAPH;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.TENANT_AUTHORITY_PARAGRAPH;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.TENANT_ID_PARAM_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH;
-import static org.thingsboard.ai.mcp.server.tools.ControllerConstants.USER_ID_PARAM_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.tools.ToolUtils.createPageLink;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.ALARM_ID_PARAM_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.CUSTOMER_ID_PARAM_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.CUSTOMER_TEXT_SEARCH_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.PAGE_DATA_PARAMETERS;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.PAGE_NUMBER_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.PAGE_SIZE_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.SORT_ORDER_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.SORT_PROPERTY_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.SYSTEM_OR_TENANT_AUTHORITY_PARAGRAPH;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.TENANT_AUTHORITY_PARAGRAPH;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.TENANT_ID_PARAM_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH;
+import static org.thingsboard.ai.mcp.server.util.ControllerConstants.USER_ID_PARAM_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.util.ToolUtils.createPageLink;
 
 @Service
 @RequiredArgsConstructor

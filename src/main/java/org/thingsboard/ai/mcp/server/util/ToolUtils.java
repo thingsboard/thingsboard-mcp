@@ -1,4 +1,4 @@
-package org.thingsboard.ai.mcp.server.tools;
+package org.thingsboard.ai.mcp.server.util;
 
 import org.thingsboard.common.util.RegexUtils;
 import org.thingsboard.server.common.data.StringUtils;
