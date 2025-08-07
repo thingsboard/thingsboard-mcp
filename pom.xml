@@ -20,7 +20,7 @@
 
     <properties>
         <lombok.version>1.18.32</lombok.version>
-        <spring.ai.version>1.0.0</spring.ai.version>
+        <spring.ai.version>1.0.1</spring.ai.version>
         <thingsboard.version>4.0.0</thingsboard.version>
     </properties>
 
