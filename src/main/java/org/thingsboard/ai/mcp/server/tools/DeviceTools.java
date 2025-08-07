@@ -39,7 +39,7 @@ import static org.thingsboard.ai.mcp.server.util.ToolUtils.createTimePageLink;
 
 @Service
 @RequiredArgsConstructor
-public class DeviceTools {
+public class DeviceTools implements McpTools {
 
     private final RestClientService clientService;
 

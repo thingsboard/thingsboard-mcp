@@ -5,14 +5,9 @@ import org.springframework.ai.tool.method.MethodToolCallbackProvider;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.thingsboard.ai.mcp.server.tools.AdminTools;
-import org.thingsboard.ai.mcp.server.tools.AlarmTools;
-import org.thingsboard.ai.mcp.server.tools.AssetTools;
-import org.thingsboard.ai.mcp.server.tools.CustomerTools;
-import org.thingsboard.ai.mcp.server.tools.DeviceTools;
-import org.thingsboard.ai.mcp.server.tools.RelationTools;
-import org.thingsboard.ai.mcp.server.tools.TelemetryTools;
-import org.thingsboard.ai.mcp.server.tools.UserTools;
+import org.thingsboard.ai.mcp.server.tools.McpTools;
+
+import java.util.List;
 
 @SpringBootApplication
 public class McpServerApplication {
@@ -22,16 +17,9 @@ public class McpServerApplication {
     }
 
     @Bean
-    public ToolCallbackProvider toolCallbackProvider(DeviceTools deviceTools,
-                                                     AssetTools assetTools,
-                                                     CustomerTools customerTools,
-                                                     AdminTools adminTools,
-                                                     UserTools userTools,
-                                                     AlarmTools alarmTools,
-                                                     RelationTools relationTools,
-                                                     TelemetryTools telemetryTools) {
+    public ToolCallbackProvider toolCallbackProvider(List<McpTools> tools) {
         return MethodToolCallbackProvider.builder()
-                .toolObjects(deviceTools, assetTools, customerTools, adminTools, userTools, alarmTools, relationTools, telemetryTools)
+                .toolObjects(tools.toArray())
                 .build();
     }
 

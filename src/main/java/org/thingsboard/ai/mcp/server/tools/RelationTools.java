@@ -19,7 +19,7 @@ import static org.thingsboard.ai.mcp.server.util.ControllerConstants.RELATION_TY
 
 @Service
 @RequiredArgsConstructor
-public class RelationTools {
+public class RelationTools implements McpTools {
 
     private final RestClientService clientService;
 

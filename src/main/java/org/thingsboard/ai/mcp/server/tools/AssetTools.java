@@ -30,7 +30,7 @@ import static org.thingsboard.ai.mcp.server.util.ToolUtils.createPageLink;
 
 @Service
 @RequiredArgsConstructor
-public class AssetTools {
+public class AssetTools implements McpTools {
 
     private final RestClientService clientService;
 

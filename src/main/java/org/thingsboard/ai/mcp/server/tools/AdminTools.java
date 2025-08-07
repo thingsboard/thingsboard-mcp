@@ -12,7 +12,7 @@ import static org.thingsboard.ai.mcp.server.util.ControllerConstants.TENANT_AUTH
 
 @Service
 @RequiredArgsConstructor
-public class AdminTools {
+public class AdminTools implements McpTools{
 
     private final RestClientService clientService;
 

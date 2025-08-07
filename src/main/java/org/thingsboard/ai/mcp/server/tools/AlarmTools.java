@@ -31,7 +31,7 @@ import static org.thingsboard.ai.mcp.server.util.ToolUtils.createTimePageLink;
 
 @Service
 @RequiredArgsConstructor
-public class AlarmTools {
+public class AlarmTools implements McpTools {
 
     private final RestClientService clientService;
 

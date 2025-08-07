@@ -40,7 +40,7 @@ import static org.thingsboard.ai.mcp.server.util.ControllerConstants.TS_STRICT_D
 
 @Service
 @RequiredArgsConstructor
-public class TelemetryTools {
+public class TelemetryTools implements McpTools {
 
     private final RestClientService clientService;
 

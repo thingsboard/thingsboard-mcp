@@ -25,7 +25,7 @@ import static org.thingsboard.ai.mcp.server.util.ToolUtils.createPageLink;
 
 @Service
 @RequiredArgsConstructor
-public class CustomerTools {
+public class CustomerTools implements McpTools {
 
     private final RestClientService clientService;
 
