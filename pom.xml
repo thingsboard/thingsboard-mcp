@@ -21,7 +21,8 @@
     <properties>
         <lombok.version>1.18.32</lombok.version>
         <spring.ai.version>1.0.1</spring.ai.version>
-        <thingsboard.version>4.0.0</thingsboard.version>
+        <thingsboard.version>4.0.0PE</thingsboard.version>
+        <auth0-jwt.version>4.4.0</auth0-jwt.version>
     </properties>
 
     <dependencyManagement>
@@ -39,14 +40,19 @@
                 <version>${thingsboard.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.thingsboard</groupId>
-                <artifactId>rest-client</artifactId>
+                <groupId>org.thingsboard.common</groupId>
+                <artifactId>util</artifactId>
                 <version>${thingsboard.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.auth0</groupId>
+                <artifactId>java-jwt</artifactId>
+                <version>${auth0-jwt.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -65,12 +71,16 @@
             <artifactId>data</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.thingsboard</groupId>
-            <artifactId>rest-client</artifactId>
+            <groupId>org.thingsboard.common</groupId>
+            <artifactId>util</artifactId>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
         </dependency>
     </dependencies>
 

@@ -1,21 +1,22 @@
-package org.thingsboard.ai.mcp.server.tools;
+package org.thingsboard.ai.mcp.server.tools.relation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
+import org.thingsboard.ai.mcp.server.tools.McpTools;
 import org.thingsboard.common.util.JacksonUtil;
 import org.thingsboard.server.common.data.StringUtils;
 import org.thingsboard.server.common.data.id.EntityId;
 import org.thingsboard.server.common.data.id.EntityIdFactory;
 import org.thingsboard.server.common.data.relation.RelationTypeGroup;
 
-import static org.thingsboard.ai.mcp.server.util.ControllerConstants.ENTITY_ID_PARAM_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.util.ControllerConstants.ENTITY_TYPE_PARAM_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.util.ControllerConstants.RELATION_INFO_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.util.ControllerConstants.RELATION_TYPE_GROUP_PARAM_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.util.ControllerConstants.RELATION_TYPE_PARAM_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ENTITY_ID_PARAM_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ENTITY_TYPE_PARAM_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.RELATION_INFO_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.RELATION_TYPE_GROUP_PARAM_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.RELATION_TYPE_PARAM_DESCRIPTION;
 
 @Service
 @RequiredArgsConstructor

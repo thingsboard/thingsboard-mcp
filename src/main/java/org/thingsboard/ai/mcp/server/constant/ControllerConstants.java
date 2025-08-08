@@ -1,12 +1,15 @@
-package org.thingsboard.ai.mcp.server.util;
+package org.thingsboard.ai.mcp.server.constant;
 
 public class ControllerConstants {
 
+    public static final String PE_ONLY_AVAILABLE = "Available only in Professional edition (PE). ";
+    public static final String ENTITY_GROUP_ID = "entityGroupId";
     public static final String NEW_LINE = "\n\n";
     public static final String UUID_WIKI_LINK = "[time-based UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_1_(date-time_and_MAC_address)). ";
     public static final int DEFAULT_PAGE_SIZE = 1000;
     public static final String ENTITY_TYPE = "entityType";
     public static final String CUSTOMER_ID = "customerId";
+    public static final String CUSTOM_MENU_ID = "customMenuId";
     public static final String TENANT_ID = "tenantId";
     public static final String DEVICE_ID = "deviceId";
     public static final String PROTOCOL = "protocol";
@@ -14,9 +17,13 @@ public class ControllerConstants {
     public static final String RPC_ID = "rpcId";
     public static final String ENTITY_ID = "entityId";
     public static final String ASSIGNEE_ID = "assigneeId";
+    public static final String INTEGRATION_NAME = "integrationName";
+    public static final String INCLUDE_GATEWAY_INFO = "includeGatewayInfo";
+    public static final boolean IS_GATEWAY_INFO_INCLUDED = false;
+
     public static final String PAGE_DATA_PARAMETERS = "You can specify parameters to filter the results. " +
             "The result is wrapped with PageData object that allows you to iterate over result set using pagination. " +
-            "See the 'Model' tab of the Response Class for more details. ";
+            "See response schema for more details. ";
 
     public static final String INLINE_IMAGES = "inlineImages";
     public static final String INLINE_IMAGES_DESCRIPTION = "Inline images as a data URL (Base64)";
@@ -24,6 +31,12 @@ public class ControllerConstants {
     public static final String INCLUDE_RESOURCES_DESCRIPTION = "Export used resources and replace resource links with resource metadata";
     public static final String DASHBOARD_ID_PARAM_DESCRIPTION = "A string value representing the dashboard id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
     public static final String RPC_ID_PARAM_DESCRIPTION = "A string value representing the rpc id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
+    public static final String ENTITY_GROUP_ID_PARAM_DESCRIPTION = "A string value representing the Entity Group Id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
+    public static final String ENTITY_GROUP_ID_CREATE_PARAM_DESCRIPTION = "A string value representing the Entity Group Id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'. " +
+            "If specified, the entity will be added to the corresponding entity group.";
+
+    public static final String ENTITY_GROUP_IDS_CREATE_PARAM_DESCRIPTION = "A list of string values, separated by comma ',' representing the Entity Group Ids. For example, '784f394c-42b6-435a-983c-b7beff2784f9','a84f394c-42b6-435a-083c-b7beff2784f9'. " +
+            "If specified, the entity will be added to the corresponding entity groups.";
     public static final String DEVICE_ID_PARAM_DESCRIPTION = "A string value representing the device id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
     public static final String PROTOCOL_PARAM_DESCRIPTION = "A string value representing the device connectivity protocol. Possible values: 'mqtt', 'mqtts', 'http', 'https', 'coap', 'coaps'";
     public static final String ENTITY_VIEW_ID_PARAM_DESCRIPTION = "A string value representing the entity view id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
@@ -36,12 +49,20 @@ public class ControllerConstants {
     public static final String CUSTOMER_ID_PARAM_DESCRIPTION = "A string value representing the customer id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
     public static final String USER_ID_PARAM_DESCRIPTION = "A string value representing the user id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
     public static final String ASSET_ID_PARAM_DESCRIPTION = "A string value representing the asset id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
+    public static final String SOLUTION_TEMPLATE_ID_PARAM_DESCRIPTION = "A string value representing the solution template id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
+    public static final String CONVERTER_ID_PARAM_DESCRIPTION = "A string value representing the converter id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
+    public static final String INTEGRATION_ID_PARAM_DESCRIPTION = "A string value representing the integration id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
     public static final String ALARM_ID_PARAM_DESCRIPTION = "A string value representing the alarm id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
     public static final String ASSIGN_ID_PARAM_DESCRIPTION = "A string value representing the user id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
-
     public static final String ALARM_COMMENT_ID_PARAM_DESCRIPTION = "A string value representing the alarm comment id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
     public static final String ENTITY_ID_PARAM_DESCRIPTION = "A string value representing the entity id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
+    public static final String ROLE_ID_PARAM_DESCRIPTION = "A string value representing the role id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
+    public static final String GROUP_PERMISSION_ID_PARAM_DESCRIPTION = "A string value representing the group permission id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
+    public static final String BLOB_ENTITY_ID_PARAM_DESCRIPTION = "A string value representing the blob entity id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
     public static final String OTA_PACKAGE_ID_PARAM_DESCRIPTION = "A string value representing the ota package id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
+    public static final String SCHEDULER_EVENT_ID_PARAM_DESCRIPTION = "A string value representing the scheduler id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
+    public static final String REPORT_TEMPLATE_ID_PARAM_DESCRIPTION = "A string value representing the report template id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
+    public static final String REPORT_ID_PARAM_DESCRIPTION = "A string value representing the report id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
     public static final String ENTITY_TYPE_PARAM_DESCRIPTION = "A string value representing the entity type. For example, 'DEVICE'";
     public static final String RULE_CHAIN_ID_PARAM_DESCRIPTION = "A string value representing the rule chain id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
     public static final String RULE_NODE_ID_PARAM_DESCRIPTION = "A string value representing the rule node id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
@@ -49,47 +70,67 @@ public class ControllerConstants {
     public static final String WIDGET_TYPE_ID_PARAM_DESCRIPTION = "A string value representing the widget type id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
     public static final String VC_REQUEST_ID_PARAM_DESCRIPTION = "A string value representing the version control request id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
     public static final String RESOURCE_ID_PARAM_DESCRIPTION = "A string value representing the resource id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
+    public static final String CUSTOM_MENU_ID_PARAM_DESCRIPTION = "A string value representing the custom menu id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
+    public static final String CUSTOM_MENU_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'substring' filter based on the custom menu name.";
+    public static final String CUSTOM_MENU_SCOPE_PARAM_DESCRIPTION = "Custom menu scope.";
+    public static final String CUSTOM_MENU_ASSIGNEE_TYPE_PARAM_DESCRIPTION = "Custom menu assignee type.";
+
     public static final String SYSTEM_AUTHORITY_PARAGRAPH = "\n\nAvailable for users with 'SYS_ADMIN' authority.";
     public static final String SYSTEM_OR_TENANT_AUTHORITY_PARAGRAPH = "\n\nAvailable for users with 'SYS_ADMIN' or 'TENANT_ADMIN' authority.";
     public static final String TENANT_AUTHORITY_PARAGRAPH = "\n\nAvailable for users with 'TENANT_ADMIN' authority.";
     public static final String TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH = "\n\nAvailable for users with 'TENANT_ADMIN' or 'CUSTOMER_USER' authority.";
     public static final String CUSTOMER_AUTHORITY_PARAGRAPH = "\n\nAvailable for users with 'CUSTOMER_USER' authority.";
+    public static final String SYSTEM_OR_TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH = "\n\nAvailable for users with 'SYS_ADMIN' or 'TENANT_ADMIN' or 'CUSTOMER_USER' authority.";
     public static final String AVAILABLE_FOR_ANY_AUTHORIZED_USER = "\n\nAvailable for any authorized user. ";
     public static final String PAGE_SIZE_DESCRIPTION = "Maximum amount of entities in a one page";
     public static final String PAGE_NUMBER_DESCRIPTION = "Sequence number of page starting from 0";
     public static final String DEVICE_TYPE_DESCRIPTION = "Device type as the name of the device profile";
     public static final String DEVICE_ACTIVE_PARAM_DESCRIPTION = "A boolean value representing the device active flag.";
-    public static final String ENTITY_VIEW_TYPE_DESCRIPTION = "Entity View type";
     public static final String ASSET_TYPE_DESCRIPTION = "Asset type";
     public static final String EDGE_TYPE_DESCRIPTION = "A string value representing the edge type. For example, 'default'";
     public static final String RULE_CHAIN_TYPE_DESCRIPTION = "Rule chain type (CORE or EDGE)";
+    public static final String BLOB_ENTITY_TYPE_DESCRIPTION = "A string value representing the blob entity type. For example, 'report'";
+    public static final String INTEGRATION_TYPE_DESCRIPTION = "A string value representing the integration type. One of the following:\n" +
+            "APACHE_PULSAR, AWS_IOT, AWS_KINESIS, AWS_SQS, AZURE_EVENT_HUB, AZURE_IOT_HUB, AZURE_SERVICE_BUS, " +
+            "CHIRPSTACK, COAP, CUSTOM, HTTP, IBM_WATSON_IOT, KAFKA, LORIOT, MQTT, OCEANCONNECT, OPC_UA, PUB_SUB, " +
+            "RABBITMQ,  SIGFOX,  TCP,  THINGPARK,  TMOBILE_IOT_CDP,  TPE,  TTI,  TTN,  TUYA,  UDP";
+    public static final String CONVERTER_TYPE_DESCRIPTION = "A string value representing the converter type. One of the following:\nUPLINK, DOWNLINK";
+    public static final String INTEGRATION_NAME_PARAM_DESCRIPTION = "A string value representing the integration name. For example, 'My New Integration'";
     public static final String ASSET_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'substring' filter based on the asset name.";
+    public static final String BLOB_ENTITY_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'startsWith' filter based on the blob entity name.";
+    public static final String REPORT_TEMPLATE_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'substring' filter based on the report template name or customer title.";
+    public static final String CONVERTER_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'startsWith' filter based on the converter name.";
+    public static final String INTEGRATION_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'startsWith' filter based on the integration name.";
     public static final String DASHBOARD_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'substring' filter based on the dashboard title.";
     public static final String WIDGET_BUNDLE_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'substring' filter based on the widget bundle title.";
     public static final String WIDGET_TYPE_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'substring' filter based on the widget type name.";
     public static final String RPC_TEXT_SEARCH_DESCRIPTION = "Not implemented. Leave empty.";
     public static final String DEVICE_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'substring' filter based on the device name.";
+    public static final String ROLE_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'substring' filter based on the role name.";
     public static final String ENTITY_VIEW_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'substring' filter based on the entity view name.";
     public static final String USER_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'substring' filter based on the user email.";
     public static final String TENANT_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'substring' filter based on the tenant name.";
     public static final String TENANT_PROFILE_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'substring' filter based on the tenant profile name.";
     public static final String RULE_CHAIN_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'substring' filter based on the rule chain name.";
     public static final String DEVICE_PROFILE_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'substring' filter based on the device profile name.";
+    public static final String AI_MODEL_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'substring' filter based on the AI model name, provider and model ID.";
+    public static final String SECRET_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'substring' filter based on the secret name.";
 
     public static final String ASSET_PROFILE_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'substring' filter based on the asset profile name.";
     public static final String CUSTOMER_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'substring' filter based on the customer title.";
     public static final String EDGE_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'substring' filter based on the edge name.";
     public static final String EVENT_TEXT_SEARCH_DESCRIPTION = "The value is not used in searching.";
     public static final String AUDIT_LOG_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'substring' filter based on one of the next properties: entityType, entityName, userName, actionType, actionStatus.";
+    public static final String ENTITY_GROUP_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'startsWith' filter based on the entity group name.";
+    public static final String ENTITY_GROUP_INCLUDE_SHARED_DESCRIPTION = "Whether to include shared entity groups.";
     public static final String CF_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'substring' filter based on the calculated field name.";
     public static final String SORT_PROPERTY_DESCRIPTION = "Property of entity to sort by";
 
     public static final String SORT_ORDER_DESCRIPTION = "Sort order. ASC (ASCENDING) or DESC (DESCENDING)";
-    public static final String DEVICE_INFO_DESCRIPTION = "Device Info is an extension of the default Device object that contains information about the assigned customer name and device profile name. ";
-    public static final String ASSET_INFO_DESCRIPTION = "Asset Info is an extension of the default Asset object that contains information about the assigned customer name. ";
+    public static final String DEVICE_INFO_DESCRIPTION = "Device Info is an extension of the default Device object that contains information about the owner name. ";
+    public static final String ASSET_INFO_DESCRIPTION = "Asset Info is an extension of the default Asset object that contains information about the owner name. ";
     public static final String ALARM_INFO_DESCRIPTION = "Alarm Info is an extension of the default Alarm object that also contains name of the alarm originator.";
     public static final String RELATION_INFO_DESCRIPTION = "Relation Info is an extension of the default Relation object that contains information about the 'from' and 'to' entity names. ";
-    public static final String EDGE_INFO_DESCRIPTION = "Edge Info is an extension of the default Edge object that contains information about the assigned customer name. ";
     public static final String DEVICE_PROFILE_INFO_DESCRIPTION = "Device Profile Info is a lightweight object that includes main information about Device Profile excluding the heavyweight configuration object. ";
 
     public static final String ASSET_PROFILE_INFO_DESCRIPTION = "Asset Profile Info is a lightweight object that includes main information about Asset Profile. ";
@@ -104,6 +145,7 @@ public class ControllerConstants {
     public static final String OTA_PACKAGE_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'substring' filter based on the ota package title.";
     public static final String RESOURCE_INFO_DESCRIPTION = "Resource Info is a lightweight object that includes main information about the Resource excluding the heavyweight data. ";
     public static final String RESOURCE_DESCRIPTION = "Resource is a heavyweight object that includes main information about the Resource and also data. ";
+    public static final String INTEGRATION_DESCRIPTION = "The integration object contains information about the Integration, including the heavyweight configuration object. ";
 
     public static final String RESOURCE_IMAGE_SUB_TYPE_DESCRIPTION = "A string value representing resource sub-type.";
 
@@ -129,6 +171,8 @@ public class ControllerConstants {
     public static final String ENTITY_VERSION_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'substring' filter based on the entity version name.";
     public static final String VERSION_ID_PARAM_DESCRIPTION = "Version id, for example fd82625bdd7d6131cf8027b44ee967012ecaf990. Represents commit hash.";
     public static final String BRANCH_PARAM_DESCRIPTION = "The name of the working branch, for example 'master'";
+
+    public static final String INCLUDE_CUSTOMERS_OR_SUB_CUSTOMERS = "Include customer or sub-customer entities";
 
     public static final String MARKDOWN_CODE_BLOCK_START = "```json\n";
     public static final String MARKDOWN_CODE_BLOCK_END = "\n```";
@@ -205,7 +249,7 @@ public class ControllerConstants {
                     "    \"name\":\"Name_DeviceWithCredantial_AccessToken\",\n" +
                     "    \"label\":\"Label_DeviceWithCredantial_AccessToken\",\n" +
                     "    \"deviceProfileId\":{\n" +
-                    "      \"id\":\"9d9588c0-06c9-11ee-b618-19be30fdeb60\",\n" +
+                    "      \"id\":\"5636aba0-1022-11ee-9631-51fb57f69174\",\n" +
                     "      \"entityType\":\"DEVICE_PROFILE\"\n" +
                     "     }\n" +
                     "   },\n" +
@@ -511,7 +555,6 @@ public class ControllerConstants {
             "   }\n" +
             "}" +
             MARKDOWN_CODE_BLOCK_END;
-
     public static final String DEVICE_PROFILE_ALARM_CONDITION_DURATION_EXAMPLE = MARKDOWN_CODE_BLOCK_START +
             "{\n" +
             "   \"spec\":{\n" +
@@ -531,6 +574,7 @@ public class ControllerConstants {
 
     public static final String INCORRECT_TENANT_ID = "Incorrect tenantId ";
     public static final String DEFAULT_DASHBOARD = "defaultDashboardId";
+    public static final String DEFAULT_DASHBOARD_FULLSCREEN = "defaultDashboardFullscreen";
     public static final String HOME_DASHBOARD = "homeDashboardId";
 
     public static final String SINGLE_ENTITY = "\n\n## Single Entity\n\n" +
@@ -784,6 +828,80 @@ public class ControllerConstants {
             MARKDOWN_CODE_BLOCK_END +
             "";
 
+    public static final String ENTITY_GROUP_FILTER = "\n\n## Group Entities Filter\n\n" +
+            "Allows to filter multiple entities of the same type using the entity group type and id. " +
+            "For example, this entity filter selects all devices that " +
+            "belong to the group 'e52b0020-2a7a-11ec-94eb-213c95f54092':\n\n" +
+            MARKDOWN_CODE_BLOCK_START +
+            "{\n" +
+            "  \"type\": \"entityGroup\",\n" +
+            "  \"groupType\": \"DEVICE\",\n" +
+            "  \"entityGroup\": \"e52b0020-2a7a-11ec-94eb-213c95f54092\"\n" +
+            "}" +
+            MARKDOWN_CODE_BLOCK_END +
+            "";
+
+    public static final String ENTITY_GROUP_LIST_FILTER = "\n\n## Group List Filter\n\n" +
+            "Return multiple groups of the same type using specified ids. " +
+            "For example, this entity filter selects 2 device groups (if they are present in the system) " +
+            "with ids 'e52b0020-2a7a-11ec-94eb-213c95f54092' and 'e52b0020-2a7a-11ec-94eb-213c95f54093':\n\n" +
+            MARKDOWN_CODE_BLOCK_START +
+            "{\n" +
+            "  \"type\": \"entityGroupList\",\n" +
+            "  \"groupType\": \"DEVICE\",\n" +
+            "  \"entityGroupList\": [\"e52b0020-2a7a-11ec-94eb-213c95f54092\", \"e52b0020-2a7a-11ec-94eb-213c95f54093\"]\n" +
+            "}" +
+            MARKDOWN_CODE_BLOCK_END +
+            "";
+
+    public static final String ENTITY_GROUP_NAME_FILTER = "\n\n## Group Name Filter\n\n" +
+            "Allows to filter entity groups based on their type and the **'starts with'** expression over their name. " +
+            "For example, this entity filter selects all devices which name starts with 'CAT':\n\n" +
+            MARKDOWN_CODE_BLOCK_START +
+            "{\n" +
+            "  \"type\": \"entityGroupName\",\n" +
+            "  \"groupType\": \"DEVICE\",\n" +
+            "  \"entityGroupNameFilter\": \"CAT\"\n" +
+            "}" +
+            MARKDOWN_CODE_BLOCK_END +
+            "";
+
+    public static final String ENTITIES_BY_GROUP_NAME_FILTER = "\n\n## Entities by Group Name Filter\n\n" +
+            "Allows to filter entities that belong to group based on the entity type and the group name. " +
+            "Optional parameter 'ownerId' allows you to specify the owner of the group (Tenant or Customer, current user owner by default)." +
+            "For example, this entity filter selects all devices which belong to group 'Water Meters':\n\n" +
+            MARKDOWN_CODE_BLOCK_START +
+            "{\n" +
+            "  \"type\": \"entitiesByGroupName\",\n" +
+            "  \"groupType\": \"DEVICE\",\n" +
+            "  \"entityGroupNameFilter\": \"Water Meters\"\n" +
+            "}" +
+            MARKDOWN_CODE_BLOCK_END +
+            "\n\n Other example, this entity filter selects all devices which belong to group 'Water Meters' which in turn belongs to (sub-)Customer with id 'e52b0020-2a7a-11ec-94eb-213c95f54093': \n\n" +
+            MARKDOWN_CODE_BLOCK_START +
+            "{\n" +
+            "  \"type\": \"entitiesByGroupName\",\n" +
+            "  \"ownerId\": {\"entityType\": \"CUSTOMER\",\"id\":\"e52b0020-2a7a-11ec-94eb-213c95f54093\"},\n" +
+            "  \"groupType\": \"DEVICE\",\n" +
+            "  \"entityGroupNameFilter\": \"Water Meters\"\n" +
+            "}" +
+            MARKDOWN_CODE_BLOCK_END +
+            "";
+
+    public static final String ENTITY_OWNER_FILTER = "\n\n## Entity owner Filter\n\n" +
+            "Allows to fetch owner (Tenant or Customer) of the specified entity. " +
+            "For example, this entity filter selects owner of the device with id 'e52b0020-2a7a-11ec-94eb-213c95f54093':\n\n" +
+            MARKDOWN_CODE_BLOCK_START +
+            "{\n" +
+            "  \"type\": \"stateEntityOwner\",\n" +
+            "  \"singleEntity\": {\n" +
+            "    \"id\": \"d521edb0-2a7a-11ec-94eb-213c95f54092\",\n" +
+            "    \"entityType\": \"DEVICE\"\n" +
+            "  }\n" +
+            "}" +
+            MARKDOWN_CODE_BLOCK_END +
+            "";
+
     public static final String EMPTY = "\n\n## Entity Type Filter\n\n" +
             "Allows to filter multiple entities of the same type using the **'starts with'** expression over entity name. " +
             "For example, this entity filter selects all devices which name starts with 'Air Quality':\n\n" +
@@ -795,7 +913,8 @@ public class ControllerConstants {
     public static final String ENTITY_FILTERS =
             "\n\n # Entity Filters" +
                     "\nEntity Filter body depends on the 'type' parameter. Let's review available entity filter types. In fact, they do correspond to available dashboard aliases." +
-                    SINGLE_ENTITY + ENTITY_LIST + ENTITY_NAME + ENTITY_TYPE_FILTER + ASSET_TYPE + DEVICE_TYPE + EDGE_TYPE + ENTITY_VIEW_TYPE + API_USAGE + RELATIONS_QUERY_FILTER
+                    SINGLE_ENTITY + ENTITY_GROUP_FILTER + ENTITY_LIST + ENTITY_NAME + ENTITY_TYPE_FILTER + ENTITY_GROUP_LIST_FILTER + ENTITY_GROUP_NAME_FILTER + ENTITIES_BY_GROUP_NAME_FILTER +
+                    ENTITY_OWNER_FILTER + ASSET_TYPE + DEVICE_TYPE + EDGE_TYPE + ENTITY_VIEW_TYPE + API_USAGE + RELATIONS_QUERY_FILTER
                     + ASSET_QUERY_FILTER + DEVICE_QUERY_FILTER + EV_QUERY_FILTER + EDGE_QUERY_FILTER;
 
     public static final String FILTER_KEY = "\n\n## Filter Key\n\n" +
@@ -1605,14 +1724,17 @@ public class ControllerConstants {
 
     public static final String DEVICE_PROFILE_ID = "deviceProfileId";
 
+    private static final String YOU_DON_T_HAVE_PERMISSION_TO_PERFORM_THIS_OPERATION = "You don't have permission to perform this operation!";
+
+    public static final String HOME_DASHBOARD_ID = "homeDashboardId";
+    public static final String HOME_DASHBOARD_HIDE_TOOLBAR = "homeDashboardHideToolbar";
     public static final String ASSET_PROFILE_ID = "assetProfileId";
 
     public static final String MODEL_DESCRIPTION = "See the 'Model' tab for more details.";
     public static final String ENTITY_VIEW_DESCRIPTION = "Entity Views limit the degree of exposure of the Device or Asset telemetry and attributes to the Customers. " +
             "Every Entity View references exactly one entity (device or asset) and defines telemetry and attribute keys that will be visible to the assigned Customer. " +
             "As a Tenant Administrator you are able to create multiple EVs per Device or Asset and assign them to different Customers. ";
-    public static final String ENTITY_VIEW_INFO_DESCRIPTION = "Entity Views Info extends the Entity View with customer title and 'is public' flag. " + ENTITY_VIEW_DESCRIPTION;
-
+    public static final String ENTITY_VIEW_INFO_DESCRIPTION = "Entity Views Info extends the Entity View with owner name. " + ENTITY_VIEW_DESCRIPTION;
     public static final String ATTRIBUTES_SCOPE_DESCRIPTION = "A string value representing the attributes scope. For example, 'SERVER_SCOPE'.";
     public static final String ATTRIBUTES_KEYS_DESCRIPTION = "A string value representing the comma-separated list of attributes keys. For example, 'active,inactivityAlarmTime'.";
     public static final String ATTRIBUTES_JSON_REQUEST_DESCRIPTION = "A string value representing the json object. For example, '{\"key\":\"value\"}'. See API call description for more details.";
@@ -1697,6 +1819,35 @@ public class ControllerConstants {
             "  ]\n" +
             "}";
 
+    public static final String READ_TS_KV_QUERY_RESULT_EXAMPLE = "[\n" +
+            "  {\n" +
+            "    \"queryId\": 49,\n" +
+            "    \"data\": [\n" +
+            "      {\n" +
+            "        \"ts\": 1751450399999,\n" +
+            "        \"kv\": {\n" +
+            "          \"key\": \"temperature\",\n" +
+            "          \"value\": 26,\n" +
+            "          \"doubleValue\": 26,\n" +
+            "          \"valueAsString\": \"26.0\",\n" +
+            "          \"dataType\": \"DOUBLE\",\n" +
+            "          \"longValue\": null,\n" +
+            "          \"booleanValue\": null,\n" +
+            "          \"jsonValue\": null,\n" +
+            "          \"strValue\": null\n" +
+            "        },\n" +
+            "        \"version\": null\n" +
+            "      }\n" +
+            "    ],\n" +
+            "    \"lastEntryTs\": 1750264592675\n" +
+            "  },\n" +
+            "  {\n" +
+            "    \"queryId\": 50,\n" +
+            "    \"data\": [],\n" +
+            "    \"lastEntryTs\": 1751317200000\n" +
+            "  }\n" +
+            "]";
+
     public static final String SAVE_ATTRIBUTES_REQUEST_PAYLOAD = "The request payload is a JSON object with key-value format of attributes to create or update. " +
             "For example:\n\n"
             + MARKDOWN_CODE_BLOCK_START
@@ -1727,6 +1878,774 @@ public class ControllerConstants {
             "[{\"ts\":1634712287000,\"values\":{\"temperature\":26, \"humidity\":87}}, {\"ts\":1634712588000,\"values\":{\"temperature\":25, \"humidity\":88}}]" +
             MARKDOWN_CODE_BLOCK_END;
 
-    public static final String SECURITY_WRITE_CHECK = " Security check is performed to verify that the user has 'WRITE' permission for the entity (entities).";
+    public static final String RBAC_GROUP_READ_CHECK = " Security check is performed to verify that the user has 'READ' permission for specified group.";
+    public static final String RBAC_GROUP_WRITE_CHECK = " Security check is performed to verify that the user has 'WRITE' permission for specified group.";
+    public static final String RBAC_GROUP_DELETE_CHECK = " Security check is performed to verify that the user has 'DELETE' permission for specified group.";
+    public static final String RBAC_GROUP_ADD_CHECK = " Security check is performed to verify that the user has 'ADD_TO_GROUP' permission for specified group.";
+    public static final String RBAC_GROUP_REMOVE_CHECK = " Security check is performed to verify that the user has 'REMOVE_FROM_GROUP' permission for specified group.";
+
+    public static final String RBAC_READ_CHECK = " Security check is performed to verify that the user has 'READ' permission for the entity (entities).";
+    public static final String RBAC_WRITE_CHECK = " Security check is performed to verify that the user has 'WRITE' permission for the entity (entities).";
+    public static final String RBAC_DELETE_CHECK = " Security check is performed to verify that the user has 'DELETE' permission for the entity (entities).";
+
+    public static final String WL_READ_CHECK = "\n\nSecurity check is performed to verify that the user has 'READ' permission for the white labeling resource.";
+    public static final String WL_WRITE_CHECK = "\n\nSecurity check is performed to verify that the user has 'WRITE' permission for the white labeling resource.";
+
+    public static final String CUSTOM_MENU_READ_CHECK = "\n\nSecurity check is performed to verify that the user has 'READ' permission for the custom menu with specified id.";
+    public static final String CUSTOM_MENU_WRITE_CHECK = "\n\nSecurity check is performed to verify that the user has 'WRITE' permission for the custom menu with specified id.";
+
+    private static final String CONVERTER_UPLINK_CONFIGURATION = MARKDOWN_CODE_BLOCK_START + "{\n" +
+            "   \"decoder\":\"// Decode an uplink message from a buffer\\n// payload - array of bytes\\n// metadata - key/value object\\n\\n/** Decoder **/\\n\\n// decode payload to string\\nvar payloadStr = decodeToString(payload);\\n\\n// decode payload to JSON\\n// var data = decodeToJson(payload);\\n\\nvar deviceName = 'Device A';\\nvar deviceType = 'thermostat';\\nvar customerName = 'customer';\\nvar groupName = 'thermostat devices';\\nvar manufacturer = 'Example corporation';\\n// use assetName and assetType instead of deviceName and deviceType\\n// to automatically create assets instead of devices.\\n// var assetName = 'Asset A';\\n// var assetType = 'building';\\n\\n// Result object with device/asset attributes/telemetry data\\nvar result = {\\n// Use deviceName and deviceType or assetName and assetType, but not both.\\n   deviceName: deviceName,\\n   deviceType: deviceType,\\n// assetName: assetName,\\n// assetType: assetType,\\n   customerName: customerName,\\n   groupName: groupName,\\n   contentAwareAttributeKeys: ['manufacturer'],\\n   attributes: {\\n       model: 'Model A',\\n       serialNumber: 'SN111',\\n       integrationName: metadata['integrationName'],\\n       manufacturer: manufacturer\\n   },\\n   telemetry: {\\n       temperature: 42,\\n       humidity: 80,\\n       rawData: payloadStr\\n   }\\n};\\n\\n/** Helper functions **/\\n\\nfunction decodeToString(payload) {\\n   return String.fromCharCode.apply(String, payload);\\n}\\n\\nfunction decodeToJson(payload) {\\n   // covert payload to string.\\n   var str = decodeToString(payload);\\n\\n   // parse string to JSON\\n   var data = JSON.parse(str);\\n   return data;\\n}\\n\\nreturn result;\",\n" +
+            "   \"encoder\":null\n" +
+            "}" + MARKDOWN_CODE_BLOCK_END;
+
+    private static final String CONVERTER_DOWNLINK_CONFIGURATION = MARKDOWN_CODE_BLOCK_START + "{\n" +
+            "   \"decoder\":null,\n" +
+            "   \"encoder\":\"// Encode downlink data from incoming Rule Engine message\\n\\n// msg - JSON message payload downlink message json\\n// msgType - type of message, for ex. 'ATTRIBUTES_UPDATED', 'POST_TELEMETRY_REQUEST', etc.\\n// metadata - list of key-value pairs with additional data about the message\\n// integrationMetadata - list of key-value pairs with additional data defined in Integration executing this converter\\n\\n/** Encoder **/\\n\\nvar data = {};\\n\\n// Process data from incoming message and metadata\\n\\ndata.tempFreq = msg.temperatureUploadFrequency;\\ndata.humFreq = msg.humidityUploadFrequency;\\n\\ndata.devSerialNumber = metadata['ss_serialNumber'];\\n\\n// Result object with encoded downlink payload\\nvar result = {\\n\\n    // downlink data content type: JSON, TEXT or BINARY (base64 format)\\n    contentType: \\\"JSON\\\",\\n\\n    // downlink data\\n    data: JSON.stringify(data),\\n\\n    // Optional metadata object presented in key/value format\\n    metadata: {\\n            topic: metadata['deviceType']+'/'+metadata['deviceName']+'/upload'\\n    }\\n\\n};\\n\\nreturn result;\"\n" +
+            "}" + MARKDOWN_CODE_BLOCK_END;
+
+    private static final String CONVERTER_TEXT_UPLINK_CONFIGURATION = "```text\n" +
+            "// Decode an uplink message from a buffer\n" +
+            "// payload - array of bytes\n" +
+            "// metadata - key/value object\n" +
+            "\n" +
+            "/** Decoder **/\n" +
+            "\n" +
+            "// decode payload to string\n" +
+            "var payloadStr = decodeToString(payload);\n" +
+            "\n" +
+            "// decode payload to JSON\n" +
+            "// var data = decodeToJson(payload);\n" +
+            "\n" +
+            "var deviceName = 'Device A';\n" +
+            "var deviceType = 'thermostat';\n" +
+            "var customerName = 'customer';\n" +
+            "var groupName = 'thermostat devices';\n" +
+            "var manufacturer = 'Example corporation';\n" +
+            "// use assetName and assetType instead of deviceName and deviceType\n" +
+            "// to automatically create assets instead of devices.\n" +
+            "// var assetName = 'Asset A';\n" +
+            "// var assetType = 'building';\n" +
+            "\n" +
+            "// Result object with device/asset attributes/telemetry data\n" +
+            "var result = {\n" +
+            "// Use deviceName and deviceType or assetName and assetType, but not both.\n" +
+            "   deviceName: deviceName,\n" +
+            "   deviceType: deviceType,\n" +
+            "// assetName: assetName,\n" +
+            "// assetType: assetType,\n" +
+            "   customerName: customerName,\n" +
+            "   groupName: groupName,\n" +
+            "   attributes: {\n" +
+            "       model: 'Model A',\n" +
+            "       serialNumber: 'SN111',\n" +
+            "       integrationName: metadata['integrationName']\n" +
+            "       manufacturer: manufacturer,\n" +
+            "   },\n" +
+            "   telemetry: {\n" +
+            "       temperature: 42,\n" +
+            "       humidity: 80,\n" +
+            "       rawData: payloadStr\n" +
+            "   }\n" +
+            "};\n" +
+            "\n" +
+            "/** Helper functions **/\n" +
+            "\n" +
+            "function decodeToString(payload) {\n" +
+            "   return String.fromCharCode.apply(String, payload);\n" +
+            "}\n" +
+            "\n" +
+            "function decodeToJson(payload) {\n" +
+            "   // covert payload to string.\n" +
+            "   var str = decodeToString(payload);\n" +
+            "\n" +
+            "   // parse string to JSON\n" +
+            "   var data = JSON.parse(str);\n" +
+            "   return data;\n" +
+            "}\n" +
+            "\n" +
+            "return result;" +
+            MARKDOWN_CODE_BLOCK_END;
+
+    private static final String CONVERTER_TEXT_DOWNLINK_CONFIGURATION = "```text\n" +
+            "// Encode downlink data from incoming Rule Engine message\n" +
+            "\n" +
+            "// msg - JSON message payload downlink message json\n" +
+            "// msgType - type of message, for ex. 'ATTRIBUTES_UPDATED', 'POST_TELEMETRY_REQUEST', etc.\n" +
+            "// metadata - list of key-value pairs with additional data about the message\n" +
+            "// integrationMetadata - list of key-value pairs with additional data defined in Integration executing this converter\n" +
+            "\n" +
+            "/** Encoder **/\n" +
+            "\n" +
+            "var data = {};\n" +
+            "\n" +
+            "// Process data from incoming message and metadata\n" +
+            "\n" +
+            "data.tempFreq = msg.temperatureUploadFrequency;\n" +
+            "data.humFreq = msg.humidityUploadFrequency;\n" +
+            "\n" +
+            "data.devSerialNumber = metadata['ss_serialNumber'];\n" +
+            "\n" +
+            "// Result object with encoded downlink payload\n" +
+            "var result = {\n" +
+            "\n" +
+            "    // downlink data content type: JSON, TEXT or BINARY (base64 format)\n" +
+            "    contentType: \"JSON\",\n" +
+            "\n" +
+            "    // downlink data\n" +
+            "    data: JSON.stringify(data),\n" +
+            "\n" +
+            "    // Optional metadata object presented in key/value format\n" +
+            "    metadata: {\n" +
+            "            topic: metadata['deviceType']+'/'+metadata['deviceName']+'/upload'\n" +
+            "    }\n" +
+            "\n" +
+            "};\n" +
+            "\n" +
+            "return result;" +
+            MARKDOWN_CODE_BLOCK_END;
+
+    private static final String CONVERTER_UPLINK_DEBUG_INPUT = MARKDOWN_CODE_BLOCK_START +
+            "{\n" +
+            "   \"inContentType\":\"JSON\",\n" +
+            "   \"inContent\":\"{\\\"temp\\\":40}\",\n" +
+            "   \"inMetadata\":\"{\\\"Header:sec-ch-ua\\\":\\\"\\\\\\\"Chromium\\\\\\\";v=\\\\\\\"94\\\\\\\", \\\\\\\"Google Chrome\\\\\\\";v=\\\\\\\"94\\\\\\\", \\\\\\\";Not A Brand\\\\\\\";v=\\\\\\\"99\\\\\\\"\\\",\\\"Header:user-agent\\\":\\\"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.71 Safari/537.36\\\",\\\"integrationName\\\":\\\"Integration\\\",\\\"Header:cookie\\\":\\\"GUID=zYSs8hymSwZKv8kHALKY; redirect_to=%2F; JSESSIONID=B0A7C8E481409CE7924E738DB04F62F9\\\",\\\"Header:sec-ch-ua-platform\\\":\\\"\\\\\\\"Linux\\\\\\\"\\\",\\\"Header:accept\\\":\\\"*/*\\\",\\\"Header:origin\\\":\\\"http://localhost:8080\\\",\\\"Header:sec-fetch-site\\\":\\\"same-origin\\\",\\\"Header:connection\\\":\\\"keep-alive\\\",\\\"Header:accept-encoding\\\":\\\"gzip, deflate, br\\\",\\\"Header:content-type\\\":\\\"application/json\\\",\\\"Header:content-length\\\":\\\"16\\\",\\\"Header:sec-fetch-mode\\\":\\\"cors\\\",\\\"Header:sec-ch-ua-mobile\\\":\\\"?0\\\",\\\"Header:sec-fetch-dest\\\":\\\"empty\\\",\\\"Header:host\\\":\\\"localhost:8080\\\",\\\"Header:referer\\\":\\\"http://localhost:8080/swagger-ui.html\\\",\\\"Header:accept-language\\\":\\\"en-US,en;q=0.9,ru-RU;q=0.8,ru;q=0.7,uk;q=0.6,und;q=0.5\\\"}\"\n" +
+            "}" +
+            MARKDOWN_CODE_BLOCK_END;
+
+    private static final String CONVERTER_DOWNLINK_DEBUG_INPUT = MARKDOWN_CODE_BLOCK_START +
+            "{\n" +
+            "   \"inContentType\":\"JSON\",\n" +
+            "   \"inContent\":\"{\\\"temp\\\":42,\\\"humidity\\\":77}\",\n" +
+            "   \"inMsgType\":\"POST_TELEMETRY_REQUEST\",\n" +
+            "   \"inMetadata\":\"{\\\"data\\\":\\\"40\\\"}\",\n" +
+            "   \"inIntegrationMetadata\":\"{\\\"integrationName\\\":\\\"Integration\\\"}\"\n" +
+            "}" +
+            MARKDOWN_CODE_BLOCK_END;
+
+    private static final String CONVERTER_TEST_UPLINK_INPUT = MARKDOWN_CODE_BLOCK_START +
+            "{\n" +
+            "   \"metadata\":{\n" +
+            "   },\n" +
+            "   \"payload\":\"ewogICAgImRhdGEiOiAiZGF0YSIKfQ==\",\n" +
+            "   \"decoder\":\"// Decode an uplink message from a buffer\\n// payload - array of bytes\\n// metadata - key/value object\\n\\n/** Decoder **/\\n\\n// decode payload to string\\nvar payloadStr = decodeToString(payload);\\n\\n// decode payload to JSON\\n// var data = decodeToJson(payload);\\n\\nvar deviceName = 'Device A';\\nvar deviceType = 'thermostat';\\nvar customerName = 'customer';\\nvar groupName = 'thermostat devices';\\nvar manufacturer = 'Example corporation';\\n// use assetName and assetType instead of deviceName and deviceType\\n// to automatically create assets instead of devices.\\n// var assetName = 'Asset A';\\n// var assetType = 'building';\\n\\n// Result object with device/asset attributes/telemetry data\\nvar result = {\\n// Use deviceName and deviceType or assetName and assetType, but not both.\\n   deviceName: deviceName,\\n   deviceType: deviceType,\\n// assetName: assetName,\\n// assetType: assetType,\\n   customerName: customerName,\\n   groupName: groupName,\\n   attributes: {\\n       model: 'Model A',\\n       serialNumber: 'SN111',\\n       integrationName: metadata['integrationName']\\n       manufacturer: manufacturer\\n   },\\n   telemetry: {\\n       temperature: 42,\\n       humidity: 80,\\n       rawData: payloadStr\\n   }\\n};\\n\\n/** Helper functions **/\\n\\nfunction decodeToString(payload) {\\n   return String.fromCharCode.apply(String, payload);\\n}\\n\\nfunction decodeToJson(payload) {\\n   // covert payload to string.\\n   var str = decodeToString(payload);\\n\\n   // parse string to JSON\\n   var data = JSON.parse(str);\\n   return data;\\n}\\n\\nreturn result;\"\n" +
+            "}" +
+            MARKDOWN_CODE_BLOCK_END;
+
+    private static final String CONVERTER_TEST_UPLINK_OUTPUT = MARKDOWN_CODE_BLOCK_START +
+            "{\n" +
+            "   \"output\":\"{\\\"deviceName\\\":\\\"Device A\\\",\\\"deviceType\\\":\\\"thermostat\\\",\\\"customerName\\\":\\\"customer\\\",\\\"groupName\\\":\\\"thermostat devices\\\",\\\"attributes\\\":{\\\"model\\\":\\\"Model A\\\",\\\"serialNumber\\\":\\\"SN111\\\"},\\\"telemetry\\\":{\\\"temperature\\\":42,\\\"humidity\\\":80,\\\"rawData\\\":\\\"{\\\\n    \\\\\\\"data\\\\\\\": \\\\\\\"data\\\\\\\"\\\\n}\\\"}}\",\n" +
+            "   \"error\":\"\"\n" +
+            "}" +
+            MARKDOWN_CODE_BLOCK_END;
+
+    static final String CONVERTER_CONFIGURATION_DESCRIPTION = "# Converter Configuration" + NEW_LINE +
+            "Converter configuration (**'configuration'** field) is the JSON object that should contain one of two possible fields: **'decoder'** or **'encoder'**. " +
+            "The former is used when the converter has UPLINK type, the latter is used - when DOWNLINK type. It can contain both 'decoder' and 'encoder' fields, when the correct one is specified for the appropriate converter type, another one can be set to 'null'. " +
+            "See the examples of each one below. " + NEW_LINE +
+            "## Uplink Converter Configuration" + NEW_LINE +
+            "***Default converter may be different, depending on integration type***." + NEW_LINE +
+            CONVERTER_UPLINK_CONFIGURATION + NEW_LINE +
+            "Decoder field in the more readable form:" + NEW_LINE +
+            CONVERTER_TEXT_UPLINK_CONFIGURATION + NEW_LINE +
+            "## Downlink Converter Configuration" + NEW_LINE +
+            CONVERTER_DOWNLINK_CONFIGURATION + NEW_LINE +
+            "Encoder field in the more readable form:" + NEW_LINE +
+            CONVERTER_TEXT_DOWNLINK_CONFIGURATION + NEW_LINE;
+
+    static final String CONVERTER_DEBUG_INPUT_DEFINITION = "## Uplink Converter Debug Input Event Example" + NEW_LINE +
+            CONVERTER_UPLINK_DEBUG_INPUT + NEW_LINE +
+            " * 'inContentType' - content type of the message received by the integration; \n" +
+            " * 'inContent' - message data received; \n" +
+            " * 'inMetadata' - integration metadata (e.g. headers)." + NEW_LINE +
+            "## Downlink Converter Debug Input Event Example" + NEW_LINE +
+            CONVERTER_DOWNLINK_DEBUG_INPUT + NEW_LINE +
+            " * 'inContentType' - content type of the message received by the integration; \n" +
+            " * 'inContent' - content of the message pushed from the rule engine; \n" +
+            " * 'inMsgType' - type of the message pushed from the rule engine; \n" +
+            " * 'inMetadata' - content of the message metadata pushed from the rule engine; \n" +
+            " * 'inIntegrationMetadata' - integration metadata. \n";
+
+    static final String TEST_UPLINK_CONVERTER_DEFINITION = "## Request Body Example" + NEW_LINE +
+            CONVERTER_TEST_UPLINK_INPUT + NEW_LINE +
+            " * 'metadata' - integration metadata; \n" +
+            " * 'payload' - base64 string representation of the data; \n" +
+            " * 'decoder' - string representation of the decoder configuration; \n" +
+            " * 'converter' - JSON object representing converter." + NEW_LINE +
+            "## Response Body Example" + NEW_LINE +
+            CONVERTER_TEST_UPLINK_OUTPUT + NEW_LINE +
+            " * 'output' - string representation of the output message; \n" +
+            " * 'error' - string representation of the error message. \n";
+
+    private static final String CONVERTER_TEST_DOWNLINK_INPUT = MARKDOWN_CODE_BLOCK_START +
+            "{\n" +
+            "   \"metadata\":{\n" +
+            "      \"data\":\"40\"\n" +
+            "   },\n" +
+            "   \"msg\":\"{\\n    \\\"temp\\\": 42,\\n    \\\"humidity\\\": 77\\n}\",\n" +
+            "   \"msgType\":\"POST_TELEMETRY_REQUEST\",\n" +
+            "   \"integrationMetadata\":{\n" +
+            "      \"integrationName\":\"Integration\"\n" +
+            "   },\n" +
+            "   \"encoder\":\"// Encode downlink data from incoming Rule Engine message\\n\\n// msg - JSON message payload downlink message json\\n// msgType - type of message, for ex. 'ATTRIBUTES_UPDATED', 'POST_TELEMETRY_REQUEST', etc.\\n// metadata - list of key-value pairs with additional data about the message\\n// integrationMetadata - list of key-value pairs with additional data defined in Integration executing this converter\\n\\n/** Encoder **/\\n\\nvar data = {};\\n\\n// Process data from incoming message and metadata\\n\\ndata.tempValue = msg.temp;\\ndata.humValue = msg.humidity;\\n\\ndata.devSerialNumber = metadata['ss_serialNumber'];\\n\\n// Result object with encoded downlink payload\\nvar result = {\\n\\n    // downlink data content type: JSON, TEXT or BINARY (base64 format)\\n    contentType: \\\"JSON\\\",\\n\\n    // downlink data\\n    data: JSON.stringify(data),\\n\\n    // Optional metadata object presented in key/value format\\n    metadata: {\\n            topic: metadata['deviceType']+'/'+metadata['deviceName']+'/upload'\\n    }\\n\\n};\\n\\nreturn result;\"\n" +
+            "}" +
+            MARKDOWN_CODE_BLOCK_END;
+
+    static final String DEDICATED_CONVERTER_DEFINITION = "## Request Body Example" + NEW_LINE +
+            MARKDOWN_CODE_BLOCK_START +
+            "{\n" +
+            "   \"metadata\":{\n" +
+            "   },\n" +
+            "   \"payload\":\"ewogICAgImRhdGEiOiAiZGF0YSIKfQ==\",\n" +
+            "}" +
+            MARKDOWN_CODE_BLOCK_END +
+            " * 'metadata' - integration metadata; \n" +
+            " * 'payload' - JSON object representing the input raw message." + NEW_LINE +
+            "## Response Body Example" + NEW_LINE +
+            " * 'metadata' - integration metadata enriched with the data from the input message; \n" +
+            " * 'payload' - base64 string representation of the payload from the unwrapped input message; \n" +
+            " * 'contentType' - string representation payload contentType.";
+
+    private static final String CONVERTER_TEST_DOWNLINK_OUTPUT = MARKDOWN_CODE_BLOCK_START +
+            "{\n" +
+            "   \"contentType\":\"JSON\",\n" +
+            "   \"data\":\"{\\\"tempValue\\\":42,\\\"humValue\\\":77}\",\n" +
+            "   \"metadata\":{\n" +
+            "      \"topic\":\"sensor/Temp Sensor/upload\"\n" +
+            "   }\n" +
+            "}" +
+            MARKDOWN_CODE_BLOCK_END;
+
+    static final String TEST_DOWNLINK_CONVERTER_DEFINITION = "## Request Body Example" + NEW_LINE +
+            CONVERTER_TEST_DOWNLINK_INPUT + NEW_LINE +
+            " * 'metadata' - message metadata pushed from the rule engine; \n" +
+            " * 'msg' - message data pushed from the rule engine; \n" +
+            " * 'msgType' - type of the message pushed from the rule engine; \n" +
+            " * 'integrationMetadata' - integration metadata object; \n" +
+            " * 'encoder' - string representation of the encoder configuration." + NEW_LINE +
+            "## Response Body Example" + NEW_LINE +
+            CONVERTER_TEST_DOWNLINK_OUTPUT + NEW_LINE +
+            " * 'contentType' - downlink data content type; \n" +
+            " * 'data' - downlink data; \n" +
+            " * 'metadata' - optional metadata object. \n";
+
+    private static final String INTEGRATION_CONFIGURATION_EXAMPLE = MARKDOWN_CODE_BLOCK_START +
+            "{\n" +
+            "   \"clientConfiguration\":{\n" +
+            "      \"host\":\"broker.hivemq.com\",\n" +
+            "      \"port\":1883,\n" +
+            "      \"cleanSession\":false,\n" +
+            "      \"ssl\":false,\n" +
+            "      \"connectTimeoutSec\":10,\n" +
+            "      \"clientId\":\"\",\n" +
+            "      \"maxBytesInMessage\":32368,\n" +
+            "      \"credentials\":{\n" +
+            "         \"type\":\"anonymous\"\n" +
+            "      }\n" +
+            "   },\n" +
+            "   \"downlinkTopicPattern\":\"${topic}\",\n" +
+            "   \"topicFilters\":[\n" +
+            "      {\n" +
+            "         \"filter\":\"tb/mqtt-integration-tutorial/sensors/+/temperature\",\n" +
+            "         \"qos\":0\n" +
+            "      }\n" +
+            "   ],\n" +
+            "   \"metadata\":{\n" +
+            "   }\n" +
+            "}" +
+            MARKDOWN_CODE_BLOCK_END;
+
+    static final String INTEGRATION_CONFIGURATION_DEFINITION = NEW_LINE +
+            "# Integration Configuration" + NEW_LINE +
+            "Integration configuration (**'configuration'** field) is the JSON object representing the special configuration per integration type with " +
+            "the connectivity fields and other important parameters dependent on the specific integration type. Let's review the configuration object for the MQTT Integration type below. " +
+            NEW_LINE + INTEGRATION_CONFIGURATION_EXAMPLE + NEW_LINE;
+
+    // Default converter uplinks messages
+
+    static final String DEFAULT_TTI_UPLINK_CONVERTER_MESSAGE = "{\n" +
+            "    \"end_device_ids\": {\n" +
+            "    \"device_id\": \"eui-1000000000000001\",\n" +
+            "        \"application_ids\": {\n" +
+            "            \"application_id\": \"application-tti-name\"\n" +
+            "        },\n" +
+            "        \"dev_eui\": \"1000000000000001\",\n" +
+            "        \"join_eui\": \"2000000000000001\",\n" +
+            "        \"dev_addr\": \"20000001\"\n" +
+            "    },\n" +
+            "    \"correlation_ids\": [\"as:up:01H0PZDGB1NW6NAPD815NGHPF6\", \"gs:conn:01H0FJRSXSYT7VKNYXJ89F95XT\", \"gs:up:host:01H0FJRSY3MZMGPPFBQ4FZV4T8\", \"gs:uplink:01H0PZDG4HHGFRTXRTXD4PFTH7\", \"ns:uplink:01H0PZDG4JZ3BM0K6J89EQK1J7\", \"rpc:/ttn.lorawan.v3.GsNs/HandleUplink:01H0PZDG4J02F85RYFPCNSNXCR\", \"rpc:/ttn.lorawan.v3.NsAs/HandleUplink:01H0PZDGB081PMP806BJHNHX1A\"],\n" +
+            "    \"received_at\": \"2023-05-18T08:25:26.112483370Z\",\n" +
+            "    \"uplink_message\": {\n" +
+            "    \"session_key_id\": \"AYfg8rhha5n+FWx0ZaAprA==\",\n" +
+            "    \"f_port\": 85,\n" +
+            "    \"f_cnt\": 5017,\n" +
+            "    \"frm_payload\": \"Ae0DM18OTGM=\",\n" +
+            "    \"rx_metadata\": [{\n" +
+            "        \"gateway_ids\": {\n" +
+            "            \"gateway_id\": \"eui-6A7E111A10000000\",\n" +
+            "            \"eui\": \"6A7E111A10000000\"\n" +
+            "        },\n" +
+            "        \"time\": \"2023-05-18T08:25:25.885310Z\",\n" +
+            "        \"timestamp\": 818273765,\n" +
+            "        \"rssi\": -24,\n" +
+            "        \"channel_rssi\": -24,\n" +
+            "        \"snr\": 12,\n" +
+            "        \"frequency_offset\": \"671\",\n" +
+            "        \"uplink_token\": \"CiIKIAoUZXVpLTZBN0UxMTFBMTAwMDAwMDASCCThJP/+9k6eEOW7l4YDGgwI9cGXowYQ5KPhrwMgiI2rp+jpOA=\",\n" +
+            "        \"channel_index\": 2,\n" +
+            "        \"received_at\": \"2023-05-18T08:25:25.869324983Z\"\n" +
+            "    }, {\n" +
+            "        \"gateway_ids\": {\n" +
+            "        \"gateway_id\": \"packetbroker\"\n" +
+            "    },\n" +
+            "        \"packet_broker\": {\n" +
+            "            \"message_id\": \"01H0PZDG4MF9AYSMNY44MAVTDH\",\n" +
+            "            \"forwarder_net_id\": \"000013\",\n" +
+            "            \"forwarder_tenant_id\": \"ttn\",\n" +
+            "            \"forwarder_cluster_id\": \"eu1.cloud.thethings.network\",\n" +
+            "            \"forwarder_gateway_eui\": \"6A7E111A10000000\",\n" +
+            "            \"forwarder_gateway_id\": \"eui-6a7e111a10000000\",\n" +
+            "            \"home_network_net_id\": \"000013\",\n" +
+            "            \"home_network_tenant_id\": \"tenant\",\n" +
+            "            \"home_network_cluster_id\": \"eu1.cloud.thethings.industries\"\n" +
+            "        },\n" +
+            "        \"time\": \"2023-05-18T08:25:25.885310Z\",\n" +
+            "        \"rssi\": -24,\n" +
+            "        \"channel_rssi\": -24,\n" +
+            "        \"snr\": 12,\n" +
+            "        \"frequency_offset\": \"671\",\n" +
+            "        \"uplink_token\": \"eyJnIjoiWlhsS2FHSkhZMmxQYVVwQ1RWUkpORkl3VGs1VE1XTnBURU5LYkdKdFRXbFBhVXBDVFZSSk5GSXdUazVKYVhkcFlWaFphVTlwU201a01uaGhWVlJvZDFSWFVuRmlSM1JtVFcxT2RVbHBkMmxrUjBadVNXcHZhV05ZY0RKT1IyeExaREpSZVZwR1pIUmpNRXBLVlVoR2RFNVZkR3BWVTBvNUxua3paVVJTWVRaM1lXOU1kbTQwVm5sdmIyWmlPWGN1ZUhCZmVrcElaa3hIWlZadGRVUlFVeTVuYlRaVlZXRXdkakpHV0VKMGJUUjZaMjVXUkVoeGVHRjRaMlJKTlVkS1VsbERhemc1VDNCbk5rVk1iM1JDUkVZM1VWbHdZbEJDTkdOblNqWjBlbkphYUV4MFRVMHhZMVZFTTFac01XdExURUo0YURaMFExTnhhMVJsWWw4eE5FdHlVVXcyZUhsRWFFbEhlakJITXpoTE0xaFdlRzR5VUVjMk4wNUViME5WTkhoTmRrazFZVk5oWkUwd2FXVnFjR294VGtoMFduZHlZMDFxVlVGNmRsbERUazlNY2s5eFdVeFpWMk5XTG1WVFFYVkpNVkptT1U5NWRqUTNhSEoxTUZoalYxRT0iLCJhIjp7ImZuaWQiOiIwMDAwMTMiLCJmdGlkIjoidHRuIiwiZmNpZCI6ImV1MS5jbG91ZC50aGV0aGluZ3MubmV0d29yayJ9fQ==\",\n" +
+            "        \"received_at\": \"2023-05-18T08:25:25.906038642Z\"\n" +
+            "    }],\n" +
+            "        \"settings\": {\n" +
+            "            \"data_rate\": {\n" +
+            "                \"lora\": {\n" +
+            "                    \"bandwidth\": 125000,\n" +
+            "                    \"spreading_factor\": 7,\n" +
+            "                    \"coding_rate\": \"4/5\"\n" +
+            "                }\n" +
+            "            },\n" +
+            "            \"frequency\": \"868500000\",\n" +
+            "            \"timestamp\": 818273765,\n" +
+            "            \"time\": \"2023-05-18T08:25:25.885310Z\"\n" +
+            "        },\n" +
+            "        \"received_at\": \"2023-05-18T08:25:25.906399073Z\",\n" +
+            "        \"consumed_airtime\": \"0.097536s\",\n" +
+            "        \"network_ids\": {\n" +
+            "            \"net_id\": \"000013\",\n" +
+            "            \"tenant_id\": \"tenant\",\n" +
+            "            \"cluster_id\": \"eu1\",\n" +
+            "            \"cluster_address\": \"eu1.cloud.thethings.industries\",\n" +
+            "            \"tenant_address\": \"tenant.eu1.cloud.thethings.industries\"\n" +
+            "        }\n" +
+            "    }\n" +
+            "}";
+
+    static final String DEFAULT_TTN_UPLINK_CONVERTER_MESSAGE = "{\n" +
+            "    \"end_device_ids\": {\n" +
+            "        \"device_id\": \"eui-1000000000000001\",\n" +
+            "            \"application_ids\": {\n" +
+            "                \"application_id\": \"application-tts-name\"\n" +
+            "            },\n" +
+            "        \"dev_eui\": \"1000000000000001\",\n" +
+            "        \"join_eui\": \"2000000000000001\",\n" +
+            "        \"dev_addr\": \"20000001\"\n" +
+            "    },\n" +
+            "    \"correlation_ids\": [\"as:up:01H0S7ZJQ9MQPMVY49FT3SE07M\", \"gs:conn:01H03BQZ9342X3Y86DJ2P704E5\", \"gs:up:host:01H03BQZ99EGAM52KK1300GFKN\", \"gs:uplink:01H0S7ZJGS6D9TJSKJN8XNTMAV\", \"ns:uplink:01H0S7ZJGS9KKD4HTTPKFEMWCV\", \"rpc:/ttn.lorawan.v3.GsNs/HandleUplink:01H0S7ZJGSF3M38ZRZVTM38DEC\", \"rpc:/ttn.lorawan.v3.NsAs/HandleUplink:01H0S7ZJQ8R2EH5AA269AKM8DX\"],\n" +
+            "    \"received_at\": \"2023-05-19T05:33:35.848446463Z\",\n" +
+            "    \"uplink_message\": {\n" +
+            "    \"session_key_id\": \"AYfqmb0pc/1uRZv9xUydgQ==\",\n" +
+            "    \"f_port\": 85,\n" +
+            "    \"f_cnt\": 10335,\n" +
+            "    \"frm_payload\": \"Ae0DM18OTGM=\",\n" +
+            "    \"rx_metadata\": [{\n" +
+            "        \"gateway_ids\": {\n" +
+            "            \"gateway_id\": \"eui-6a7e111a10000000\",\n" +
+            "            \"eui\": \"6A7E111A10000000\"\n" +
+            "        },\n" +
+            "        \"time\": \"2023-05-19T05:33:35.608982Z\",\n" +
+            "        \"timestamp\": 3893546133,\n" +
+            "        \"rssi\": -35,\n" +
+            "        \"channel_rssi\": -35,\n" +
+            "        \"snr\": 13.2,\n" +
+            "        \"frequency_offset\": \"69\",\n" +
+            "        \"uplink_token\": \"CiIKIAoUZXVpLTZhN2UxMTFhMTAwMDAwMDASCCThJP/+9k6eEJWZy8AOGgwIr5ScowYQvNbUsQIgiMy8y6jwpwE=\",\n" +
+            "        \"channel_index\": 3,\n" +
+            "        \"received_at\": \"2023-05-19T05:33:35.607383681Z\"\n" +
+            "    }],\n" +
+            "    \"settings\": {\n" +
+            "        \"data_rate\": {\n" +
+            "            \"lora\": {\n" +
+            "                \"bandwidth\": 125000,\n" +
+            "                \"spreading_factor\": 7,\n" +
+            "                \"coding_rate\": \"4/5\"\n" +
+            "                }\n" +
+            "            },\n" +
+            "            \"frequency\": \"867100000\",\n" +
+            "            \"timestamp\": 3893546133,\n" +
+            "            \"time\": \"2023-05-19T05:33:35.608982Z\"\n" +
+            "        },\n" +
+            "        \"received_at\": \"2023-05-19T05:33:35.641841782Z\",\n" +
+            "        \"consumed_airtime\": \"0.056576s\",\n" +
+            "            \"network_ids\": {\n" +
+            "                \"net_id\": \"000013\",\n" +
+            "                \"tenant_id\": \"ttn\",\n" +
+            "                \"cluster_id\": \"eu1\",\n" +
+            "                \"cluster_address\": \"eu1.cloud.thethings.network\"\n" +
+            "        }\n" +
+            "    }\n" +
+            "}\n";
+
+    static final String DEFAULT_LORIOT_UPLINK_CONVERTER_MESSAGE =
+            "{\n" +
+                    "    \"cmd\": \"rx\",\n" +
+                    "    \"seqno\": 3040,\n" +
+                    "    \"EUI\": \"1000000000000001\",\n" +
+                    "    \"ts\": 1684478801936,\n" +
+                    "    \"fcnt\": 2,\n" +
+                    "    \"port\": 85,\n" +
+                    "    \"freq\": 867500000,\n" +
+                    "    \"rssi\": -21,\n" +
+                    "    \"snr\": 10,\n" +
+                    "    \"toa\": 206,\n" +
+                    "    \"dr\": \"SF9 BW125 4/5\",\n" +
+                    "    \"ack\": false,\n" +
+                    "    \"bat\": 94,\n" +
+                    "    \"offline\": false,\n" +
+                    "    \"data\": \"01ed03335f0e4c63\"\n" +
+                    "}\n";
+
+    static final String DEFAULT_CHIRPSTACK_UPLINK_CONVERTER_MESSAGE = "{\n" +
+            "   \"deduplicationId\": \"57433366-50a6-4dc2-8145-2df1bbc70d9e\",\n" +
+            "   \"time\": \"2023-05-22T07:47:05.404859+00:00\",\n" +
+            "   \"deviceInfo\": {\n" +
+            "       \"tenantId\": \"52f14cd4-c6f1-4fbd-8f87-4025e1d49242\",\n" +
+            "       \"tenantName\": \"ChirpStack\",\n" +
+            "       \"applicationId\": \"ca739e26-7b67-4f14-b69e-d568c22a5a75\",\n" +
+            "       \"applicationName\": \"Chirpstack application\",\n" +
+            "       \"deviceProfileId\": \"605d08d4-65f5-4d2c-8a5a-3d2457662f79\",\n" +
+            "       \"deviceProfileName\": \"Chirpstack default device profile\",\n" +
+            "       \"deviceName\": \"Device name\",\n" +
+            "       \"devEui\": \"1000000000000001\",\n" +
+            "       \"tags\": {}\n" +
+            "    },\n" +
+            "       \"devAddr\": \"20000001\",\n" +
+            "       \"adr\": true,\n" +
+            "       \"dr\": 5,\n" +
+            "       \"fCnt\": 4,\n" +
+            "       \"fPort\": 85,\n" +
+            "       \"confirmed\": false,\n" +
+            "       \"data\": \"Ae0DM18OTGM=\",\n" +
+            "       \"rxInfo\": [{\n" +
+            "           \"gatewayId\": \"6a7e111a10000000\",\n" +
+            "           \"uplinkId\": 24022,\n" +
+            "           \"time\": \"2023-05-22T07:47:05.404859+00:00\",\n" +
+            "           \"rssi\": -35,\n" +
+            "           \"snr\": 11.5,\n" +
+            "           \"channel\": 2,\n" +
+            "           \"rfChain\": 1,\n" +
+            "           \"location\": {},\n" +
+            "           \"context\": \"EFwMtA==\",\n" +
+            "           \"metadata\": {\n" +
+            "               \"region_common_name\": \"EU868\",\n" +
+            "               \"region_config_id\": \"eu868\"\n" +
+            "               },\n" +
+            "           \"crcStatus\": \"CRC_OK\"\n" +
+            "       }],\n" +
+            "       \"txInfo\": {\n" +
+            "           \"frequency\": 868500000,\n" +
+            "           \"modulation\": {\n" +
+            "               \"lora\": {\n" +
+            "                   \"bandwidth\": 125000,\n" +
+            "                   \"spreadingFactor\": 7,\n" +
+            "                   \"codeRate\": \"CR_4_5\"\n" +
+            "           }\n" +
+            "        }\n" +
+            "    }\n" +
+            "}";
+
+    static final String DEFAULT_SIGFOX_UPLINK_CONVERTER_MESSAGE = "{\n" +
+            "    \"device\": \"2203961\",\n" +
+            "    \"time\": \"1686298419\",\n" +
+            "    \"data\": \"2502af2102462a\",\n" +
+            "    \"seqNumber\": \"570\",\n" +
+            "    \"deviceTypeId\": \"630ceaea10d051194ec0246e\",\n" +
+            "    \"ack\": \"false\",\n" +
+            "    \"customData#int1\": \"37\",\n" +
+            "    \"customData#int2\": \"2\"\n" +
+            "}";
+
+    static final String DEFAULT_SIGFOX_UPLINK_CONVERTER_METADATA = "{\n" +
+            "    \"Header:accept-encoding\": \"gzip,deflate\",\n" +
+            "    \"Header:content-type\": \"application/json\",\n" +
+            "    \"Header:content-length\": \"243\",\n" +
+            "    \"Header:user-agent\": \"SIGFOX\",\n" +
+            "    \"Header:accept-charset\": \"UTF-8;q=0.9,*;q=0.7\",\n" +
+            "    \"Header:accept-language\": \"en\"" +
+            "}\n";
+
+    static final String DEFAULT_AZURE_UPLINK_CONVERTER_MESSAGE = "{\n" +
+            "  \"deviceId\": \"8F4A2C6D\",\n" +
+            "  \"deviceType\": \"Packing machine\",\n" +
+            "  \"temperature\": 25.5,\n" +
+            "  \"pressure\": 1013.25,\n" +
+            "  \"vibration\": {\n" +
+            "    \"x\": 0.02,\n" +
+            "    \"y\": 0.03,\n" +
+            "    \"z\": 0.015\n" +
+            "  },\n" +
+            "  \"location\": {\n" +
+            "    \"latitude\": 37.7749,\n" +
+            "    \"longitude\": -122.4194,\n" +
+            "    \"altitude\": 10\n" +
+            "  },\n" +
+            "  \"timestamp\": \"2023-06-09T10:30:00Z\",\n" +
+            "  \"status\": \"ALARM\",\n" +
+            "  \"alarms\": [\n" +
+            "    {\n" +
+            "      \"type\": \"temperature\",\n" +
+            "      \"severity\": \"high\",\n" +
+            "      \"message\": \"Temperature exceeds threshold.\"\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"type\": \"vibration\",\n" +
+            "      \"severity\": \"critical\",\n" +
+            "      \"message\": \"Excessive vibration detected.\"\n" +
+            "    }\n" +
+            "  ],\n" +
+            "  \"metadata\": {\n" +
+            "    \"version\": 1,\n" +
+            "    \"batteryLevel\": 100,\n" +
+            "    \"batteryStatus\": \"Charging\",\n" +
+            "    \"manufacturer\": \"Example corporation\"\n" +
+            "  }\n" +
+            "}";
+
+    static final String DEFAULT_AWS_IOT_UPLINK_CONVERTER_MESSAGE = "{\n" +
+            "  \"device_id\": \"3G7H1j-9zF\",\n" +
+            "  \"timestamp\": \"2023-06-10T12:00:00Z\",\n" +
+            "  \"sensor_data\": {\n" +
+            "    \"temperature\": 25.3,\n" +
+            "    \"humidity\": 62.8,\n" +
+            "    \"pressure\": 1012.5\n" +
+            "  },\n" +
+            "  \"location\": {\n" +
+            "    \"latitude\": 37.7749,\n" +
+            "    \"longitude\": -122.4194\n" +
+            "  },\n" +
+            "  \"status\": \"active\",\n" +
+            "  \"power_status\": \"on\",\n" +
+            "  \"vibration\": {\n" +
+            "    \"x\": 0.02,\n" +
+            "    \"y\": 0.03,\n" +
+            "    \"z\": 0.01\n" +
+            "  },\n" +
+            "  \"fault_codes\": [100, 204, 301],\n" +
+            "  \"battery_level\": 78.5\n" +
+            "}\n";
+
+    static final String DEFAULT_KNP_UPLINK_CONVERTER_MESSAGE = "{\n" +
+            "  \"deviceName\":\"Device A\",\n" +
+            "  \"deviceType\":\"thermostat\",\n" +
+            "  \"customerName\":\"customer\",\n" +
+            "  \"groupName\":\"thermostat devices\",\n" +
+            "  \"attributes\": {\n" +
+            "    \"model\":\"Model A\",\n" +
+            "    \"serialNumber\":\"SN111\"\n" +
+            "  },\n" +
+            "  \"telemetry\": {\n" +
+            "    \"temperature\":42,\n" +
+            "    \"humidity\":80\n" +
+            "  }\n" +
+            "}\n";
+
+    static final String DEFAULT_THINGSPARK_UPLINK_CONVERTER_MESSAGE = "{\n" +
+            "    \"DevEUI_uplink\": {\n" +
+            "        \"Time\": \"2024-11-28T21:08:22.138+00:00\",\n" +
+            "        \"DevEUI\": \"1000000000000001\",\n" +
+            "        \"FPort\": 1,\n" +
+            "        \"FCntUp\": 26,\n" +
+            "        \"LostUplinksAS\": 0,\n" +
+            "        \"ADRbit\": 1,\n" +
+            "        \"MType\": 2,\n" +
+            "        \"FCntDn\": 2,\n" +
+            "        \"payload_hex\": \"01ed03335f0e4c63\",\n" +
+            "        \"mic_hex\": \"e7214986\",\n" +
+            "        \"Lrcid\": \"00000211\",\n" +
+            "        \"LrrRSSI\": -114,\n" +
+            "        \"LrrSNR\": 4.75,\n" +
+            "        \"LrrESP\": -115.2547,\n" +
+            "        \"SpFact\": 9,\n" +
+            "        \"SubBand\": \"G0\",\n" +
+            "        \"Channel\": \"LC1\",\n" +
+            "        \"Lrrid\": \"100019D4\",\n" +
+            "        \"Late\": 0,\n" +
+            "        \"LrrLAT\": 32.516357,\n" +
+            "        \"LrrLON\": -106.824348,\n" +
+            "        \"Lrrs\": {\n" +
+            "            \"Lrr\": [{\n" +
+            "                \"Lrrid\": \"100019D4\",\n" +
+            "                \"Chain\": 0,\n" +
+            "                \"LrrRSSI\": -114,\n" +
+            "                \"LrrSNR\": 4.75,\n" +
+            "                \"LrrESP\": -115.2547\n" +
+            "            }]\n" +
+            "        },\n" +
+            "        \"DevLrrCnt\": 1,\n" +
+            "        \"CustomerID\": \"100045194\",\n" +
+            "        \"CustomerData\": {\n" +
+            "            \"loc\": {\n" +
+            "                \"lat\": \"32.592782\",\n" +
+            "                \"lon\": \"-106.927742\"\n" +
+            "            },\n" +
+            "            \"alr\": {\n" +
+            "                \"pro\": \"DL/TBRG\",\n" +
+            "                \"ver\": \"1\"\n" +
+            "            },\n" +
+            "            \"tags\": [\"EnvironSens\", \"RainGauge\", \"CDRRC\"],\n" +
+            "            \"doms\": [],\n" +
+            "            \"name\": \"RainGauge 5483_Test\"\n" +
+            "        },\n" +
+            "        \"BaseStationData\": {\n" +
+            "            \"doms\": [],\n" +
+            "            \"name\": \"iStation US #6_CDRRC_Summerford\"\n" +
+            "        },\n" +
+            "        \"ModelCfg\": \"0\",\n" +
+            "        \"DriverCfg\": {\n" +
+            "            \"mod\": {\n" +
+            "                \"pId\": \"dl\",\n" +
+            "                \"mId\": \"dl-tbrg\",\n" +
+            "                \"ver\": \"1\"\n" +
+            "            },\n" +
+            "            \"app\": {\n" +
+            "                \"pId\": \"dl\",\n" +
+            "                \"mId\": \"dl-tbrg\",\n" +
+            "                \"ver\": \"1\"\n" +
+            "            }\n" +
+            "        },\n" +
+            "        \"InstantPER\": 0,\n" +
+            "        \"MeanPER\": 0.037037,\n" +
+            "        \"DevAddr\": \"00FDA112\",\n" +
+            "        \"TxPower\": 18,\n" +
+            "        \"NbTrans\": 2,\n" +
+            "        \"Frequency\": 902.5,\n" +
+            "        \"DynamicClass\": \"A\"\n" +
+            "    }\n" +
+            "}";
+
+    static final String DEFAULT_TPE_UPLINK_CONVERTER_MESSAGE = "{\n" +
+            "    \"DevEUI_uplink\": {\n" +
+            "        \"Time\": \"2024-11-28T21:08:22.138+00:00\",\n" +
+            "        \"DevEUI\": \"1000000000000001\",\n" +
+            "        \"FPort\": 1,\n" +
+            "        \"FCntUp\": 26,\n" +
+            "        \"LostUplinksAS\": 0,\n" +
+            "        \"ADRbit\": 1,\n" +
+            "        \"MType\": 2,\n" +
+            "        \"FCntDn\": 2,\n" +
+            "        \"payload_hex\": \"01ed03335f0e4c63\",\n" +
+            "        \"mic_hex\": \"e7214986\",\n" +
+            "        \"Lrcid\": \"00000211\",\n" +
+            "        \"LrrRSSI\": -114,\n" +
+            "        \"LrrSNR\": 4.75,\n" +
+            "        \"LrrESP\": -115.2547,\n" +
+            "        \"SpFact\": 9,\n" +
+            "        \"SubBand\": \"G0\",\n" +
+            "        \"Channel\": \"LC1\",\n" +
+            "        \"Lrrid\": \"100019D4\",\n" +
+            "        \"Late\": 0,\n" +
+            "        \"LrrLAT\": 32.516357,\n" +
+            "        \"LrrLON\": -106.824348,\n" +
+            "        \"Lrrs\": {\n" +
+            "            \"Lrr\": [{\n" +
+            "                \"Lrrid\": \"100019D4\",\n" +
+            "                \"Chain\": 0,\n" +
+            "                \"LrrRSSI\": -114,\n" +
+            "                \"LrrSNR\": 4.75,\n" +
+            "                \"LrrESP\": -115.2547\n" +
+            "            }]\n" +
+            "        },\n" +
+            "        \"DevLrrCnt\": 1,\n" +
+            "        \"CustomerID\": \"100045194\",\n" +
+            "        \"CustomerData\": {\n" +
+            "            \"loc\": {\n" +
+            "                \"lat\": \"32.592782\",\n" +
+            "                \"lon\": \"-106.927742\"\n" +
+            "            },\n" +
+            "            \"alr\": {\n" +
+            "                \"pro\": \"DL/TBRG\",\n" +
+            "                \"ver\": \"1\"\n" +
+            "            },\n" +
+            "            \"tags\": [\"EnvironSens\", \"RainGauge\", \"CDRRC\"],\n" +
+            "            \"doms\": [],\n" +
+            "            \"name\": \"RainGauge 5483_Test\"\n" +
+            "        },\n" +
+            "        \"BaseStationData\": {\n" +
+            "            \"doms\": [],\n" +
+            "            \"name\": \"iStation US #6_CDRRC_Summerford\"\n" +
+            "        },\n" +
+            "        \"ModelCfg\": \"0\",\n" +
+            "        \"DriverCfg\": {\n" +
+            "            \"mod\": {\n" +
+            "                \"pId\": \"dl\",\n" +
+            "                \"mId\": \"dl-tbrg\",\n" +
+            "                \"ver\": \"1\"\n" +
+            "            },\n" +
+            "            \"app\": {\n" +
+            "                \"pId\": \"dl\",\n" +
+            "                \"mId\": \"dl-tbrg\",\n" +
+            "                \"ver\": \"1\"\n" +
+            "            }\n" +
+            "        },\n" +
+            "        \"InstantPER\": 0,\n" +
+            "        \"MeanPER\": 0.037037,\n" +
+            "        \"DevAddr\": \"00FDA112\",\n" +
+            "        \"TxPower\": 18,\n" +
+            "        \"NbTrans\": 2,\n" +
+            "        \"Frequency\": 902.5,\n" +
+            "        \"DynamicClass\": \"A\"\n" +
+            "    }\n" +
+            "}";
+
+    // Default converter uplinks messages
+
+    static final String REPORT_PARAMS_EXAMPLE = "{\n" +
+            "    \"type\": \"pdf\",\n" +
+            "    \"timezone\": \"Europe/Kiev\",\n" +
+            "    \"timewindow\": {\n" +
+            "        \"displayValue\": \"\",\n" +
+            "        \"hideInterval\": false,\n" +
+            "        \"hideLastInterval\": false,\n" +
+            "        \"hideQuickInterval\": false,\n" +
+            "        \"hideAggregation\": false,\n" +
+            "        \"hideAggInterval\": false,\n" +
+            "        \"hideTimezone\": false,\n" +
+            "        \"selectedTab\": 0,\n" +
+            "        \"realtime\": {\n" +
+            "            \"realtimeType\": 0,\n" +
+            "            \"interval\": 1000,\n" +
+            "            \"timewindowMs\": 60000,\n" +
+            "            \"quickInterval\": \"CURRENT_DAY\"\n" +
+            "        },\n" +
+            "        \"history\": {\n" +
+            "            \"historyType\": 0,\n" +
+            "            \"interval\": 1000,\n" +
+            "            \"timewindowMs\": 60000,\n" +
+            "            \"fixedTimewindow\": {\n" +
+            "                \"startTimeMs\": 1703687976592,\n" +
+            "                \"endTimeMs\": 1703774376592\n" +
+            "            },\n" +
+            "            \"quickInterval\": \"CURRENT_DAY\"\n" +
+            "        },\n" +
+            "        \"aggregation\": {\n" +
+            "            \"type\": \"AVG\",\n" +
+            "            \"limit\": 25000\n" +
+            "        }\n" +
+            "    },\n" +
+            "    \"state\": null\n" +
+            "}";
+
+    public static final String REPORT_TEMPLATE_ID_DESCRIPTION = "Report template id";
+    public static final String REPORT_USER_DESCRIPTION = "The user used for report generation.";
 
 }

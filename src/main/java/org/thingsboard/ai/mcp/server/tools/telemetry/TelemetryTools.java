@@ -1,42 +1,44 @@
-package org.thingsboard.ai.mcp.server.tools;
+package org.thingsboard.ai.mcp.server.tools.telemetry;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
+import org.thingsboard.ai.mcp.server.tools.McpTools;
 import org.thingsboard.common.util.JacksonUtil;
 import org.thingsboard.server.common.data.id.DeviceId;
 import org.thingsboard.server.common.data.id.EntityId;
 import org.thingsboard.server.common.data.id.EntityIdFactory;
 import org.thingsboard.server.common.data.kv.Aggregation;
+import org.thingsboard.server.common.data.kv.IntervalType;
 import org.thingsboard.server.common.data.page.SortOrder;
 
 import java.util.List;
 import java.util.UUID;
 
-import static org.thingsboard.ai.mcp.server.util.ControllerConstants.ATTRIBUTES_JSON_REQUEST_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.util.ControllerConstants.ATTRIBUTES_KEYS_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.util.ControllerConstants.ATTRIBUTES_SCOPE_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.util.ControllerConstants.ATTRIBUTE_DATA_EXAMPLE;
-import static org.thingsboard.ai.mcp.server.util.ControllerConstants.DEVICE_ID_PARAM_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.util.ControllerConstants.ENTITY_GET_ATTRIBUTE_SCOPES;
-import static org.thingsboard.ai.mcp.server.util.ControllerConstants.ENTITY_ID_PARAM_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.util.ControllerConstants.ENTITY_SAVE_ATTRIBUTE_SCOPES;
-import static org.thingsboard.ai.mcp.server.util.ControllerConstants.ENTITY_TYPE_PARAM_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.util.ControllerConstants.INVALID_ENTITY_ID_OR_ENTITY_TYPE_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.util.ControllerConstants.LATEST_TS_NON_STRICT_DATA_EXAMPLE;
-import static org.thingsboard.ai.mcp.server.util.ControllerConstants.LATEST_TS_STRICT_DATA_EXAMPLE;
-import static org.thingsboard.ai.mcp.server.util.ControllerConstants.MARKDOWN_CODE_BLOCK_END;
-import static org.thingsboard.ai.mcp.server.util.ControllerConstants.MARKDOWN_CODE_BLOCK_START;
-import static org.thingsboard.ai.mcp.server.util.ControllerConstants.SAVE_ATTRIBUTES_REQUEST_PAYLOAD;
-import static org.thingsboard.ai.mcp.server.util.ControllerConstants.SAVE_TIMESERIES_REQUEST_PAYLOAD;
-import static org.thingsboard.ai.mcp.server.util.ControllerConstants.SORT_ORDER_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.util.ControllerConstants.STRICT_DATA_TYPES_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.util.ControllerConstants.TELEMETRY_JSON_REQUEST_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.util.ControllerConstants.TELEMETRY_KEYS_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.util.ControllerConstants.TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH;
-import static org.thingsboard.ai.mcp.server.util.ControllerConstants.TS_STRICT_DATA_EXAMPLE;
+import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ATTRIBUTES_JSON_REQUEST_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ATTRIBUTES_KEYS_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ATTRIBUTES_SCOPE_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ATTRIBUTE_DATA_EXAMPLE;
+import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.DEVICE_ID_PARAM_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ENTITY_GET_ATTRIBUTE_SCOPES;
+import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ENTITY_ID_PARAM_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ENTITY_SAVE_ATTRIBUTE_SCOPES;
+import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ENTITY_TYPE_PARAM_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.INVALID_ENTITY_ID_OR_ENTITY_TYPE_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.LATEST_TS_NON_STRICT_DATA_EXAMPLE;
+import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.LATEST_TS_STRICT_DATA_EXAMPLE;
+import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.MARKDOWN_CODE_BLOCK_END;
+import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.MARKDOWN_CODE_BLOCK_START;
+import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.SAVE_ATTRIBUTES_REQUEST_PAYLOAD;
+import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.SAVE_TIMESERIES_REQUEST_PAYLOAD;
+import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.SORT_ORDER_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.STRICT_DATA_TYPES_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.TELEMETRY_JSON_REQUEST_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.TELEMETRY_KEYS_DESCRIPTION;
+import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH;
+import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.TS_STRICT_DATA_EXAMPLE;
 
 @Service
 @RequiredArgsConstructor
@@ -156,11 +158,14 @@ public class TelemetryTools implements McpTools {
         Aggregation aggregation = agg != null ? Aggregation.valueOf(agg) : Aggregation.NONE;
         interval = interval != null ? interval : 0;
         limit = limit != null ? limit : 100;
+        IntervalType type = intervalType != null ? IntervalType.valueOf(intervalType) : null;
         return JacksonUtil.toString(clientService.getClient().getTimeseries(
                 entityId,
                 List.of(keys.split(",")),
                 interval,
                 aggregation,
+                type,
+                timeZone,
                 SortOrder.Direction.valueOf(orderBy),
                 startTs,
                 endTs,
