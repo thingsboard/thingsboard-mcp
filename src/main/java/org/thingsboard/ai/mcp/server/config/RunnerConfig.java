@@ -9,30 +9,32 @@ import org.springframework.core.env.Environment;
 public class RunnerConfig {
 
     @Bean
-    ApplicationRunner sseModeChecker(Environment env) {
+    ApplicationRunner modeChecker(Environment env) {
         return args -> {
-            var appType = env.getProperty("spring.main.web-application-type", "servlet");
-            var mcpType = env.getProperty("spring.ai.mcp.server.type", "SYNC");
-            boolean ok = (appType.equalsIgnoreCase("servlet") && mcpType.equalsIgnoreCase("SYNC")) ||
-                    (appType.equalsIgnoreCase("reactive") && mcpType.equalsIgnoreCase("ASYNC"));
-            if (!ok) {
-                throw new IllegalStateException("MCP stack mismatch: web-application-type=" + appType +
-                        " requires spring.ai.mcp.server.type=" + (appType.equalsIgnoreCase("servlet") ? "SYNC" : "ASYNC"));
-            }
-        };
-    }
-
-    @Bean
-    ApplicationRunner stdioModeChecker(Environment env) {
-        return args -> {
-            boolean stdio = env.getProperty("spring.ai.mcp.server.stdio", Boolean.class, false);
-            if (stdio) {
-                String webType = env.getProperty("spring.main.web-application-type", "servlet");
-                String bannerMode = env.getProperty("spring.main.banner-mode", "console");
-                if (!"none".equalsIgnoreCase(webType) || !"off".equalsIgnoreCase(bannerMode)) {
-                    throw new IllegalStateException(
-                            "STDIO mode requires spring.main.web-application-type=none and spring.main.banner-mode=off"
-                    );
+            var appType = env.getProperty("spring.main.web-application-type", "none");
+            switch (appType) {
+                case "none" -> {
+                    String webType = env.getProperty("spring.main.web-application-type");
+                    String bannerMode = env.getProperty("spring.main.banner-mode");
+                    if (!"none".equalsIgnoreCase(webType) || !"off".equalsIgnoreCase(bannerMode)) {
+                        throw new IllegalStateException(
+                                "STDIO mode requires spring.main.web-application-type=none and spring.main.banner-mode=off"
+                        );
+                    }
+                }
+                case "servlet" -> {
+                    var mcpType = env.getProperty("spring.ai.mcp.server.type");
+                    if (!"SYNC".equalsIgnoreCase(mcpType)) {
+                        throw new IllegalStateException("MCP stack mismatch: web-application-type=" + appType +
+                                " requires spring.ai.mcp.server.type=SYNC");
+                    }
+                }
+                case "reactive" -> {
+                    var mcpType = env.getProperty("spring.ai.mcp.server.type");
+                    if (!"ASYNC".equalsIgnoreCase(mcpType)) {
+                        throw new IllegalStateException("MCP stack mismatch: web-application-type=" + appType +
+                                " requires spring.ai.mcp.server.type=ASYNC");
+                    }
                 }
             }
         };

@@ -4,7 +4,7 @@ server:
 
 spring:
   main:
-    banner-mode: off
+    banner-mode: ${SPRING_WEB_APPLICATION_TYPE:off}
     web-application-type: ${SPRING_WEB_APPLICATION_TYPE:servlet}
   ai:
     mcp:
@@ -18,7 +18,6 @@ spring:
         sse-endpoint: ${SPRING_AI_MCP_SERVER_SSE_ENDPOINT:/sse}
         sse-message-endpoint: ${SPRING_AI_MCP_SERVER_SSE_MESSAGE_ENDPOINT:/mcp/message}
         type: ${SPRING_AI_MCP_SERVER_TYPE:SYNC} # SYNC or ASYNC
-
 
 # ThingsBoard auth parameters
 thingsboard:
