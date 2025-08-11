@@ -11,7 +11,7 @@
 
     <groupId>org.thingsboard</groupId>
     <artifactId>mcp-thingsboard-server</artifactId>
-    <version>4.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>ThingsBoard MCP server</name>
     <description>MCP server for ThingsBoard platform</description>
 
