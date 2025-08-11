@@ -6,6 +6,7 @@ import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
 import org.thingsboard.ai.mcp.server.data.ThingsBoardEdition;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
+import org.thingsboard.ai.mcp.server.tools.McpTools;
 import org.thingsboard.common.util.JacksonUtil;
 import org.thingsboard.server.common.data.EntityType;
 import org.thingsboard.server.common.data.id.EntityGroupId;
@@ -25,7 +26,7 @@ import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.TENANT_
 
 @Service
 @RequiredArgsConstructor
-public class EntityGroupTools {
+public class EntityGroupTools implements McpTools {
 
     private static final String ENTITY_GROUP_DESCRIPTION = "Entity group allows you to group multiple entities of the same entity type (Device, Asset, Customer, User, Dashboard, etc). " +
             "Entity Group always have an owner - particular Tenant or Customer. Each entity may belong to multiple groups simultaneously.";
