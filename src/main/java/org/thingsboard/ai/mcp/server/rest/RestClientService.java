@@ -73,7 +73,7 @@ public class RestClientService {
                 edition = ThingsBoardEdition.CE;
                 version = "latest";
             }
-            log.debug("Successfully logged to thingsboard.");
+            log.info("Connected to ThingsBoard [{} {}] at {}", edition.getName(), version, url);
         }
     }
 

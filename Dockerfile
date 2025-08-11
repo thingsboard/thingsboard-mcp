@@ -14,8 +14,8 @@ WORKDIR /app
 # Copy the built jar from the builder stage
 COPY --from=builder /app/target/mcp-thingsboard-server-4.0.0-SNAPSHOT.jar app.jar
 
-# Set environment variable for stdio
-ENV SPRING_AI_MCP_SERVER_STDIO=true
+# Optional JVM extras at runtime: -Xmx, debug agent, log levels, etc.
+ENV JAVA_OPTS=""
 
-# Entry point for Claude MCP
-ENTRYPOINT ["java", "-Dspring.ai.mcp.server.stdio=true", "-jar", "app.jar"]
+# Let Spring read env vars from application.yml (${VAR:default})
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
