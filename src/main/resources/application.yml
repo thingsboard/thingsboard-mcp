@@ -4,7 +4,7 @@ server:
 
 spring:
   main:
-    banner-mode: ${SPRING_WEB_APPLICATION_TYPE:off}
+    banner-mode: ${SPRING_MAIN_BANNER_MODE:off}
     web-application-type: ${SPRING_WEB_APPLICATION_TYPE:servlet}
   ai:
     mcp:
