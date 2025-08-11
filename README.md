@@ -2,49 +2,215 @@
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/thingsboard/mcp-server/blob/master/README.md)
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Requirements](#requirements)
+- [Features](#features)
+  - [Entity Operations](#entity-operations)
+  - [Telemetry Management](#telemetry-management)
+  - [Relations](#relations)
+  - [Alarms](#alarms)
+  - [Administration](#administration)
+- [Quick Start Guide](#quick-start-guide)
+- [Installation](#installation)
+  - [Docker Image](#docker-image)
+  - [Build from Sources](#build-from-sources)
+- [Client Configuration](#client-configuration)
+  - [Binary Configuration](#binary-configuration)
+  - [Docker Configuration](#docker-configuration)
+- [Environment Variables](#environment-variables)
+- [Available Tools](#available-tools)
+  - [Device Tools](#device-tools)
+  - [Asset Tools](#asset-tools)
+  - [Customer Tools](#customer-tools)
+  - [User Tools](#user-tools)
+  - [Alarm Tools](#alarm-tools)
+  - [Entity Group Tools](#entity-group-tools)
+  - [Relation Tools](#relation-tools)
+  - [Telemetry Tools](#telemetry-tools)
+  - [Admin Tools](#admin-tools)
+
 ## Overview
 
-The **ThingsBoard MCP Server** provides a **natural language interface** for LLMs and agentic applications to view, update, and analyze data and entities on the ThingsBoard Platform.  
-It integrates seamlessly with **MCP (Model Context Protocol)** clients—such as Claude Desktop or Cursor—enabling AI-powered workflows to interact directly with your ThingsBoard instance.
+The ThingsBoard MCP Server provides a **natural language interface** for Large Language Models (LLMs) and AI agents to interact with your ThingsBoard IoT platform. 
+
+This server implements the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/docs/getting-started/intro), which enables AI systems to access and manipulate data in ThingsBoard through natural language commands. With this integration, you can:
+
+- Query device data and telemetry using conversational language
+- Manage assets, customers, and users through AI assistants
+- Analyze IoT data and create reports using AI tools
+- Automate ThingsBoard operations through AI-powered workflows
+
+The server integrates seamlessly with MCP clients such as Claude Desktop, Cursor, and other AI applications that support the MCP protocol.
+
+## Requirements
+
+Before you begin, ensure you have the following:
+
+- **ThingsBoard instance** - A running ThingsBoard instance that the MCP server can connect to. You can use any of the following options:
+  - **Local/On-premise instance**: Self-hosted ThingsBoard installation on your own infrastructure
+  - **ThingsBoard Community Edition**: Free open-source version that can be installed locally
+  - **ThingsBoard Professional Edition**: Self-hosted version with additional features
+  - **ThingsBoard Demo**: Free shared instance available at [demo.thingsboard.io](https://demo.thingsboard.io) (limited functionality)
+  - **ThingsBoard Cloud**: Fully managed cloud service available at [thingsboard.cloud](https://thingsboard.cloud) (subscription-based)
+- **Authentication credentials** - Valid username and password with appropriate permissions on the ThingsBoard instance
+- **Network connectivity** - The MCP server must be able to reach the ThingsBoard instance via HTTP/HTTPS
+- **Environment configuration** - Properly configured environment variables as specified in the [Environment Variables](#environment-variables) section
+
+## Quick Start Guide
+
+1. **Choose your ThingsBoard instance**: Use an existing instance or sign up for [ThingsBoard Cloud](https://thingsboard.cloud)
+2. **Get your credentials**: Create or use an existing user account with appropriate permissions
+3. **Deploy the MCP server**: Use one of the following methods:
+   ```bash
+   # Using Docker (SSE Mode)
+   docker run --rm -p 8000:8000 -e THINGSBOARD_URL=<your_url> -e THINGSBOARD_USERNAME=<username> -e THINGSBOARD_PASSWORD=<password> mcp/thingsboard
+   
+   # Using Docker (STDIO Mode)
+   docker run --rm -i -e THINGSBOARD_URL=<your_url> -e THINGSBOARD_USERNAME=<username> -e THINGSBOARD_PASSWORD=<password> mcp/thingsboard -Dspring.ai.mcp.server.stdio=true -Dspring.main.web-application-type=none
+   ```
+4. **Configure your MCP client**: Add the ThingsBoard MCP server to your client configuration (see [Client Configuration](#client-configuration))
+5. **Start using natural language**: Begin interacting with your ThingsBoard instance through your MCP client
 
 ## Features
 
-- **Entity Operations**
-  - **Devices**: View device details, credentials, profiles, and manage device relationships
-  - **Assets**: View and manage assets, asset profiles, and asset relationships
-  - **Customers**: Access customer information, titles, and manage customer relationships
-  - **Users**: Manage users, tokens, activation links, and user assignments
-- **Telemetry Management**
-  - **Attribute Access**: Retrieve attribute keys and values by scope for any entity
-  - **Time-series Access**: Get time-series data with various aggregation options
-  - **Telemetry Insert/Update**: Save attributes or time-series data with optional TTL settings
-- **Relations**: Discover and navigate relationships between entities with direction-based queries
-- **Alarms**: Fetch alarms, alarm types, and severity information for specific entities
-- **Administration**
-  - **System Settings**: Access and manage administration settings
-  - **Security Settings**: View security policies and JWT configuration
-  - **Version Control**: Manage repository and auto-commit settings
-  - **System Information**: Check for updates and retrieve usage statistics
+### Entity Operations
+
+- **Devices**: View device details, credentials, profiles, and manage device relationships
+- **Assets**: View and manage assets, asset profiles, and asset relationships
+- **Customers**: Access customer information, titles, and manage customer relationships
+- **Users**: Manage users, tokens, activation links, and user assignments
+
+### Telemetry Management
+
+- **Attribute Access**: Retrieve attribute keys and values by scope for any entity
+- **Time-series Access**: Get time-series data with various aggregation options
+- **Telemetry Insert/Update**: Save attributes or time-series data with optional TTL settings
+
+### Relations
+
+Discover and navigate relationships between entities with direction-based queries.
+
+### Alarms
+
+Fetch alarms, alarm types, and severity information for specific entities.
+
+### Administration
+
+- **System Settings**: Access and manage administration settings
+- **Security Settings**: View security policies and JWT configuration
+- **Version Control**: Manage repository and auto-commit settings
+- **System Information**: Check for updates and retrieve usage statistics
 
 ## Installation
 
-The ThingsBoard MCP Server currently supports the [`stdio` transport](https://modelcontextprotocol.io/docs/concepts/transports#standard-input%2Foutput-stdio).  
-Support for `streamable-http` transport will be added in a future release.
+This MCP server works with ThingsBoard IoT Platform. You'll need your ThingsBoard instance URL and valid credentials for the installation.
 
-### Using Docker
+### ThingsBoard Account
 
-You can run the server using Docker. Either build the image locally or use the official image from Docker Hub:  
-[ThingsBoard MCP Docker](https://hub.docker.com/r/mcp/thingsboard)
+Before installing the MCP server, ensure you have:
+1. Access to a ThingsBoard instance
+2. A user account with sufficient permissions
+3. The username and password for this account
 
-#### Build the Docker Image
+### Docker Image
+
+The easiest way to get started is with the pre-built Docker image from Docker Hub.
+
+#### Server Modes
+
+The ThingsBoard MCP Server can run in two different modes:
+
+- **SSE Mode (Server-Sent Events)**: The server runs as an HTTP server that clients connect to
+- **STDIO Mode (Standard Input/Output)**: The server communicates directly through standard input/output streams
+
+#### Running in SSE Mode (Default)
+
+In SSE Mode, you must expose port 8000 using the `-p` flag:
 
 ```bash
-docker build -t mcp/thingsboard .
+docker pull mcp/thingsboard
+docker run --rm -p 8000:8000 -e THINGSBOARD_URL=<your_thingsboard_url> -e THINGSBOARD_USERNAME=<your_username> -e THINGSBOARD_PASSWORD=<your_password> mcp/thingsboard
 ```
 
-#### Example Configuration (Claude Desktop)
+#### Running in STDIO Mode
 
-To launch the server as a container when your MCP client starts (e.g., Claude Desktop), add the following entry to your `claude_desktop_config.json`:
+For STDIO Mode, you must explicitly override the default settings and include the `-i` flag to keep stdin open:
+
+```bash
+docker pull mcp/thingsboard
+docker run --rm -i -e THINGSBOARD_URL=<your_thingsboard_url> -e THINGSBOARD_USERNAME=<your_username> -e THINGSBOARD_PASSWORD=<your_password> mcp/thingsboard -Dspring.ai.mcp.server.stdio=true -Dspring.main.web-application-type=none
+```
+
+### Build from Sources
+
+You can also build the JAR file from sources and run the ThingsBoard MCP Server directly.
+
+#### Prerequisites
+
+- Java 17 or later
+- Maven 3.6 or later
+
+#### Build Steps
+
+1. Clone the repository
+2. Build the project:
+
+```bash
+mvn clean install -DskipTests
+```
+
+3. The JAR file will be available in the target folder:
+
+```bash
+./target/mcp-thingsboard-server-4.0.0-SNAPSHOT.jar
+```
+
+4. Run the server using the JAR file:
+
+```bash
+# For STDIO Mode
+java -Dspring.ai.mcp.server.stdio=true -Dspring.main.web-application-type=none -jar ./target/mcp-thingsboard-server-4.0.0-SNAPSHOT.jar
+
+# For SSE Mode
+java -jar ./target/mcp-thingsboard-server-4.0.0-SNAPSHOT.jar
+```
+
+## Client Configuration
+
+To launch the server as a container when your MCP client starts (e.g., Claude Desktop), you need to add the appropriate configuration to your client's settings.
+
+### Binary Configuration
+
+If you've built the JAR file from sources, use this configuration in your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "thingsboard": {
+      "command": "java",
+      "args": [
+        "-Dspring.ai.mcp.server.stdio=true",
+        "-Dspring.main.web-application-type=none",
+        "-jar",
+        "/absolute/path/to/mcp-thingsboard-server-4.0.0-SNAPSHOT.jar"
+      ],
+      "env": {
+        "THINGSBOARD_URL": "<thingsboard_url>"
+      },
+      "secret": {
+        "THINGSBOARD_USERNAME": "<thingsboard_username>",
+        "THINGSBOARD_PASSWORD": "<thingsboard_password>"
+      }
+    }
+  }
+}
+```
+
+### Docker Configuration
+
+If you're using the Docker image, use this configuration in your `claude_desktop_config.json`:
 
 ```json
 {
@@ -79,14 +245,128 @@ To launch the server as a container when your MCP client starts (e.g., Claude De
 
 The MCP server requires the following environment variables to connect to your ThingsBoard instance:
 
-| Variable                             | Description                                               | Default |
-|--------------------------------------|-----------------------------------------------------------|---------|
-| `THINGSBOARD_URL`                    | The base URL of your ThingsBoard instance                 |         |
-| `THINGSBOARD_USERNAME`               | Username used to authenticate with ThingsBoard            |         |
-| `THINGSBOARD_PASSWORD`               | Password used to authenticate with ThingsBoard            |         |
-| `THINGSBOARD_LOGIN_INTERVAL_SECONDS` | Login session refresh interval in seconds                 | 1800    |
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `THINGSBOARD_URL` | The base URL of your ThingsBoard instance | |
+| `THINGSBOARD_USERNAME` | Username used to authenticate with ThingsBoard | |
+| `THINGSBOARD_PASSWORD` | Password used to authenticate with ThingsBoard | |
+| `THINGSBOARD_LOGIN_INTERVAL_SECONDS` | Login session refresh interval in seconds | 1800 |
+| `SPRING_WEB_APPLICATION_TYPE` | Spring application type (none, servlet, or reactive) | none |
+| `SPRING_AI_MCP_SERVER_STDIO` | Enable/disable standard I/O communication | true |
+| `SPRING_AI_MCP_SERVER_SSE_ENDPOINT` | Server-Sent Events (SSE) endpoint URL | /sse |
+| `SPRING_AI_MCP_SERVER_SSE_MESSAGE_ENDPOINT` | Server-Sent Events message endpoint URL | /mcp/message |
+| `SPRING_AI_MCP_SERVER_TYPE` | Server type: sync (for MVC) or async (for Flux) | sync |
+| `SERVER_PORT` | HTTP server port number | 8080 |
 
 These variables can be set either:
-
 - Directly via Docker command line using the `-e` flag
-- Or through the `env` configuration block in your MCP client setup (e.g., Claude Desktop)
+- Or through the `env` configuration block in your MCP client setup
+
+## Available Tools
+
+The ThingsBoard MCP Server provides a wide range of tools that can be used through natural language commands. These tools are organized by category.
+
+### Device Tools
+
+| Tool | Description |
+|------|-------------|
+| `getDeviceById` | Fetch the Device object based on the provided Device Id. |
+| `getDeviceCredentialsByDeviceId` | Get device credentials by device id. If during device creation there wasn't specified any credentials, platform generates random 'ACCESS_TOKEN' credentials. |
+| `getTenantDevices` | Returns a page of devices owned by tenant. |
+| `getTenantDevice` | Get tenant device by name. Device name is a unique property of device. |
+| `getCustomerDevices` | Returns a page of devices objects assigned to customer. |
+| `getUserDevices` | Returns a page of device objects available for the current user. |
+| `getDevicesByIds` | Get Devices By Ids. Requested devices must be owned by tenant or assigned to customer. |
+| `getDevicesByEntityGroupId` | Returns a page of device objects that belongs to specified Entity Group Id. |
+
+### Asset Tools
+
+| Tool | Description |
+|------|-------------|
+| `getAssetById` | Get the Asset object based on the provided Asset Id. |
+| `getTenantAssets` | Returns a page of assets owned by tenant. |
+| `getTenantAsset` | Get tenant asset by name. Asset name is a unique property of asset. |
+| `getCustomerAssets` | Returns a page of assets objects assigned to customer. |
+| `getUserAssets` | Returns a page of assets objects available for the current user. |
+| `getAssetsByIds` | Get Assets By Ids. Requested assets must be owned by tenant or assigned to customer. |
+| `getAssetsByEntityGroupId` | Returns a page of asset objects that belongs to specified Entity Group Id. |
+
+### Customer Tools
+
+| Tool | Description |
+|------|-------------|
+| `getCustomerById` | Get the Customer object based on the provided Customer Id. |
+| `getCustomers` | Returns a page of customers owned by tenant. |
+| `getTenantCustomer` | Get the Customer using Customer Title. |
+| `getUserCustomers` | Returns a page of customers available for the user. |
+| `getCustomersByEntityGroupId` | Returns a page of Customer objects that belongs to specified Entity Group Id. |
+
+### User Tools
+
+| Tool | Description |
+|------|-------------|
+| `getUserById` | Fetch the User object based on the provided User Id. |
+| `getUsers` | Returns a page of users owned by tenant or customer. |
+| `getTenantAdmins` | Returns a page of tenant administrator users assigned to the specified tenant. |
+| `getCustomerUsers` | Returns a page of users assigned to the specified customer. |
+| `getAllCustomerUsers` | Returns a page of users for the current tenant with authority 'CUSTOMER_USER'. |
+| `getUsersForAssign` | Returns page of user data objects that can be assigned to provided alarmId. |
+| `getUsersByEntityGroupId` | Returns a page of user objects that belongs to specified Entity Group Id. |
+
+### Alarm Tools
+
+| Tool | Description |
+|------|-------------|
+| `getAlarmById` | Get the Alarm object based on the provided alarm id. |
+| `getAlarmInfoById` | Get the Alarm info object based on the provided alarm id. |
+| `getAlarms` | Get a page of alarms for the selected entity. |
+| `getAllAlarms` | Get a page of alarms that belongs to the current user owner. |
+| `getHighestAlarmSeverity` | Get highest alarm severity by originator and optional status filters. |
+| `getAlarmTypes` | Get a set of unique alarm types based on alarms that are either owned by tenant or assigned to the customer. |
+
+### Entity Group Tools
+
+| Tool | Description |
+|------|-------------|
+| `getEntityGroupById` | Fetch the Entity Group object based on the provided Entity Group Id. |
+| `getEntityGroupsByType` | Fetch the list of Entity Group Info objects based on the provided Entity Type. |
+| `getEntityGroupByOwnerAndNameAndType` | Fetch the Entity Group object based on the provided owner, type and name. |
+| `getEntityGroupsByOwnerAndType` | Fetch the list of Entity Group Info objects based on the provided Owner Id and Entity Type. |
+| `getEntityGroupsForEntity` | Returns a list of groups that contain the specified Entity Id. |
+| `getEntityGroupsByIds` | Fetch the list of Entity Group Info objects based on the provided entity group ids list. |
+
+### Relation Tools
+
+| Tool | Description |
+|------|-------------|
+| `getRelation` | Returns relation object between two specified entities if present. |
+| `findByFrom` | Returns list of relation objects for the specified entity by the 'from' direction. |
+| `findInfoByFrom` | Returns list of relation info objects for the specified entity by the 'from' direction. |
+| `findByTo` | Returns list of relation objects for the specified entity by the 'to' direction. |
+| `findInfoByTo` | Returns list of relation info objects for the specified entity by the 'to' direction. |
+
+### Telemetry Tools
+
+| Tool | Description |
+|------|-------------|
+| `getAttributeKeys` | Get all attribute keys for the specified entity. |
+| `getAttributeKeysByScope` | Get all attribute keys for the specified entity and scope. |
+| `getAttributes` | Get attributes for the specified entity. |
+| `getAttributesByScope` | Get attributes for the specified entity and scope. |
+| `getTimeseriesKeys` | Get all time-series keys for the specified entity. |
+| `getLatestTimeseries` | Get the latest time-series values for the specified entity and keys. |
+| `getTimeseries` | Get time-series data for the specified entity, keys, and time range. |
+| `saveDeviceAttributes` | Save device attributes. |
+| `saveEntityAttributesV1` | Save entity attributes (version 1). |
+| `saveEntityAttributesV2` | Save entity attributes (version 2). |
+| `saveEntityTelemetry` | Save entity telemetry data. |
+| `saveEntityTelemetryWithTTL` | Save entity telemetry data with time-to-live (TTL). |
+
+### Admin Tools
+
+| Tool | Description |
+|------|-------------|
+| `getAdminSettings` | Get the Administration Settings object using specified string key. |
+| `getSecuritySettings` | Get the Security settings object that contains password policy, lockout limits, etc. |
+| `getSystemInfo` | Get main information about system. |
+| `getUsageInfo` | Retrieves usage statistics for the current tenant. |
