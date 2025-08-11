@@ -63,7 +63,7 @@ public class RelationTools implements McpTools {
     }
 
     @Tool(description = "Returns list of relation objects for the specified entity by the 'from' direction and relation type. " + SECURITY_CHECKS_ENTITIES_DESCRIPTION)
-    public String findByFrom(
+    public String findByFromWithRelationType(
             @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) String strFromId,
             @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) String strFromType,
             @ToolParam(description = RELATION_TYPE_PARAM_DESCRIPTION) String relationType,
@@ -94,7 +94,7 @@ public class RelationTools implements McpTools {
     }
 
     @Tool(description = "Returns list of relation objects for the specified entity by the 'to' direction and relation type. " + SECURITY_CHECKS_ENTITIES_DESCRIPTION)
-    public String findByTo(
+    public String findByToWithRelationType(
             @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) String strToId,
             @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) String strToType,
             @ToolParam(description = RELATION_TYPE_PARAM_DESCRIPTION) String relationType,
