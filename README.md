@@ -66,9 +66,11 @@ Before you begin, ensure you have the following:
    ```bash
    # Using Docker (SSE Mode)
    docker run --rm -p 8000:8000 -e THINGSBOARD_URL=<your_url> -e THINGSBOARD_USERNAME=<username> -e THINGSBOARD_PASSWORD=<password> mcp/thingsboard
-   
+    ```
+
+   ```bash
    # Using Docker (STDIO Mode)
-   docker run --rm -i -e THINGSBOARD_URL=<your_url> -e THINGSBOARD_USERNAME=<username> -e THINGSBOARD_PASSWORD=<password> mcp/thingsboard -Dspring.ai.mcp.server.stdio=true -Dspring.main.web-application-type=none
+   docker run --rm -i -e THINGSBOARD_URL=<your_url> -e THINGSBOARD_USERNAME=<username> -e THINGSBOARD_PASSWORD=<password> -e SPRING_AI_MCP_SERVER_STDIO=true -e SPRING_WEB_APPLICATION_TYPE=none mcp/thingsboard
    ```
 4. **Configure your MCP client**: Add the ThingsBoard MCP server to your client configuration (see [Client Configuration](#client-configuration))
 5. **Start using natural language**: Begin interacting with your ThingsBoard instance through your MCP client
@@ -140,7 +142,7 @@ For STDIO Mode, you must explicitly override the default settings and include th
 
 ```bash
 docker pull mcp/thingsboard
-docker run --rm -i -e THINGSBOARD_URL=<your_thingsboard_url> -e THINGSBOARD_USERNAME=<your_username> -e THINGSBOARD_PASSWORD=<your_password> mcp/thingsboard -Dspring.ai.mcp.server.stdio=true -Dspring.main.web-application-type=none
+docker run --rm -i -e THINGSBOARD_URL=<your_thingsboard_url> -e THINGSBOARD_USERNAME=<your_username> -e THINGSBOARD_PASSWORD=<your_password> -e SPRING_AI_MCP_SERVER_STDIO=true -e SPRING_WEB_APPLICATION_TYPE=none mcp/thingsboard
 ```
 
 ### Build from Sources
@@ -191,15 +193,15 @@ If you've built the JAR file from sources, use this configuration in your `claud
     "thingsboard": {
       "command": "java",
       "args": [
-        "-Dspring.ai.mcp.server.stdio=true",
-        "-Dspring.main.web-application-type=none",
         "-jar",
         "/absolute/path/to/mcp-thingsboard-server-1.0.0.jar"
       ],
       "env": {
         "THINGSBOARD_URL": "<thingsboard_url>",
         "THINGSBOARD_USERNAME": "<thingsboard_username>",
-        "THINGSBOARD_PASSWORD": "<thingsboard_password>"
+        "THINGSBOARD_PASSWORD": "<thingsboard_password>",
+        "SPRING_AI_MCP_SERVER_STDIO": "true",
+        "SPRING_WEB_APPLICATION_TYPE": "none"
       }
     }
   }
@@ -220,20 +222,23 @@ If you're using the Docker image, use this configuration in your `claude_desktop
         "-i",
         "--rm",
         "-e",
-        "JAVA_OPTS",
-        "-e",
         "THINGSBOARD_URL",
         "-e",
         "THINGSBOARD_USERNAME",
         "-e",
         "THINGSBOARD_PASSWORD",
+        "-e",
+        "SPRING_AI_MCP_SERVER_STDIO",
+        "-e",
+        "SPRING_WEB_APPLICATION_TYPE",
         "mcp/thingsboard"
       ],
       "env": {
-        "JAVA_OPTS": "-Dspring.ai.mcp.server.stdio=true -Dspring.main.web-application-type=none",
         "THINGSBOARD_URL": "<thingsboard_url>",
         "THINGSBOARD_USERNAME": "<thingsboard_username>",
-        "THINGSBOARD_PASSWORD": "<thingsboard_password>"
+        "THINGSBOARD_PASSWORD": "<thingsboard_password>",
+        "SPRING_AI_MCP_SERVER_STDIO": "true",
+        "SPRING_WEB_APPLICATION_TYPE": "none"
       }
     }
   }
