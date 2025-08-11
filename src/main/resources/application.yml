@@ -1,23 +1,26 @@
 # General spring parameters
 server:
-  port: ${SERVER_PORT:8000}
+  port: "${SERVER_PORT:8000}"
 
 spring:
   main:
-    banner-mode: ${SPRING_MAIN_BANNER_MODE:off}
-    web-application-type: ${SPRING_WEB_APPLICATION_TYPE:servlet}
+    banner-mode: off
+    web-application-type: "${SPRING_WEB_APPLICATION_TYPE:servlet}"
   ai:
     mcp:
       server:
-        enabled: ${SPRING_AI_MCP_SERVER_ENABLED:true}
+        enabled: true
         name: thingsboard-mcp-server
         version: 1.0.0
         # The WebMVC starter autoconfigures WebMVC SSE transport
         # Also enables STDIO so the same binary can be launched in either mode
-        stdio: ${SPRING_AI_MCP_SERVER_STDIO:false} # true to use STDIO mode
-        sse-endpoint: ${SPRING_AI_MCP_SERVER_SSE_ENDPOINT:/sse}
-        sse-message-endpoint: ${SPRING_AI_MCP_SERVER_SSE_MESSAGE_ENDPOINT:/mcp/message}
-        type: ${SPRING_AI_MCP_SERVER_TYPE:SYNC} # SYNC or ASYNC
+        stdio: "${SPRING_AI_MCP_SERVER_STDIO:false}" # true to use STDIO mode
+        sse-endpoint: "${SPRING_AI_MCP_SERVER_SSE_ENDPOINT:/sse}"
+        sse-message-endpoint: "${SPRING_AI_MCP_SERVER_SSE_MESSAGE_ENDPOINT:/mcp/message}"
+        type: sync
+logging:
+  level:
+    io.modelcontextprotocol.server.McpAsyncServer: ERROR
 
 # ThingsBoard auth parameters
 thingsboard:

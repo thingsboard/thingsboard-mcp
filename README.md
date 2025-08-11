@@ -244,18 +244,17 @@ If you're using the Docker image, use this configuration in your `claude_desktop
 
 The MCP server requires the following environment variables to connect to your ThingsBoard instance:
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `THINGSBOARD_URL` | The base URL of your ThingsBoard instance | |
+| Variable | Description                                    | Default |
+|----------|------------------------------------------------|---------|
+| `THINGSBOARD_URL` | The base URL of your ThingsBoard instance      | |
 | `THINGSBOARD_USERNAME` | Username used to authenticate with ThingsBoard | |
 | `THINGSBOARD_PASSWORD` | Password used to authenticate with ThingsBoard | |
-| `THINGSBOARD_LOGIN_INTERVAL_SECONDS` | Login session refresh interval in seconds | 1800 |
-| `SPRING_WEB_APPLICATION_TYPE` | Spring application type (none, servlet, or reactive) | none |
-| `SPRING_AI_MCP_SERVER_STDIO` | Enable/disable standard I/O communication | true |
-| `SPRING_AI_MCP_SERVER_SSE_ENDPOINT` | Server-Sent Events (SSE) endpoint URL | /sse |
-| `SPRING_AI_MCP_SERVER_SSE_MESSAGE_ENDPOINT` | Server-Sent Events message endpoint URL | /mcp/message |
-| `SPRING_AI_MCP_SERVER_TYPE` | Server type: sync (for MVC) or async (for Flux) | sync |
-| `SERVER_PORT` | HTTP server port number | 8080 |
+| `THINGSBOARD_LOGIN_INTERVAL_SECONDS` | Login session refresh interval in seconds      | 1800 |
+| `SPRING_WEB_APPLICATION_TYPE` | Spring application type (none, or servlet)     | none |
+| `SPRING_AI_MCP_SERVER_STDIO` | Enable/disable standard I/O communication      | true |
+| `SPRING_AI_MCP_SERVER_SSE_ENDPOINT` | Server-Sent Events (SSE) endpoint URL          | /sse |
+| `SPRING_AI_MCP_SERVER_SSE_MESSAGE_ENDPOINT` | Server-Sent Events message endpoint URL        | /mcp/message |
+| `SERVER_PORT` | HTTP server port number                        | 8080 |
 
 These variables can be set either:
 - Directly via Docker command line using the `-e` flag
