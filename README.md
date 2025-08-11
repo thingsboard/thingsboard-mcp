@@ -197,9 +197,7 @@ If you've built the JAR file from sources, use this configuration in your `claud
         "/absolute/path/to/mcp-thingsboard-server-1.0.0.jar"
       ],
       "env": {
-        "THINGSBOARD_URL": "<thingsboard_url>"
-      },
-      "secret": {
+        "THINGSBOARD_URL": "<thingsboard_url>",
         "THINGSBOARD_USERNAME": "<thingsboard_username>",
         "THINGSBOARD_PASSWORD": "<thingsboard_password>"
       }
@@ -222,6 +220,8 @@ If you're using the Docker image, use this configuration in your `claude_desktop
         "-i",
         "--rm",
         "-e",
+        "JAVA_OPTS",
+        "-e",
         "THINGSBOARD_URL",
         "-e",
         "THINGSBOARD_USERNAME",
@@ -230,9 +230,8 @@ If you're using the Docker image, use this configuration in your `claude_desktop
         "mcp/thingsboard"
       ],
       "env": {
-        "THINGSBOARD_URL": "<thingsboard_url>"
-      },
-      "secret": {
+        "JAVA_OPTS": "-Dspring.ai.mcp.server.stdio=true -Dspring.main.web-application-type=none",
+        "THINGSBOARD_URL": "<thingsboard_url>",
         "THINGSBOARD_USERNAME": "<thingsboard_username>",
         "THINGSBOARD_PASSWORD": "<thingsboard_password>"
       }
