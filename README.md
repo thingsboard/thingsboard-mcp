@@ -33,7 +33,7 @@
 
 ## Overview
 
-The ThingsBoard MCP Server provides a **natural language interface** for Large Language Models (LLMs) and AI agents to interact with your ThingsBoard IoT platform. 
+The ThingsBoard MCP Server provides a **natural language interface** for LLMs and AI agents to interact with your ThingsBoard IoT platform. 
 
 This server implements the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/docs/getting-started/intro), which enables AI systems to access and manipulate data in ThingsBoard through natural language commands. With this integration, you can:
 
