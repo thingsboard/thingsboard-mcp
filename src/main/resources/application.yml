@@ -21,6 +21,8 @@ spring:
 logging:
   level:
     io.modelcontextprotocol.server.McpAsyncServer: ERROR
+  pattern:
+    console: ${LOGGING_PATTERN_CONSOLE:}
 
 # ThingsBoard auth parameters
 thingsboard:
