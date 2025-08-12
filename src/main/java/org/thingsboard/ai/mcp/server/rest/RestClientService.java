@@ -63,7 +63,7 @@ public class RestClientService {
                 client.login(username, password);
             } catch (Exception e) {
                 log.error("Failed to login to thingsboard {} using credentials [{} {}]", url, username, password, e);
-                throw e;
+                return;
             }
             JsonNode jsonNode = client.getSystemVersionInfo().orElse(null);
             if (jsonNode != null) {
