@@ -58,7 +58,7 @@ public class UserTools implements McpTools {
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'firstName', 'lastName', 'email'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
         PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getUsers(pageLink).getData());
+        return JacksonUtil.toString(clientService.getClient().getUsers(pageLink));
     }
 
     @Tool(description = "Returns a page of tenant administrator users assigned to the specified tenant. " + PAGE_DATA_PARAMETERS + TENANT_AUTHORITY_PARAGRAPH)
@@ -70,7 +70,7 @@ public class UserTools implements McpTools {
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'firstName', 'lastName', 'email'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
         PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getTenantAdmins(TenantId.fromUUID(UUID.fromString(tenantId)), pageLink).getData());
+        return JacksonUtil.toString(clientService.getClient().getTenantAdmins(TenantId.fromUUID(UUID.fromString(tenantId)), pageLink));
     }
 
     @Tool(description = "Returns a page of users assigned to the specified customer. " +
@@ -83,7 +83,7 @@ public class UserTools implements McpTools {
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'firstName', 'lastName', 'email'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
         PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getCustomerUsers(new CustomerId(UUID.fromString(customerId)), pageLink).getData());
+        return JacksonUtil.toString(clientService.getClient().getCustomerUsers(new CustomerId(UUID.fromString(customerId)), pageLink));
     }
 
     @Tool(description = "Returns a page of users for the current tenant with authority 'CUSTOMER_USER'. " + PE_ONLY_AVAILABLE +
@@ -98,7 +98,7 @@ public class UserTools implements McpTools {
             return PE_ONLY_AVAILABLE;
         }
         PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getAllCustomerUsers(pageLink).getData());
+        return JacksonUtil.toString(clientService.getClient().getAllCustomerUsers(pageLink));
     }
 
     @Tool(description = "Returns page of user data objects that can be assigned to provided alarmId. Search is been executed by email, firstName and lastName fields. " +
@@ -111,7 +111,7 @@ public class UserTools implements McpTools {
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'firstName', 'lastName', 'email'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
         PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getUsersForAssign(new AlarmId(UUID.fromString(alarmId)), pageLink).getData());
+        return JacksonUtil.toString(clientService.getClient().getUsersForAssign(new AlarmId(UUID.fromString(alarmId)), pageLink));
     }
 
     @Tool(description = "Returns a page of user objects that belongs to specified Entity Group Id. " + PE_ONLY_AVAILABLE + PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH + RBAC_GROUP_READ_CHECK)
@@ -126,7 +126,7 @@ public class UserTools implements McpTools {
             return PE_ONLY_AVAILABLE;
         }
         PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getUsersByEntityGroupId(new EntityGroupId(UUID.fromString(entityGroupId)), pageLink).getData());
+        return JacksonUtil.toString(clientService.getClient().getUsersByEntityGroupId(new EntityGroupId(UUID.fromString(entityGroupId)), pageLink));
     }
 
 }

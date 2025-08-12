@@ -64,7 +64,7 @@ public class DeviceTools implements McpTools {
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'name', 'deviceProfileName', 'label', 'customerTitle'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
         PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getTenantDevices(type, pageLink).getData());
+        return JacksonUtil.toString(clientService.getClient().getTenantDevices(type, pageLink));
     }
 
     @Tool(description = "Requested device must be owned by tenant that the user belongs to. " +
@@ -84,7 +84,7 @@ public class DeviceTools implements McpTools {
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'name', 'deviceProfileName', 'label', 'customerTitle'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
         PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getCustomerDevices(new CustomerId(UUID.fromString(customerId)), type, pageLink).getData());
+        return JacksonUtil.toString(clientService.getClient().getCustomerDevices(new CustomerId(UUID.fromString(customerId)), type, pageLink));
     }
 
     @Tool(description = "Returns a page of device objects available for the current user. " + PE_ONLY_AVAILABLE + PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
@@ -99,7 +99,7 @@ public class DeviceTools implements McpTools {
             return PE_ONLY_AVAILABLE;
         }
         PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getUserDevices(type, pageLink).getData());
+        return JacksonUtil.toString(clientService.getClient().getUserDevices(type, pageLink));
     }
 
     @Tool(description = "Get Devices By Ids. Requested devices must be owned by tenant or assigned to customer which user is performing the request. " + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
@@ -119,7 +119,7 @@ public class DeviceTools implements McpTools {
             return PE_ONLY_AVAILABLE;
         }
         PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getDevicesByEntityGroupId(new EntityGroupId(UUID.fromString(entityGroupId)), pageLink).getData());
+        return JacksonUtil.toString(clientService.getClient().getDevicesByEntityGroupId(new EntityGroupId(UUID.fromString(entityGroupId)), pageLink));
     }
 
 }

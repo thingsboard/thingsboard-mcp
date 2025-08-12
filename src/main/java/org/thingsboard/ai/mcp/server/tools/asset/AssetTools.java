@@ -57,7 +57,7 @@ public class AssetTools implements McpTools {
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'name', 'type', 'label', 'customerTitle'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
         PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getTenantAssets(pageLink, type).getData());
+        return JacksonUtil.toString(clientService.getClient().getTenantAssets(pageLink, type));
     }
 
     @Tool(description = "Get tenant asset. Requested asset must be owned by tenant that the user belongs to. " +
@@ -76,7 +76,7 @@ public class AssetTools implements McpTools {
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'name', 'type', 'label', 'customerTitle'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
         PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getCustomerAssets(new CustomerId(UUID.fromString(customerId)), pageLink, type).getData());
+        return JacksonUtil.toString(clientService.getClient().getCustomerAssets(new CustomerId(UUID.fromString(customerId)), pageLink, type));
     }
 
     @Tool(description = "Returns a page of assets objects available for the current user. " + PE_ONLY_AVAILABLE + PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
@@ -91,7 +91,7 @@ public class AssetTools implements McpTools {
             return PE_ONLY_AVAILABLE;
         }
         PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getUserAssets(type, pageLink).getData());
+        return JacksonUtil.toString(clientService.getClient().getUserAssets(type, pageLink));
     }
 
     @Tool(description = "Get Assets By Ids. Requested assets must be owned by tenant or assigned to customer which user is performing the request. " + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
@@ -111,7 +111,7 @@ public class AssetTools implements McpTools {
             return PE_ONLY_AVAILABLE;
         }
         PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getAssetsByEntityGroupId(new EntityGroupId(UUID.fromString(entityGroupId)), pageLink).getData());
+        return JacksonUtil.toString(clientService.getClient().getAssetsByEntityGroupId(new EntityGroupId(UUID.fromString(entityGroupId)), pageLink));
     }
 
 }

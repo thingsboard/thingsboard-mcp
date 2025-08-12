@@ -52,7 +52,7 @@ public class CustomerTools implements McpTools {
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'title', 'email', 'country', 'city'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
         PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getCustomers(pageLink).getData());
+        return JacksonUtil.toString(clientService.getClient().getCustomers(pageLink));
     }
 
     @Tool(description = "Get the Customer using Customer Title. " + TENANT_AUTHORITY_PARAGRAPH)
@@ -71,7 +71,7 @@ public class CustomerTools implements McpTools {
             return PE_ONLY_AVAILABLE;
         }
         PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getUserCustomers(pageLink).getData());
+        return JacksonUtil.toString(clientService.getClient().getUserCustomers(pageLink));
     }
 
     @Tool(description = "Returns a page of Customer objects that belongs to specified Entity Group Id. " + PE_ONLY_AVAILABLE + PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH + RBAC_GROUP_READ_CHECK)
@@ -86,7 +86,7 @@ public class CustomerTools implements McpTools {
             return PE_ONLY_AVAILABLE;
         }
         PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getCustomersByEntityGroupId(new EntityGroupId(UUID.fromString(entityGroupId)), pageLink).getData());
+        return JacksonUtil.toString(clientService.getClient().getCustomersByEntityGroupId(new EntityGroupId(UUID.fromString(entityGroupId)), pageLink));
     }
 
 }
