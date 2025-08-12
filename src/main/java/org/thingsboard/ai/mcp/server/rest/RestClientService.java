@@ -40,13 +40,18 @@ public class RestClientService {
 
     @PostConstruct
     public void init() {
-        initClient();
-        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-        scheduledExecutorService.scheduleAtFixedRate(() -> {
-            try {
-                client.login(username, password);
-            } catch (Exception ignored) {}
-        }, 1, intervalSeconds, TimeUnit.SECONDS);
+        try {
+            initClient();
+            scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+            scheduledExecutorService.scheduleAtFixedRate(() -> {
+                try {
+                    client.login(username, password);
+                } catch (Exception ignored) {
+                }
+            }, intervalSeconds, intervalSeconds, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            log.error("Failed to init client service", e);
+        }
     }
 
     @PreDestroy
