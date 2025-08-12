@@ -142,7 +142,7 @@ For STDIO Mode, you must explicitly override the default settings and include th
 
 ```bash
 docker pull mcp/thingsboard
-docker run --rm -i -e THINGSBOARD_URL=<your_thingsboard_url> -e THINGSBOARD_USERNAME=<your_username> -e THINGSBOARD_PASSWORD=<your_password> -e SPRING_AI_MCP_SERVER_STDIO=true -e SPRING_WEB_APPLICATION_TYPE=none mcp/thingsboard
+docker run --rm -i -e THINGSBOARD_URL=<your_thingsboard_url> -e THINGSBOARD_USERNAME=<your_username> -e THINGSBOARD_PASSWORD=<your_password> -e SPRING_AI_MCP_SERVER_STDIO=true -e SPRING_WEB_APPLICATION_TYPE=none -e LOGGING_PATTERN_CONSOLE= mcp/thingsboard
 ```
 
 ### Build from Sources
@@ -201,7 +201,8 @@ If you've built the JAR file from sources, use this configuration in your `claud
         "THINGSBOARD_USERNAME": "<thingsboard_username>",
         "THINGSBOARD_PASSWORD": "<thingsboard_password>",
         "SPRING_AI_MCP_SERVER_STDIO": "true",
-        "SPRING_WEB_APPLICATION_TYPE": "none"
+        "SPRING_WEB_APPLICATION_TYPE": "none",
+        "LOGGING_PATTERN_CONSOLE": ""
       }
     }
   }
@@ -231,6 +232,8 @@ If you're using the Docker image, use this configuration in your `claude_desktop
         "SPRING_AI_MCP_SERVER_STDIO",
         "-e",
         "SPRING_WEB_APPLICATION_TYPE",
+        "-e",
+        "LOGGING_PATTERN_CONSOLE",
         "mcp/thingsboard"
       ],
       "env": {
@@ -238,7 +241,8 @@ If you're using the Docker image, use this configuration in your `claude_desktop
         "THINGSBOARD_USERNAME": "<thingsboard_username>",
         "THINGSBOARD_PASSWORD": "<thingsboard_password>",
         "SPRING_AI_MCP_SERVER_STDIO": "true",
-        "SPRING_WEB_APPLICATION_TYPE": "none"
+        "SPRING_WEB_APPLICATION_TYPE": "none",
+        "LOGGING_PATTERN_CONSOLE": ""
       }
     }
   }
