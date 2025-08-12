@@ -66,12 +66,12 @@ Before you begin, ensure you have the following:
 
 ```bash
 # Using Docker (STDIO Mode)
-docker run --rm -i -e THINGSBOARD_URL=<your_url> -e THINGSBOARD_USERNAME=<username> -e THINGSBOARD_PASSWORD=<password> thingsboard/thingsboard-mcp-server
+docker run --rm -i -e THINGSBOARD_URL=<your_url> -e THINGSBOARD_USERNAME=<username> -e THINGSBOARD_PASSWORD=<password> thingsboard/mcp
 ```
 
 ```bash
 # Using Docker (SSE Mode)
-docker run --rm -p 8000:8000 -e THINGSBOARD_URL=<your_url> -e THINGSBOARD_USERNAME=<username> -e THINGSBOARD_PASSWORD=<password> -e SPRING_AI_MCP_SERVER_STDIO=false -e SPRING_WEB_APPLICATION_TYPE=servlet thingsboard/thingsboard-mcp-server
+docker run --rm -p 8000:8000 -e THINGSBOARD_URL=<your_url> -e THINGSBOARD_USERNAME=<username> -e THINGSBOARD_PASSWORD=<password> -e SPRING_AI_MCP_SERVER_STDIO=false -e SPRING_WEB_APPLICATION_TYPE=servlet thingsboard/mcp
 ```
 4. **Configure your MCP client**: Add the ThingsBoard MCP server to your client configuration (see [Client Configuration](#client-configuration))
 5. **Start using natural language**: Begin interacting with your ThingsBoard instance through your MCP client
@@ -133,8 +133,8 @@ The ThingsBoard MCP Server can run in two different modes:
 For STDIO Mode, you must include the `-i` flag to keep stdin open:
 
 ```bash
-docker pull thingsboard/thingsboard-mcp-server
-docker run --rm -i -e THINGSBOARD_URL=<your_thingsboard_url> -e THINGSBOARD_USERNAME=<your_username> -e THINGSBOARD_PASSWORD=<your_password> thingsboard/thingsboard-mcp-server
+docker pull thingsboard/mcp
+docker run --rm -i -e THINGSBOARD_URL=<your_thingsboard_url> -e THINGSBOARD_USERNAME=<your_username> -e THINGSBOARD_PASSWORD=<your_password> thingsboard/mcp
 ```
 
 #### Running in SSE Mode
@@ -142,8 +142,8 @@ docker run --rm -i -e THINGSBOARD_URL=<your_thingsboard_url> -e THINGSBOARD_USER
 In SSE Mode, you must expose port 8000 using the `-p` flag and explicitly override the default settings :
 
 ```bash
-docker pull thingsboard/thingsboard-mcp-server
-docker run --rm -p 8000:8000 -e THINGSBOARD_URL=<your_thingsboard_url> -e THINGSBOARD_USERNAME=<your_username> -e THINGSBOARD_PASSWORD=<your_password> -e SPRING_AI_MCP_SERVER_STDIO=false -e SPRING_WEB_APPLICATION_TYPE=servlet thingsboard/thingsboard-mcp-server
+docker pull thingsboard/mcp
+docker run --rm -p 8000:8000 -e THINGSBOARD_URL=<your_thingsboard_url> -e THINGSBOARD_USERNAME=<your_username> -e THINGSBOARD_PASSWORD=<your_password> -e SPRING_AI_MCP_SERVER_STDIO=false -e SPRING_WEB_APPLICATION_TYPE=servlet thingsboard/mcp
 ```
 
 ### Build from Sources
@@ -229,7 +229,7 @@ If you're using the Docker image, use this configuration in your `claude_desktop
         "THINGSBOARD_PASSWORD",
         "-e",
         "LOGGING_PATTERN_CONSOLE",
-        "thingsboard/thingsboard-mcp-server"
+        "thingsboard/mcp"
       ],
       "env": {
         "THINGSBOARD_URL": "<thingsboard_url>",
