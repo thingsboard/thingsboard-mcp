@@ -12,7 +12,7 @@ FROM eclipse-temurin:21-jre
 WORKDIR /app
 
 # Copy the built jar from the builder stage (using wildcard to match any version)
-COPY --from=builder /app/target/mcp-thingsboard-server-*.jar app.jar
+COPY --from=builder /app/target/thingsboard-mcp-server-*.jar app.jar
 
 # Optional JVM extras at runtime: -Xmx, debug agent, log levels, etc.
 ENV JAVA_OPTS=""

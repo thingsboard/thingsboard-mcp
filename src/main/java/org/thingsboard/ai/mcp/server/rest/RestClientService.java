@@ -40,13 +40,18 @@ public class RestClientService {
 
     @PostConstruct
     public void init() {
-        initClient();
-        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-        scheduledExecutorService.scheduleAtFixedRate(() -> {
-            try {
-                client.login(username, password);
-            } catch (Exception ignored) {}
-        }, 1, intervalSeconds, TimeUnit.SECONDS);
+        try {
+            initClient();
+            scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+            scheduledExecutorService.scheduleAtFixedRate(() -> {
+                try {
+                    client.login(username, password);
+                } catch (Exception ignored) {
+                }
+            }, intervalSeconds, intervalSeconds, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            log.error("Failed to init client service", e);
+        }
     }
 
     @PreDestroy
@@ -57,13 +62,13 @@ public class RestClientService {
     }
 
     private void initClient() {
-        if (StringUtils.isNotBlank(url)) {
+        if (StringUtils.isNotBlank(url) && StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
             client = new RestClient(url);
             try {
                 client.login(username, password);
             } catch (Exception e) {
                 log.error("Failed to login to thingsboard {} using credentials [{} {}]", url, username, password, e);
-                throw e;
+                throw new RuntimeException(e);
             }
             JsonNode jsonNode = client.getSystemVersionInfo().orElse(null);
             if (jsonNode != null) {

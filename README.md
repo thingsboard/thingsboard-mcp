@@ -33,7 +33,7 @@
 
 ## Overview
 
-The ThingsBoard MCP Server provides a **natural language interface** for Large Language Models (LLMs) and AI agents to interact with your ThingsBoard IoT platform. 
+The ThingsBoard MCP Server provides a **natural language interface** for LLMs and AI agents to interact with your ThingsBoard IoT platform. 
 
 This server implements the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/docs/getting-started/intro), which enables AI systems to access and manipulate data in ThingsBoard through natural language commands. With this integration, you can:
 
@@ -63,15 +63,16 @@ Before you begin, ensure you have the following:
 1. **Choose your ThingsBoard instance**: Use an existing instance or sign up for [ThingsBoard Cloud](https://thingsboard.cloud)
 2. **Get your credentials**: Create or use an existing user account with appropriate permissions
 3. **Deploy the MCP server**: Use one of the following methods:
-   ```bash
-   # Using Docker (SSE Mode)
-   docker run --rm -p 8000:8000 -e THINGSBOARD_URL=<your_url> -e THINGSBOARD_USERNAME=<username> -e THINGSBOARD_PASSWORD=<password> mcp/thingsboard
-    ```
 
-   ```bash
-   # Using Docker (STDIO Mode)
-   docker run --rm -i -e THINGSBOARD_URL=<your_url> -e THINGSBOARD_USERNAME=<username> -e THINGSBOARD_PASSWORD=<password> -e SPRING_AI_MCP_SERVER_STDIO=true -e SPRING_WEB_APPLICATION_TYPE=none mcp/thingsboard
-   ```
+```bash
+# Using Docker (STDIO Mode)
+docker run --rm -i -e THINGSBOARD_URL=<your_url> -e THINGSBOARD_USERNAME=<username> -e THINGSBOARD_PASSWORD=<password> thingsboard/mcp
+```
+
+```bash
+# Using Docker (SSE Mode)
+docker run --rm -p 8000:8000 -e THINGSBOARD_URL=<your_url> -e THINGSBOARD_USERNAME=<username> -e THINGSBOARD_PASSWORD=<password> -e SPRING_AI_MCP_SERVER_STDIO=false -e SPRING_WEB_APPLICATION_TYPE=servlet thingsboard/mcp
+```
 4. **Configure your MCP client**: Add the ThingsBoard MCP server to your client configuration (see [Client Configuration](#client-configuration))
 5. **Start using natural language**: Begin interacting with your ThingsBoard instance through your MCP client
 
@@ -124,25 +125,25 @@ The easiest way to get started is with the pre-built Docker image from Docker Hu
 
 The ThingsBoard MCP Server can run in two different modes:
 
-- **SSE Mode (Server-Sent Events)**: The server runs as an HTTP server that clients connect to
 - **STDIO Mode (Standard Input/Output)**: The server communicates directly through standard input/output streams
+- **SSE Mode (Server-Sent Events)**: The server runs as an HTTP server that clients connect to
 
-#### Running in SSE Mode (Default)
+#### Running in STDIO Mode (Default)
 
-In SSE Mode, you must expose port 8000 using the `-p` flag:
+For STDIO Mode, you must include the `-i` flag to keep stdin open:
 
 ```bash
-docker pull mcp/thingsboard
-docker run --rm -p 8000:8000 -e THINGSBOARD_URL=<your_thingsboard_url> -e THINGSBOARD_USERNAME=<your_username> -e THINGSBOARD_PASSWORD=<your_password> mcp/thingsboard
+docker pull thingsboard/mcp
+docker run --rm -i -e THINGSBOARD_URL=<your_thingsboard_url> -e THINGSBOARD_USERNAME=<your_username> -e THINGSBOARD_PASSWORD=<your_password> thingsboard/mcp
 ```
 
-#### Running in STDIO Mode
+#### Running in SSE Mode
 
-For STDIO Mode, you must explicitly override the default settings and include the `-i` flag to keep stdin open:
+In SSE Mode, you must expose port 8000 using the `-p` flag and explicitly override the default settings :
 
 ```bash
-docker pull mcp/thingsboard
-docker run --rm -i -e THINGSBOARD_URL=<your_thingsboard_url> -e THINGSBOARD_USERNAME=<your_username> -e THINGSBOARD_PASSWORD=<your_password> -e SPRING_AI_MCP_SERVER_STDIO=true -e SPRING_WEB_APPLICATION_TYPE=none -e LOGGING_PATTERN_CONSOLE= mcp/thingsboard
+docker pull thingsboard/mcp
+docker run --rm -p 8000:8000 -e THINGSBOARD_URL=<your_thingsboard_url> -e THINGSBOARD_USERNAME=<your_username> -e THINGSBOARD_PASSWORD=<your_password> -e SPRING_AI_MCP_SERVER_STDIO=false -e SPRING_WEB_APPLICATION_TYPE=servlet thingsboard/mcp
 ```
 
 ### Build from Sources
@@ -166,17 +167,17 @@ mvn clean install -DskipTests
 3. The JAR file will be available in the target folder:
 
 ```bash
-./target/mcp-thingsboard-server-1.0.0.jar
+./target/thingsboard-mcp-server-1.0.0.jar
 ```
 
 4. Run the server using the JAR file:
 
 ```bash
 # For STDIO Mode
-java -Dspring.ai.mcp.server.stdio=true -Dspring.main.web-application-type=none -jar ./target/mcp-thingsboard-server-1.0.0.jar
+java -jar ./target/thingsboard-mcp-server-1.0.0.jar
 
 # For SSE Mode
-java -jar ./target/mcp-thingsboard-server-1.0.0.jar
+java -Dspring.ai.mcp.server.stdio=false Dspring.main.web-application-type=servlet -jar ./target/thingsboard-mcp-server-1.0.0.jar
 ```
 
 ## Client Configuration
@@ -194,14 +195,12 @@ If you've built the JAR file from sources, use this configuration in your `claud
       "command": "java",
       "args": [
         "-jar",
-        "/absolute/path/to/mcp-thingsboard-server-1.0.0.jar"
+        "/absolute/path/to/thingsboard-mcp-server-1.0.0.jar"
       ],
       "env": {
         "THINGSBOARD_URL": "<thingsboard_url>",
         "THINGSBOARD_USERNAME": "<thingsboard_username>",
         "THINGSBOARD_PASSWORD": "<thingsboard_password>",
-        "SPRING_AI_MCP_SERVER_STDIO": "true",
-        "SPRING_WEB_APPLICATION_TYPE": "none",
         "LOGGING_PATTERN_CONSOLE": ""
       }
     }
@@ -229,19 +228,13 @@ If you're using the Docker image, use this configuration in your `claude_desktop
         "-e",
         "THINGSBOARD_PASSWORD",
         "-e",
-        "SPRING_AI_MCP_SERVER_STDIO",
-        "-e",
-        "SPRING_WEB_APPLICATION_TYPE",
-        "-e",
         "LOGGING_PATTERN_CONSOLE",
-        "mcp/thingsboard"
+        "thingsboard/mcp"
       ],
       "env": {
         "THINGSBOARD_URL": "<thingsboard_url>",
         "THINGSBOARD_USERNAME": "<thingsboard_username>",
         "THINGSBOARD_PASSWORD": "<thingsboard_password>",
-        "SPRING_AI_MCP_SERVER_STDIO": "true",
-        "SPRING_WEB_APPLICATION_TYPE": "none",
         "LOGGING_PATTERN_CONSOLE": ""
       }
     }
@@ -259,7 +252,7 @@ The MCP server requires the following environment variables to connect to your T
 | `THINGSBOARD_USERNAME` | Username used to authenticate with ThingsBoard | |
 | `THINGSBOARD_PASSWORD` | Password used to authenticate with ThingsBoard | |
 | `THINGSBOARD_LOGIN_INTERVAL_SECONDS` | Login session refresh interval in seconds      | 1800 |
-| `SPRING_WEB_APPLICATION_TYPE` | Spring application type (none, or servlet)     | none |
+| `SPRING_WEB_APPLICATION_TYPE` | Spring application type (none or servlet)     | none |
 | `SPRING_AI_MCP_SERVER_STDIO` | Enable/disable standard I/O communication      | true |
 | `SPRING_AI_MCP_SERVER_SSE_ENDPOINT` | Server-Sent Events (SSE) endpoint URL          | /sse |
 | `SPRING_AI_MCP_SERVER_SSE_MESSAGE_ENDPOINT` | Server-Sent Events message endpoint URL        | /mcp/message |
