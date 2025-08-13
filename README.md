@@ -1,6 +1,6 @@
 # ThingsBoard MCP Server
 
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/thingsboard/mcp-server/blob/master/README.md)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/thingsboard/mcp-server/blob/master/README.md) [![Trust Score](https://archestra.ai/mcp-catalog/api/badge/quality/thingsboard/thingsboard-mcp)](https://archestra.ai/mcp-catalog/thingsboard__thingsboard-mcp)
 
 ## Table of Contents
 
