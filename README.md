@@ -1,6 +1,7 @@
 # ThingsBoard MCP Server
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/thingsboard/mcp-server/blob/master/README.md)
+[![Trust Score](https://archestra.ai/mcp-catalog/api/badge/quality/thingsboard/thingsboard-mcp)](https://archestra.ai/mcp-catalog/thingsboard__thingsboard-mcp)
 
 ## Table of Contents
 
@@ -34,6 +35,22 @@
 ## Overview
 
 The ThingsBoard MCP Server provides a **natural language interface** for LLMs and AI agents to interact with your ThingsBoard IoT platform. 
+
+You can ask questions such as “Get my devices of type 'Air Quality Sensor'” and receive structured results:
+
+![Get My Devices Example](images/get_my_devices_example.png)
+
+You can request to simulate or save time-series data in ThingsBoard:
+
+![Generate Sample Data Example](images/generate_sample_data_example.png)
+
+![Generated Data In ThingsBoard](images/generated_data_in_tb_example.png)
+
+Or, you can ask it to analyze your time-series data to find anomalies, spikes, or data gaps:
+
+![Analyze Data Example](images/analyze_data_example.png)
+
+![Analyze Data Result](images/analyze_result_example.png)
 
 This server implements the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/docs/getting-started/intro), which enables AI systems to access and manipulate data in ThingsBoard through natural language commands. With this integration, you can:
 
