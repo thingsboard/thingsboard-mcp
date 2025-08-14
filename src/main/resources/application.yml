@@ -12,14 +12,18 @@ spring:
       server:
         enabled: true
         name: thingsboard-mcp-server
-        version: 1.0.0
+        version: 2.0.0
         # The WebMVC starter autoconfigures WebMVC SSE transport
         # Also enables STDIO so the same binary can be launched in either mode
         stdio: "${SPRING_AI_MCP_SERVER_STDIO:true}" # true to use STDIO mode
         sse-endpoint: "${SPRING_AI_MCP_SERVER_SSE_ENDPOINT:/sse}"
         sse-message-endpoint: "${SPRING_AI_MCP_SERVER_SSE_MESSAGE_ENDPOINT:/mcp/message}"
+        # Type of server to use for MCP communication
         type: sync
+        # Enable/disable notifications for tool changes
         tool-change-notification: true
+        capabilities:
+          completion: false
       cors:
         allowed-origins: "${SPRING_AI_MCP_CORS_ALLOWED_ORIGINS:*}" # comma-separated list
 
@@ -27,10 +31,10 @@ logging:
   level:
     root: INFO
     io.modelcontextprotocol.server.McpAsyncServer: ERROR
-    org.springframework.ai.mcp: OFF
-    org.thingsboard.ai.mcp.server: OFF
+    org.springframework.ai.mcp: INFO
+    org.thingsboard.ai.mcp.server: INFO
   pattern:
-    console: "${LOGGING_PATTERN_CONSOLE:%d{yyyy-MM-dd HH:mm:ss} | %-5level | %logger{1.} | %msg%n}"
+    console: "${LOGGING_PATTERN_CONSOLE:%d{yyyy-MM-dd HH:mm:ss} | %-5level | %logger{36} | %msg%n}"
 
 # ThingsBoard auth parameters
 thingsboard:

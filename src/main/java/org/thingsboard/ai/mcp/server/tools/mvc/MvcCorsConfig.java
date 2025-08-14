@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.List;
 
 @Configuration
-@ConditionalOnClass(WebMvcConfigurer.class)
 @ConditionalOnProperty(name = "spring.ai.mcp.server.stdio", havingValue = "false")
 class MvcCorsConfig implements WebMvcConfigurer {
 

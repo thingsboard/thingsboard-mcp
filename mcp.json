@@ -1,0 +1,13 @@
+{
+    "servers": {
+        "thingsboard": {
+            "command": "java",
+            "args": ["-jar", "target/thingsboard-mcp-server-1.0.0.jar"],
+            "env": {
+                "THINGSBOARD_URL": "http://localhost:8080/",
+                "THINGSBOARD_USERNAME": "tenant@thingsboard.org",
+                "THINGSBOARD_PASSWORD": "tenant"
+            }
+        }
+    }
+}
