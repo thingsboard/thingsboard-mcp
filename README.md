@@ -54,8 +54,8 @@ Or, you can ask it to analyze your time-series data to find anomalies, spikes, o
 
 This server implements the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/docs/getting-started/intro), which enables AI systems to access and manipulate data in ThingsBoard through natural language commands. With this integration, you can:
 
-- Query device data and telemetry using conversational language
-- Manage assets, customers, and users through AI assistants
+- Query entities (device, asset, customer, etc.) data and telemetry using conversational language
+- Manage entities through AI assistants
 - Analyze IoT data and create reports using AI tools
 - Automate ThingsBoard operations through AI-powered workflows
 
@@ -66,32 +66,18 @@ The server integrates seamlessly with MCP clients such as Claude Desktop, Cursor
 Before you begin, ensure you have the following:
 
 - **ThingsBoard instance** - A running ThingsBoard instance that the MCP server can connect to. You can use any of the following options:
-  - **Local/On-premise instance**: Self-hosted ThingsBoard installation on your own infrastructure
-  - **ThingsBoard Community Edition**: Free open-source version that can be installed locally
-  - **ThingsBoard Professional Edition**: Self-hosted version with additional features
-  - **ThingsBoard Demo**: Free shared instance available at [demo.thingsboard.io](https://demo.thingsboard.io) (limited functionality)
-  - **ThingsBoard Cloud**: Fully managed cloud service available at [thingsboard.cloud](https://thingsboard.cloud) (subscription-based)
+  - **Local/On-premise Community Edition**: Self-hosted installation on your own [infrastructure](https://thingsboard.io/docs/user-guide/install/installation-options/), or
+  - **Local/On-premise Professional Edition**: Self-hosted installation on your own [infrastructure](https://thingsboard.io/docs/user-guide/install/pe/installation-options/), or
+  - **ThingsBoard Demo**: Free shared instance at [demo.thingsboard.io](https://demo.thingsboard.io), or
+  - **ThingsBoard Cloud**: Fully managed cloud service at [thingsboard.cloud](https://thingsboard.cloud), or
+  - **EU ThingsBoard Cloud**: Fully managed cloud service at [eu.thingsboard.cloud](https://eu.thingsboard.cloud), or
+  - **ThingsBoard Edge instance** [up and running](https://thingsboard.io/docs/user-guide/install/edge/installation-options/)
 - **Authentication credentials** - Valid username and password with appropriate permissions on the ThingsBoard instance
-- **Network connectivity** - The MCP server must be able to reach the ThingsBoard instance via HTTP/HTTPS
-- **Environment configuration** - Properly configured environment variables as specified in the [Environment Variables](#environment-variables) section
 
 ## Quick Start Guide
 
-1. **Choose your ThingsBoard instance**: Use an existing instance or sign up for [ThingsBoard Cloud](https://thingsboard.cloud)
-2. **Get your credentials**: Create or use an existing user account with appropriate permissions
-3. **Deploy the MCP server**: Use one of the following methods:
-
-```bash
-# Using Docker (STDIO Mode)
-docker run --rm -i -e THINGSBOARD_URL=<your_url> -e THINGSBOARD_USERNAME=<username> -e THINGSBOARD_PASSWORD=<password> thingsboard/mcp
-```
-
-```bash
-# Using Docker (SSE Mode)
-docker run --rm -p 8000:8000 -e THINGSBOARD_URL=<your_url> -e THINGSBOARD_USERNAME=<username> -e THINGSBOARD_PASSWORD=<password> -e SPRING_AI_MCP_SERVER_STDIO=false -e SPRING_WEB_APPLICATION_TYPE=servlet thingsboard/mcp
-```
-4. **Configure your MCP client**: Add the ThingsBoard MCP server to your client configuration (see [Client Configuration](#client-configuration))
-5. **Start using natural language**: Begin interacting with your ThingsBoard instance through your MCP client
+1. **Configure your MCP client**: Add the ThingsBoard MCP server to your client configuration (see [Client Configuration](#client-configuration))
+2. **Start using natural language**: Begin interacting with your ThingsBoard instance through your MCP client
 
 ## Features
 
@@ -125,12 +111,12 @@ Fetch alarms, alarm types, and severity information for specific entities.
 
 ## Installation
 
-This MCP server works with ThingsBoard IoT Platform. You'll need your ThingsBoard instance URL and valid credentials for the installation.
+This MCP server works with ThingsBoard IoT Platform or ThingsBoard Edge. You'll need your ThingsBoard instance or Edge URL and valid credentials for the installation.
 
 ### ThingsBoard Account
 
 Before installing the MCP server, ensure you have:
-1. Access to a ThingsBoard instance
+1. Access to a ThingsBoard or Edge instance
 2. A user account with sufficient permissions
 3. The username and password for this account
 
@@ -174,7 +160,7 @@ You can also build the JAR file from sources and run the ThingsBoard MCP Server 
 
 #### Build Steps
 
-1. Clone the repository
+1. Clone this repository
 2. Build the project:
 
 ```bash
@@ -192,7 +178,9 @@ mvn clean install -DskipTests
 ```bash
 # For STDIO Mode
 java -jar ./target/thingsboard-mcp-server-1.0.0.jar
+```
 
+```bash
 # For SSE Mode
 java -Dspring.ai.mcp.server.stdio=false Dspring.main.web-application-type=servlet -jar ./target/thingsboard-mcp-server-1.0.0.jar
 ```
@@ -200,30 +188,6 @@ java -Dspring.ai.mcp.server.stdio=false Dspring.main.web-application-type=servle
 ## Client Configuration
 
 To launch the server as a container when your MCP client starts (e.g., Claude Desktop), you need to add the appropriate configuration to your client's settings.
-
-### Binary Configuration
-
-If you've built the JAR file from sources, use this configuration in your `claude_desktop_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "thingsboard": {
-      "command": "java",
-      "args": [
-        "-jar",
-        "/absolute/path/to/thingsboard-mcp-server-1.0.0.jar"
-      ],
-      "env": {
-        "THINGSBOARD_URL": "<thingsboard_url>",
-        "THINGSBOARD_USERNAME": "<thingsboard_username>",
-        "THINGSBOARD_PASSWORD": "<thingsboard_password>",
-        "LOGGING_PATTERN_CONSOLE": ""
-      }
-    }
-  }
-}
-```
 
 ### Docker Configuration
 
@@ -247,6 +211,30 @@ If you're using the Docker image, use this configuration in your `claude_desktop
         "-e",
         "LOGGING_PATTERN_CONSOLE",
         "thingsboard/mcp"
+      ],
+      "env": {
+        "THINGSBOARD_URL": "<thingsboard_url>",
+        "THINGSBOARD_USERNAME": "<thingsboard_username>",
+        "THINGSBOARD_PASSWORD": "<thingsboard_password>",
+        "LOGGING_PATTERN_CONSOLE": ""
+      }
+    }
+  }
+}
+```
+
+### Binary Configuration
+
+If you've built the JAR file from sources, use this configuration in your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "thingsboard": {
+      "command": "java",
+      "args": [
+        "-jar",
+        "/absolute/path/to/thingsboard-mcp-server-1.0.0.jar"
       ],
       "env": {
         "THINGSBOARD_URL": "<thingsboard_url>",
