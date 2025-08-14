@@ -3,6 +3,7 @@ package org.thingsboard.ai.mcp.server.service.tools;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -44,6 +45,9 @@ public class AssetToolsTest {
 
     @Mock
     private RestClient restClient;
+
+    @Captor
+    private ArgumentCaptor<List<AssetId>> assetIdsCaptor;
 
     @Test
     void testFindAssetById() {
@@ -190,13 +194,11 @@ public class AssetToolsTest {
 
         String result = tools.getAssetsByIds(id1.toString(), id2.toString());
 
-        ArgumentCaptor<List> listCap = ArgumentCaptor.forClass(List.class);
-        verify(restClient).getAssetsByIds(listCap.capture());
+        verify(restClient).getAssetsByIds(assetIdsCaptor.capture());
+        List<AssetId> passedIds = assetIdsCaptor.getValue();
 
-        @SuppressWarnings("unchecked")
-        List<AssetId> passedIds = (List<AssetId>) listCap.getValue();
-        assertThat(passedIds).extracting(UUIDBased::getId).containsExactlyInAnyOrder(id1, id2);
-
+        assertThat(passedIds).extracting(UUIDBased::getId)
+                .containsExactlyInAnyOrder(id1, id2);
         assertThat(result).isEqualTo(JacksonUtil.toString(assets));
     }
 

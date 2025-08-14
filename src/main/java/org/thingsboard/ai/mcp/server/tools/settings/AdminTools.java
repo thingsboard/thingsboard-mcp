@@ -1,5 +1,6 @@
 package org.thingsboard.ai.mcp.server.tools.settings;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
@@ -18,7 +19,7 @@ public class AdminTools implements McpTools {
     private final RestClientService clientService;
 
     @Tool(description = "Get the Administration Settings object using specified string key. Referencing non-existing key will cause an error. " + SYSTEM_AUTHORITY_PARAGRAPH)
-    public String getAdminSettings(@ToolParam(description = "A string value of the key (e.g. 'general', 'mail', etc") String key) {
+    public String getAdminSettings(@ToolParam(description = "A string value of the key (e.g. 'general', 'mail', 'notifications', 'sms', 'entitiesVersionControl', 'connectivity', 'jwt', etc") @NotBlank String key) {
         return JacksonUtil.toString(clientService.getClient().getAdminSettings(key));
     }
 

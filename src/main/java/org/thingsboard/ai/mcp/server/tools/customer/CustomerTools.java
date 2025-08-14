@@ -1,9 +1,13 @@
 package org.thingsboard.ai.mcp.server.tools.customer;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
+import org.thingsboard.ai.mcp.server.annotation.PeOnly;
 import org.thingsboard.ai.mcp.server.data.ThingsBoardEdition;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.McpTools;
@@ -40,14 +44,14 @@ public class CustomerTools implements McpTools {
             "If the user has the authority of 'Customer User', the server checks that the user belongs to the customer.";
 
     @Tool(description = "Get the Customer object based on the provided Customer Id. " + CUSTOMER_SECURITY_CHECK + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    public String getCustomerById(@ToolParam(description = CUSTOMER_ID_PARAM_DESCRIPTION) String customerId) {
+    public String getCustomerById(@ToolParam(description = CUSTOMER_ID_PARAM_DESCRIPTION) @NotBlank String customerId) {
         return JacksonUtil.toString(clientService.getClient().getCustomerById(new CustomerId(UUID.fromString(customerId))));
     }
 
     @Tool(description = "Returns a page of customers owned by tenant. " + PAGE_DATA_PARAMETERS + TENANT_AUTHORITY_PARAGRAPH)
     public String getCustomers(
-            @ToolParam(description = PAGE_SIZE_DESCRIPTION) int pageSize,
-            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) int page,
+            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive int pageSize,
+            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero int page,
             @ToolParam(required = false, description = CUSTOMER_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'title', 'email', 'country', 'city'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
@@ -56,14 +60,15 @@ public class CustomerTools implements McpTools {
     }
 
     @Tool(description = "Get the Customer using Customer Title. " + TENANT_AUTHORITY_PARAGRAPH)
-    public String getTenantCustomer(@ToolParam(description = "A string value representing the Customer title.") String customerTitle) {
+    public String getTenantCustomer(@ToolParam(description = "A string value representing the Customer title.") @NotBlank String customerTitle) {
         return JacksonUtil.toString(clientService.getClient().getTenantCustomer(customerTitle));
     }
 
+    @PeOnly
     @Tool(description = "Returns a page of customers available for the user. " + PE_ONLY_AVAILABLE + PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH + RBAC_READ_CHECK)
     public String getUserCustomers(
-            @ToolParam(description = PAGE_SIZE_DESCRIPTION) int pageSize,
-            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) int page,
+            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive int pageSize,
+            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero int page,
             @ToolParam(required = false, description = CUSTOMER_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'title', 'email', 'country', 'city'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
@@ -74,11 +79,12 @@ public class CustomerTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().getUserCustomers(pageLink));
     }
 
+    @PeOnly
     @Tool(description = "Returns a page of Customer objects that belongs to specified Entity Group Id. " + PE_ONLY_AVAILABLE + PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH + RBAC_GROUP_READ_CHECK)
     public String getCustomersByEntityGroupId(
-            @ToolParam(description = ENTITY_GROUP_ID_PARAM_DESCRIPTION) String entityGroupId,
-            @ToolParam(description = PAGE_SIZE_DESCRIPTION) int pageSize,
-            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) int page,
+            @ToolParam(description = ENTITY_GROUP_ID_PARAM_DESCRIPTION) @NotBlank String entityGroupId,
+            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive int pageSize,
+            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero int page,
             @ToolParam(required = false, description = CUSTOMER_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'title', 'email', 'country', 'city'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {

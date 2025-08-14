@@ -189,6 +189,31 @@ public class RelationToolsTest {
     }
 
     @Test
+    void testFindInfoByTo_alarmGroup() {
+        when(clientService.getClient()).thenReturn(restClient);
+
+        UUID fromUuid = UUID.randomUUID();
+
+        List<EntityRelationInfo> relationInfos = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            relationInfos.add(new EntityRelationInfo());
+        }
+        when(restClient.findInfoByTo(any(EntityId.class), eq(RelationTypeGroup.RULE_CHAIN))).thenReturn(relationInfos);
+
+        String result = tools.findInfoByTo(fromUuid.toString(), "DEVICE", "RULE_CHAIN");
+
+        ArgumentCaptor<EntityId> entityCap = ArgumentCaptor.forClass(EntityId.class);
+        ArgumentCaptor<RelationTypeGroup> groupCap = ArgumentCaptor.forClass(RelationTypeGroup.class);
+        verify(restClient).findInfoByTo(entityCap.capture(), groupCap.capture());
+
+        assertThat(entityCap.getValue().getEntityType().name()).isEqualTo("DEVICE");
+        assertThat(entityCap.getValue().getId()).isEqualTo(fromUuid);
+        assertThat(groupCap.getValue()).isEqualTo(RelationTypeGroup.RULE_CHAIN);
+
+        assertThat(result).isEqualTo(JacksonUtil.toString(relationInfos));
+    }
+
+    @Test
     void testFindByToWithRelationType_dashboard() {
         when(clientService.getClient()).thenReturn(restClient);
 

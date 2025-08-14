@@ -1,6 +1,7 @@
 # General spring parameters
 server:
-  port: "${SERVER_PORT:8000}"
+  address: "${HTTP_BIND_ADDRESS:127.0.0.1}"
+  port: "${HTTP_BIND_PORT:8000}"
 
 spring:
   main:
@@ -18,9 +19,16 @@ spring:
         sse-endpoint: "${SPRING_AI_MCP_SERVER_SSE_ENDPOINT:/sse}"
         sse-message-endpoint: "${SPRING_AI_MCP_SERVER_SSE_MESSAGE_ENDPOINT:/mcp/message}"
         type: sync
+        tool-change-notification: true
+      cors:
+        allowed-origins: "${SPRING_AI_MCP_CORS_ALLOWED_ORIGINS:*}" # comma-separated list
+
 logging:
   level:
+    root: INFO
     io.modelcontextprotocol.server.McpAsyncServer: ERROR
+    org.springframework.ai.mcp: OFF
+    org.thingsboard.ai.mcp.server: OFF
   pattern:
     console: "${LOGGING_PATTERN_CONSOLE:%d{yyyy-MM-dd HH:mm:ss} | %-5level | %logger{1.} | %msg%n}"
 

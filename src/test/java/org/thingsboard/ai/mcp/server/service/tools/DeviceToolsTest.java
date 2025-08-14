@@ -3,6 +3,7 @@ package org.thingsboard.ai.mcp.server.service.tools;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -45,6 +46,9 @@ public class DeviceToolsTest {
 
     @Mock
     private RestClient restClient;
+
+    @Captor
+    private ArgumentCaptor<List<DeviceId>> deviceIdsCaptor;
 
     @Test
     void testFindDeviceById() {
@@ -211,11 +215,9 @@ public class DeviceToolsTest {
 
         String result = tools.getDevicesByIds(id1.toString(), id2.toString());
 
-        ArgumentCaptor<List> listCap = ArgumentCaptor.forClass(List.class);
-        verify(restClient).getDevicesByIds(listCap.capture());
+        verify(restClient).getDevicesByIds(deviceIdsCaptor.capture());
 
-        @SuppressWarnings("unchecked")
-        List<DeviceId> passedIds = (List<DeviceId>) listCap.getValue();
+        List<DeviceId> passedIds = deviceIdsCaptor.getValue();
         assertThat(passedIds).extracting(UUIDBased::getId).containsExactlyInAnyOrder(id1, id2);
 
         assertThat(result).isEqualTo(JacksonUtil.toString(devices));

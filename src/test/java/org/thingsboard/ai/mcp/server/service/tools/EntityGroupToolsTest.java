@@ -3,6 +3,7 @@ package org.thingsboard.ai.mcp.server.service.tools;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -16,6 +17,7 @@ import org.thingsboard.server.common.data.group.EntityGroup;
 import org.thingsboard.server.common.data.group.EntityGroupInfo;
 import org.thingsboard.server.common.data.id.EntityGroupId;
 import org.thingsboard.server.common.data.id.EntityId;
+import org.thingsboard.server.common.data.id.UUIDBased;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +43,9 @@ public class EntityGroupToolsTest {
 
     @Mock
     private RestClient restClient;
+
+    @Captor
+    private ArgumentCaptor<List<EntityGroupId>> entityGroupIdsCaptor;
 
     @Test
     void testFindEntityGroupById_ceEdition() {
@@ -219,12 +224,10 @@ public class EntityGroupToolsTest {
 
         String result = tools.getEntityGroupsByIds(id1.toString(), id2.toString());
 
-        ArgumentCaptor<List> listCap = ArgumentCaptor.forClass(List.class);
-        verify(restClient).getEntityGroupsByIds(listCap.capture());
+        verify(restClient).getEntityGroupsByIds(entityGroupIdsCaptor.capture());
 
-        @SuppressWarnings("unchecked")
-        List<EntityGroupId> passedIds = (List<EntityGroupId>) listCap.getValue();
-        assertThat(passedIds).extracting(v -> v.getId()).containsExactlyInAnyOrder(id1, id2);
+        List<EntityGroupId> passedIds = entityGroupIdsCaptor.getValue();
+        assertThat(passedIds).extracting(UUIDBased::getId).containsExactlyInAnyOrder(id1, id2);
         assertThat(result).isEqualTo(JacksonUtil.toString(entityGroupInfos));
     }
 

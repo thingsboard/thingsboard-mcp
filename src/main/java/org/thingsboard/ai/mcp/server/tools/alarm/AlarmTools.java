@@ -1,5 +1,8 @@
 package org.thingsboard.ai.mcp.server.tools.alarm;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
@@ -48,25 +51,23 @@ public class AlarmTools implements McpTools {
     private final RestClientService clientService;
 
     @Tool(description = "Get the Alarm object based on the provided alarm id. " + ALARM_SECURITY_CHECK)
-    public String getAlarmById(
-            @ToolParam(description = ALARM_ID_PARAM_DESCRIPTION) String alarmId) {
+    public String getAlarmById(@ToolParam(description = ALARM_ID_PARAM_DESCRIPTION) @NotBlank String alarmId) {
         return JacksonUtil.toString(clientService.getClient().getAlarmById(new AlarmId(UUID.fromString(alarmId))));
     }
 
     @Tool(description = "Get the Alarm info object based on the provided alarm id. " + ALARM_SECURITY_CHECK + ALARM_INFO_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    public String getAlarmInfoById(
-            @ToolParam(description = ALARM_ID_PARAM_DESCRIPTION) String alarmId) {
+    public String getAlarmInfoById(@ToolParam(description = ALARM_ID_PARAM_DESCRIPTION) @NotBlank String alarmId) {
         return JacksonUtil.toString(clientService.getClient().getAlarmInfoById(new AlarmId(UUID.fromString(alarmId))));
     }
 
     @Tool(description = "Get a page of alarms for the selected entity. Specifying both parameters 'searchStatus' and 'status' at the same time will cause an error. " + PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
     public String getAlarms(
-            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) String entityType,
-            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) String entityId,
+            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String entityType,
+            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityId,
             @ToolParam(required = false, description = ALARM_QUERY_SEARCH_STATUS_DESCRIPTION) String searchStatus,
             @ToolParam(required = false, description = ALARM_QUERY_STATUS_DESCRIPTION) String status,
-            @ToolParam(description = PAGE_SIZE_DESCRIPTION) int pageSize,
-            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) int page,
+            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive int pageSize,
+            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero int page,
             @ToolParam(required = false, description = ALARM_QUERY_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'startTs', 'endTs', 'ackTs', 'clearTs', 'severity', 'status'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder,
@@ -87,8 +88,8 @@ public class AlarmTools implements McpTools {
             @ToolParam(required = false, description = ALARM_QUERY_SEARCH_STATUS_DESCRIPTION) String searchStatus,
             @ToolParam(required = false, description = ALARM_QUERY_STATUS_DESCRIPTION) String status,
             @ToolParam(required = false, description = ALARM_QUERY_ASSIGNEE_DESCRIPTION) String assigneeId,
-            @ToolParam(description = PAGE_SIZE_DESCRIPTION) int pageSize,
-            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) int page,
+            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive int pageSize,
+            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero int page,
             @ToolParam(required = false, description = ALARM_QUERY_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'startTs', 'endTs', 'ackTs', 'clearTs', 'severity', 'status'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder,
@@ -104,8 +105,8 @@ public class AlarmTools implements McpTools {
     @Tool(description = "Get highest alarm severity by originator ('entityType' and 'entityId') and optional 'status' and 'searchStatus' filters and returns the highest AlarmSeverity(CRITICAL, MAJOR, MINOR, WARNING or INDETERMINATE)." +
             "Specifying both parameters 'searchStatus' and 'status' at the same time will cause an error. " + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
     public String getHighestAlarmSeverity(
-            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) String entityType,
-            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) String entityId,
+            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String entityType,
+            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityId,
             @ToolParam(required = false, description = ALARM_QUERY_SEARCH_STATUS_DESCRIPTION) String searchStatus,
             @ToolParam(required = false, description = "A string value representing one of the AlarmStatus enumeration value. Allowed values: 'ACTIVE_UNACK', 'ACTIVE_ACK', 'CLEARED_UNACK', 'CLEARED_ACK'") String status) {
         AlarmSearchStatus alarmSearchStatus = searchStatus != null ? AlarmSearchStatus.valueOf(searchStatus) : null;
@@ -115,8 +116,8 @@ public class AlarmTools implements McpTools {
 
     @Tool(description = "Get a set of unique alarm types based on alarms that are either owned by tenant or assigned to the customer which user is performing the request. " + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
     public String getAlarmTypes(
-            @ToolParam(description = PAGE_SIZE_DESCRIPTION) int pageSize,
-            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) int page,
+            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive int pageSize,
+            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero int page,
             @ToolParam(required = false, description = ALARM_QUERY_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
         PageLink pageLink = createPageLink(pageSize, page, textSearch, "type", sortOrder);

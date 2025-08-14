@@ -1,9 +1,13 @@
 package org.thingsboard.ai.mcp.server.tools.user;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
+import org.thingsboard.ai.mcp.server.annotation.PeOnly;
 import org.thingsboard.ai.mcp.server.data.ThingsBoardEdition;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.McpTools;
@@ -52,8 +56,8 @@ public class UserTools implements McpTools {
 
     @Tool(description = "Returns a page of users owned by tenant or customer. The scope depends on authority of the user that performs the request. " + PAGE_DATA_PARAMETERS + TENANT_AUTHORITY_PARAGRAPH)
     public String getUsers(
-            @ToolParam(description = PAGE_SIZE_DESCRIPTION) int pageSize,
-            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) int page,
+            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive int pageSize,
+            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero int page,
             @ToolParam(required = false, description = CUSTOMER_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'firstName', 'lastName', 'email'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
@@ -63,9 +67,9 @@ public class UserTools implements McpTools {
 
     @Tool(description = "Returns a page of tenant administrator users assigned to the specified tenant. " + PAGE_DATA_PARAMETERS + TENANT_AUTHORITY_PARAGRAPH)
     public String getTenantAdmins(
-            @ToolParam(description = TENANT_ID_PARAM_DESCRIPTION) String tenantId,
-            @ToolParam(description = PAGE_SIZE_DESCRIPTION) int pageSize,
-            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) int page,
+            @ToolParam(description = TENANT_ID_PARAM_DESCRIPTION) @NotBlank String tenantId,
+            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive int pageSize,
+            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero int page,
             @ToolParam(required = false, description = CUSTOMER_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'firstName', 'lastName', 'email'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
@@ -76,9 +80,9 @@ public class UserTools implements McpTools {
     @Tool(description = "Returns a page of users assigned to the specified customer. " +
             PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
     public String getCustomerUsers(
-            @ToolParam(description = CUSTOMER_ID_PARAM_DESCRIPTION) String customerId,
-            @ToolParam(description = PAGE_SIZE_DESCRIPTION) int pageSize,
-            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) int page,
+            @ToolParam(description = CUSTOMER_ID_PARAM_DESCRIPTION) @NotBlank String customerId,
+            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive int pageSize,
+            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero int page,
             @ToolParam(required = false, description = CUSTOMER_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'firstName', 'lastName', 'email'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
@@ -86,11 +90,12 @@ public class UserTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().getCustomerUsers(new CustomerId(UUID.fromString(customerId)), pageLink));
     }
 
+    @PeOnly
     @Tool(description = "Returns a page of users for the current tenant with authority 'CUSTOMER_USER'. " + PE_ONLY_AVAILABLE +
             PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH + RBAC_READ_CHECK)
     public String getAllCustomerUsers(
-            @ToolParam(description = PAGE_SIZE_DESCRIPTION) int pageSize,
-            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) int page,
+            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive int pageSize,
+            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero int page,
             @ToolParam(required = false, description = CUSTOMER_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'firstName', 'lastName', 'email'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
@@ -104,9 +109,9 @@ public class UserTools implements McpTools {
     @Tool(description = "Returns page of user data objects that can be assigned to provided alarmId. Search is been executed by email, firstName and lastName fields. " +
             PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
     public String getUsersForAssign(
-            @ToolParam(description = ALARM_ID_PARAM_DESCRIPTION) String alarmId,
-            @ToolParam(description = PAGE_SIZE_DESCRIPTION) int pageSize,
-            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) int page,
+            @ToolParam(description = ALARM_ID_PARAM_DESCRIPTION) @NotBlank String alarmId,
+            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive int pageSize,
+            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero int page,
             @ToolParam(required = false, description = CUSTOMER_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'firstName', 'lastName', 'email'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
@@ -114,11 +119,12 @@ public class UserTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().getUsersForAssign(new AlarmId(UUID.fromString(alarmId)), pageLink));
     }
 
+    @PeOnly
     @Tool(description = "Returns a page of user objects that belongs to specified Entity Group Id. " + PE_ONLY_AVAILABLE + PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH + RBAC_GROUP_READ_CHECK)
     public String getUsersByEntityGroupId(
-            @ToolParam(description = ENTITY_GROUP_ID_PARAM_DESCRIPTION) String entityGroupId,
-            @ToolParam(description = PAGE_SIZE_DESCRIPTION) int pageSize,
-            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) int page,
+            @ToolParam(description = ENTITY_GROUP_ID_PARAM_DESCRIPTION) @NotBlank String entityGroupId,
+            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive int pageSize,
+            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero int page,
             @ToolParam(required = false, description = CUSTOMER_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'firstName', 'lastName', 'email'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
