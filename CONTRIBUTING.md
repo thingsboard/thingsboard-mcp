@@ -112,6 +112,15 @@ docker run --rm -i -e THINGSBOARD_URL=<url> -e THINGSBOARD_USERNAME=<user> -e TH
 
 ---
 
+## 📦 Labels
+We use labels to triage and track work:
+- `bug`, `enhancement`, `documentation`
+- `mode:stdio`, `mode:sse`
+- `area:telemetry`, `area:admin`, `tools`
+- `good first issue`
+
+---
+
 ## 📜 License
 By contributing, you agree that your contributions will be licensed under the [Apache License 2.0](LICENSE).
 
