@@ -148,6 +148,15 @@ docker pull thingsboard/mcp
 docker run --rm -p 8000:8000 -e THINGSBOARD_URL=<your_thingsboard_url> -e THINGSBOARD_USERNAME=<your_username> -e THINGSBOARD_PASSWORD=<your_password> -e SPRING_AI_MCP_SERVER_STDIO=false -e SPRING_WEB_APPLICATION_TYPE=servlet thingsboard/mcp
 ```
 
+### Download release binary
+
+Alternatively, you can download the release binary (JAR file) and use it with the LLM Agent.
+Run the following command to download the binary to your PC:
+
+```bash
+wget https://github.com/thingsboard/thingsboard-mcp/releases/download/v1.0.0/thingsboard-mcp-server-1.0.0.jar
+```
+
 ### Build from Sources
 
 You can also build the JAR file from sources and run the ThingsBoard MCP Server directly.
