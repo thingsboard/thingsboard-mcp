@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: ThingsBoard Discussions (Q&A/general)
+    url: https://github.com/thingsboard/thingsboard/discussions
+    about: For general ThingsBoard platform questions, please use Discussions.
+  - name: ThingsBoard Community & Docs
+    url: https://thingsboard.io/community/
+    about: Community resources and documentation entry points.
