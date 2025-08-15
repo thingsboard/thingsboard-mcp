@@ -1,8 +1,8 @@
-package org.thingsboard.ai.mcp.server.tools.mvc;
+package org.thingsboard.ai.mcp.server.mvc;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,9 +13,9 @@ import org.thingsboard.server.common.data.StringUtils;
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 @Configuration
-@ConditionalOnClass(WebMvcConfigurer.class)
-@ConditionalOnProperty(name = "spring.ai.mcp.server.stdio", havingValue = "false")
+@ConditionalOnProperty(name = "spring.ai.mcp.server.stdio", havingValue = "r")
 class MvcCorsConfig implements WebMvcConfigurer {
 
     @Value("${spring.ai.mcp.server.sse-endpoint:}")
@@ -69,7 +69,7 @@ class MvcCorsConfig implements WebMvcConfigurer {
     }
 
     private static String normalizePath(String path) {
-        if (StringUtils.isNotBlank(path)) {
+        if (StringUtils.hasText(path)) {
             return "/";
         }
         return path.startsWith("/") ? path : "/" + path;

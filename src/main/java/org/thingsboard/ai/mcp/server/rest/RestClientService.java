@@ -38,8 +38,6 @@ public class RestClientService {
     @Value("${thingsboard.login-interval-seconds:1800}")
     private int intervalSeconds;
 
-    private volatile boolean isSent = false;
-
     @Getter
     private RestClient client;
     private ThingsBoardEdition edition;
@@ -93,10 +91,7 @@ public class RestClientService {
 
     @EventListener(ApplicationReadyEvent.class)
     public void initEdition() {
-        if (!isSent) {
-            events.publishEvent(new EditionChangedEvent(edition));
-            isSent = true;
-        }
+        events.publishEvent(new EditionChangedEvent(edition));
     }
 
     public ThingsBoardEdition getEdition() {

@@ -167,17 +167,17 @@ mvn clean install -DskipTests
 3. The JAR file will be available in the target folder:
 
 ```bash
-./target/thingsboard-mcp-server-1.0.0.jar
+./target/thingsboard-mcp-server-1.0.1.jar
 ```
 
 4. Run the server using the JAR file:
 
 ```bash
 # For STDIO Mode
-java -jar ./target/thingsboard-mcp-server-1.0.0.jar
+java -jar ./target/thingsboard-mcp-server-1.0.1.jar
 
 # For SSE Mode
-java -Dspring.ai.mcp.server.stdio=false Dspring.main.web-application-type=servlet -jar ./target/thingsboard-mcp-server-1.0.0.jar
+java -Dspring.ai.mcp.server.stdio=false -Dspring.main.web-application-type=servlet -jar ./target/thingsboard-mcp-server-1.0.1.jar
 ```
 
 ## Client Configuration
@@ -195,7 +195,7 @@ If you've built the JAR file from sources, use this configuration in your `claud
       "command": "java",
       "args": [
         "-jar",
-        "/absolute/path/to/thingsboard-mcp-server-1.0.0.jar"
+        "/absolute/path/to/thingsboard-mcp-server-1.0.1.jar"
       ],
       "env": {
         "THINGSBOARD_URL": "<thingsboard_url>",

@@ -71,9 +71,9 @@ public class AlarmTools implements McpTools {
             @ToolParam(required = false, description = ALARM_QUERY_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'startTs', 'endTs', 'ackTs', 'clearTs', 'severity', 'status'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder,
-            @ToolParam(required = false, description = ALARM_QUERY_START_TIME_DESCRIPTION) long startTs,
-            @ToolParam(required = false, description = ALARM_QUERY_END_TIME_DESCRIPTION) long endTs,
-            @ToolParam(required = false, description = ALARM_QUERY_FETCH_ORIGINATOR_DESCRIPTION) boolean fetchOriginator) throws ThingsboardException {
+            @ToolParam(required = false, description = ALARM_QUERY_START_TIME_DESCRIPTION) Long startTs,
+            @ToolParam(required = false, description = ALARM_QUERY_END_TIME_DESCRIPTION) Long endTs,
+            @ToolParam(required = false, description = ALARM_QUERY_FETCH_ORIGINATOR_DESCRIPTION) Boolean fetchOriginator) throws ThingsboardException {
         AlarmSearchStatus alarmSearchStatus = searchStatus != null ? AlarmSearchStatus.valueOf(searchStatus) : null;
         AlarmStatus alarmStatus = status != null ? AlarmStatus.valueOf(status) : null;
         TimePageLink pageLink = createTimePageLink(pageSize, page, textSearch, sortProperty, sortOrder, startTs, endTs);
@@ -93,9 +93,9 @@ public class AlarmTools implements McpTools {
             @ToolParam(required = false, description = ALARM_QUERY_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'startTs', 'endTs', 'ackTs', 'clearTs', 'severity', 'status'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder,
-            @ToolParam(required = false, description = ALARM_QUERY_START_TIME_DESCRIPTION) long startTs,
-            @ToolParam(required = false, description = ALARM_QUERY_END_TIME_DESCRIPTION) long endTs,
-            @ToolParam(required = false, description = ALARM_QUERY_FETCH_ORIGINATOR_DESCRIPTION) boolean fetchOriginator) throws ThingsboardException {
+            @ToolParam(required = false, description = ALARM_QUERY_START_TIME_DESCRIPTION) Long startTs,
+            @ToolParam(required = false, description = ALARM_QUERY_END_TIME_DESCRIPTION) Long endTs,
+            @ToolParam(required = false, description = ALARM_QUERY_FETCH_ORIGINATOR_DESCRIPTION) Boolean fetchOriginator) throws ThingsboardException {
         AlarmSearchStatus alarmSearchStatus = searchStatus != null ? AlarmSearchStatus.valueOf(searchStatus) : null;
         AlarmStatus alarmStatus = status != null ? AlarmStatus.valueOf(status) : null;
         TimePageLink pageLink = createTimePageLink(pageSize, page, textSearch, sortProperty, sortOrder, startTs, endTs);

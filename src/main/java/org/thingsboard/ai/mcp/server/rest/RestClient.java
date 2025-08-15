@@ -513,11 +513,14 @@ public class RestClient implements Closeable {
     }
 
     public PageData<AlarmInfo> getAlarms(EntityId entityId, AlarmSearchStatus searchStatus, AlarmStatus status, TimePageLink pageLink, Boolean fetchOriginator) {
-        String urlSecondPart = "/api/alarm/{entityType}/{entityId}?fetchOriginator={fetchOriginator}";
+        String urlSecondPart = "/api/alarm/{entityType}/{entityId}?";
         Map<String, String> params = new HashMap<>();
         params.put("entityType", entityId.getEntityType().name());
         params.put("entityId", entityId.getId().toString());
-        params.put("fetchOriginator", String.valueOf(fetchOriginator));
+        if (fetchOriginator != null) {
+            params.put("fetchOriginator", String.valueOf(fetchOriginator));
+            urlSecondPart += "&fetchOriginator={fetchOriginator}";
+        }
         if (searchStatus != null) {
             params.put("searchStatus", searchStatus.name());
             urlSecondPart += "&searchStatus={searchStatus}";
@@ -539,10 +542,13 @@ public class RestClient implements Closeable {
     }
 
     public PageData<AlarmInfo> getAllAlarms(AlarmSearchStatus searchStatus, AlarmStatus status, String assigneeId, TimePageLink pageLink, Boolean fetchOriginator) {
-        String urlSecondPart = "/api/alarms?fetchOriginator={fetchOriginator}";
+        String urlSecondPart = "/api/alarms?";
         Map<String, String> params = new HashMap<>();
-        params.put("fetchOriginator", String.valueOf(fetchOriginator));
 
+        if (fetchOriginator != null) {
+            params.put("fetchOriginator", String.valueOf(fetchOriginator));
+            urlSecondPart += "&fetchOriginator={fetchOriginator}";
+        }
         if (searchStatus != null) {
             params.put("searchStatus", searchStatus.name());
             urlSecondPart += "&searchStatus={searchStatus}";

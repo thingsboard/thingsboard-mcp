@@ -12,7 +12,7 @@ spring:
       server:
         enabled: true
         name: thingsboard-mcp-server
-        version: 1.0.0
+        version: 1.0.1
         # The WebMVC starter autoconfigures WebMVC SSE transport
         # Also enables STDIO so the same binary can be launched in either mode
         stdio: "${SPRING_AI_MCP_SERVER_STDIO:true}" # true to use STDIO mode
@@ -25,10 +25,10 @@ spring:
 
 logging:
   level:
-    root: INFO
-    io.modelcontextprotocol.server.McpAsyncServer: ERROR
-    org.springframework.ai.mcp: OFF
-    org.thingsboard.ai.mcp.server: OFF
+    root: info
+    io.modelcontextprotocol.server.McpAsyncServer: error
+    org.springframework.ai.mcp: off
+    org.thingsboard.ai.mcp.server: off
   pattern:
     console: "${LOGGING_PATTERN_CONSOLE:%d{yyyy-MM-dd HH:mm:ss} | %-5level | %logger{1.} | %msg%n}"
 
