@@ -1,5 +1,8 @@
 package org.thingsboard.ai.mcp.server.tools.telemetry;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
@@ -53,8 +56,8 @@ public class TelemetryTools implements McpTools {
             "\n * SHARED_SCOPE - supported for devices. "
             + "\n\n" + INVALID_ENTITY_ID_OR_ENTITY_TYPE_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
     public String getAttributeKeys(
-            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) String entityType,
-            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) String entityIdStr) {
+            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String entityType,
+            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityIdStr) {
         EntityId entityId = EntityIdFactory.getByTypeAndId(entityType, entityIdStr);
         return JacksonUtil.toString(clientService.getClient().getAttributeKeys(entityId));
     }
@@ -65,9 +68,9 @@ public class TelemetryTools implements McpTools {
             "\n * SHARED_SCOPE - supported for devices. "
             + "\n\n" + INVALID_ENTITY_ID_OR_ENTITY_TYPE_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
     public String getAttributeKeysByScope(
-            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) String entityType,
-            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) String entityIdStr,
-            @ToolParam(description = ATTRIBUTES_SCOPE_DESCRIPTION + " Allowable values: 'SERVER_SCOPE', 'SHARED_SCOPE', 'CLIENT_SCOPE'") String scope) {
+            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String entityType,
+            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityIdStr,
+            @ToolParam(description = ATTRIBUTES_SCOPE_DESCRIPTION + " Allowable values: 'SERVER_SCOPE', 'SHARED_SCOPE', 'CLIENT_SCOPE'") @NotBlank String scope) {
         EntityId entityId = EntityIdFactory.getByTypeAndId(entityType, entityIdStr);
         return JacksonUtil.toString(clientService.getClient().getAttributeKeysByScope(entityId, scope));
     }
@@ -79,8 +82,8 @@ public class TelemetryTools implements McpTools {
             + MARKDOWN_CODE_BLOCK_END
             + "\n\n " + INVALID_ENTITY_ID_OR_ENTITY_TYPE_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
     public String getAttributes(
-            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) String entityType,
-            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) String entityIdStr,
+            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String entityType,
+            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityIdStr,
             @ToolParam(required = false, description = ATTRIBUTES_KEYS_DESCRIPTION) String keys) {
         EntityId entityId = EntityIdFactory.getByTypeAndId(entityType, entityIdStr);
         return JacksonUtil.toString(clientService.getClient().getAttributeKvEntries(entityId, List.of(keys.split(","))));
@@ -95,9 +98,9 @@ public class TelemetryTools implements McpTools {
             + MARKDOWN_CODE_BLOCK_END
             + "\n\n " + INVALID_ENTITY_ID_OR_ENTITY_TYPE_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
     public String getAttributesByScope(
-            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) String entityType,
-            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) String entityIdStr,
-            @ToolParam(description = ATTRIBUTES_SCOPE_DESCRIPTION + " Allowable values: 'SERVER_SCOPE', 'SHARED_SCOPE', 'CLIENT_SCOPE'") String scope,
+            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String entityType,
+            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityIdStr,
+            @ToolParam(description = ATTRIBUTES_SCOPE_DESCRIPTION + " Allowable values: 'SERVER_SCOPE', 'SHARED_SCOPE', 'CLIENT_SCOPE'") @NotBlank String scope,
             @ToolParam(required = false, description = ATTRIBUTES_KEYS_DESCRIPTION) String keys) {
         EntityId entityId = EntityIdFactory.getByTypeAndId(entityType, entityIdStr);
         return JacksonUtil.toString(clientService.getClient().getAttributesByScope(entityId, scope, List.of(keys.split(","))));
@@ -106,8 +109,8 @@ public class TelemetryTools implements McpTools {
     @Tool(description = "Returns a set of unique time series key names for the selected entity. " +
             "\n\n" + INVALID_ENTITY_ID_OR_ENTITY_TYPE_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
     public String getTimeseriesKeys(
-            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) String entityType,
-            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) String entityIdStr) {
+            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String entityType,
+            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityIdStr) {
         EntityId entityId = EntityIdFactory.getByTypeAndId(entityType, entityIdStr);
         return JacksonUtil.toString(clientService.getClient().getTimeseriesKeys(entityId));
     }
@@ -124,8 +127,8 @@ public class TelemetryTools implements McpTools {
             + MARKDOWN_CODE_BLOCK_END
             + "\n\n " + INVALID_ENTITY_ID_OR_ENTITY_TYPE_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
     public String getLatestTimeseries(
-            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) String entityType,
-            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) String entityIdStr,
+            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String entityType,
+            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityIdStr,
             @ToolParam(required = false, description = TELEMETRY_KEYS_DESCRIPTION) String keys,
             @ToolParam(required = false, description = STRICT_DATA_TYPES_DESCRIPTION) Boolean useStrictDataTypes) {
         EntityId entityId = EntityIdFactory.getByTypeAndId(entityType, entityIdStr);
@@ -142,11 +145,11 @@ public class TelemetryTools implements McpTools {
             + MARKDOWN_CODE_BLOCK_END
             + "\n\n" + INVALID_ENTITY_ID_OR_ENTITY_TYPE_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
     public String getTimeseries(
-            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) String entityType,
-            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) String entityIdStr,
-            @ToolParam(description = TELEMETRY_KEYS_DESCRIPTION) String keys,
-            @ToolParam(description = "A long value representing the start timestamp of the time range in milliseconds, UTC.") Long startTs,
-            @ToolParam(description = "A long value representing the end timestamp of the time range in milliseconds, UTC.") Long endTs,
+            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String entityType,
+            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityIdStr,
+            @ToolParam(description = TELEMETRY_KEYS_DESCRIPTION) @NotBlank String keys,
+            @ToolParam(description = "A long value representing the start timestamp of the time range in milliseconds, UTC.") @Positive Long startTs,
+            @ToolParam(description = "A long value representing the end timestamp of the time range in milliseconds, UTC.") @Positive Long endTs,
             @ToolParam(required = false, description = "A string value representing the type fo the interval. Allowed values: 'MILLISECONDS', 'WEEK', 'WEEK_ISO', 'MONTH', 'QUARTER'") String intervalType,
             @ToolParam(required = false, description = "A long value representing the aggregation interval range in milliseconds.") Long interval,
             @ToolParam(required = false, description = "A string value representing the timezone that will be used to calculate exact timestamps for 'WEEK', 'WEEK_ISO', 'MONTH' and 'QUARTER' interval types.") String timeZone,
@@ -177,9 +180,9 @@ public class TelemetryTools implements McpTools {
             SAVE_ATTRIBUTES_REQUEST_PAYLOAD
             + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
     public String saveDeviceAttributes(
-            @ToolParam(description = DEVICE_ID_PARAM_DESCRIPTION) String deviceId,
-            @ToolParam(description = ATTRIBUTES_SCOPE_DESCRIPTION + " Allowable values: 'SERVER_SCOPE', 'SHARED_SCOPE'") String scope,
-            @ToolParam(description = ATTRIBUTES_JSON_REQUEST_DESCRIPTION) String jsonBody) {
+            @ToolParam(description = DEVICE_ID_PARAM_DESCRIPTION) @NotBlank String deviceId,
+            @ToolParam(description = ATTRIBUTES_SCOPE_DESCRIPTION + " Allowable values: 'SERVER_SCOPE', 'SHARED_SCOPE'") @NotBlank String scope,
+            @ToolParam(description = ATTRIBUTES_JSON_REQUEST_DESCRIPTION) @NotBlank String jsonBody) {
         boolean result = clientService.getClient().saveDeviceAttributes(new DeviceId(UUID.fromString(deviceId)), scope, JacksonUtil.toJsonNode(jsonBody));
         if (result) {
             return "{\"status\":\"Device attributes saved successfully\"}";
@@ -192,10 +195,10 @@ public class TelemetryTools implements McpTools {
             SAVE_ATTRIBUTES_REQUEST_PAYLOAD
             + INVALID_ENTITY_ID_OR_ENTITY_TYPE_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
     public String saveEntityAttributesV1(
-            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) String entityType,
-            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) String entityIdStr,
-            @ToolParam(description = ATTRIBUTES_SCOPE_DESCRIPTION + " Allowable values: 'SERVER_SCOPE', 'SHARED_SCOPE'") String scope,
-            @ToolParam(description = ATTRIBUTES_JSON_REQUEST_DESCRIPTION) String jsonBody) {
+            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String entityType,
+            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityIdStr,
+            @ToolParam(description = ATTRIBUTES_SCOPE_DESCRIPTION + " Allowable values: 'SERVER_SCOPE', 'SHARED_SCOPE'") @NotBlank String scope,
+            @ToolParam(description = ATTRIBUTES_JSON_REQUEST_DESCRIPTION) @NotBlank String jsonBody) {
         EntityId entityId = EntityIdFactory.getByTypeAndId(entityType, entityIdStr);
         boolean result = clientService.getClient().saveEntityAttributesV1(entityId, scope, JacksonUtil.toJsonNode(jsonBody));
         if (result) {
@@ -209,10 +212,10 @@ public class TelemetryTools implements McpTools {
             SAVE_ATTRIBUTES_REQUEST_PAYLOAD
             + INVALID_ENTITY_ID_OR_ENTITY_TYPE_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
     public String saveEntityAttributesV2(
-            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) String entityType,
-            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) String entityIdStr,
-            @ToolParam(description = ATTRIBUTES_SCOPE_DESCRIPTION + " Allowable values: 'SERVER_SCOPE', 'SHARED_SCOPE'") String scope,
-            @ToolParam(description = ATTRIBUTES_JSON_REQUEST_DESCRIPTION) String jsonBody) {
+            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String entityType,
+            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityIdStr,
+            @ToolParam(description = ATTRIBUTES_SCOPE_DESCRIPTION + " Allowable values: 'SERVER_SCOPE', 'SHARED_SCOPE'") @NotBlank String scope,
+            @ToolParam(description = ATTRIBUTES_JSON_REQUEST_DESCRIPTION) @NotBlank String jsonBody) {
         EntityId entityId = EntityIdFactory.getByTypeAndId(entityType, entityIdStr);
         boolean result = clientService.getClient().saveEntityAttributesV2(entityId, scope, JacksonUtil.toJsonNode(jsonBody));
         if (result) {
@@ -226,9 +229,9 @@ public class TelemetryTools implements McpTools {
             "\n\n The scope parameter is not used in the API call implementation but should be specified whatever value because it is used as a path variable. "
             + INVALID_ENTITY_ID_OR_ENTITY_TYPE_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
     public String saveEntityTelemetry(
-            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) String entityType,
-            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) String entityIdStr,
-            @ToolParam(description = TELEMETRY_JSON_REQUEST_DESCRIPTION) String jsonBody) {
+            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String entityType,
+            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityIdStr,
+            @ToolParam(description = TELEMETRY_JSON_REQUEST_DESCRIPTION) @NotBlank String jsonBody) {
         EntityId entityId = EntityIdFactory.getByTypeAndId(entityType, entityIdStr);
         boolean result = clientService.getClient().saveEntityTelemetry(entityId, "ANY", JacksonUtil.toJsonNode(jsonBody));
         if (result) {
@@ -243,10 +246,10 @@ public class TelemetryTools implements McpTools {
             + "\n\nThe ttl parameter takes affect only in case of Cassandra DB."
             + INVALID_ENTITY_ID_OR_ENTITY_TYPE_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
     public String saveEntityTelemetryWithTTL(
-            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) String entityType,
-            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) String entityIdStr,
-            @ToolParam(description = "A  long value representing TTL (Time to Live) parameter.") Long ttl,
-            @ToolParam(description = TELEMETRY_JSON_REQUEST_DESCRIPTION) String jsonBody) {
+            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String entityType,
+            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityIdStr,
+            @ToolParam(description = "A  long value representing TTL (Time to Live) parameter.") @PositiveOrZero Long ttl,
+            @ToolParam(description = TELEMETRY_JSON_REQUEST_DESCRIPTION) @NotBlank String jsonBody) {
         EntityId entityId = EntityIdFactory.getByTypeAndId(entityType, entityIdStr);
         boolean result = clientService.getClient().saveEntityTelemetryWithTTL(entityId, "ANY", ttl, JacksonUtil.toJsonNode(jsonBody));
         if (result) {

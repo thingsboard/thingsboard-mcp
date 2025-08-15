@@ -4,9 +4,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+import org.thingsboard.ai.mcp.server.data.EditionChangedEvent;
 import org.thingsboard.ai.mcp.server.data.ThingsBoardEdition;
 import org.thingsboard.server.common.data.StringUtils;
 
@@ -16,7 +21,10 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class RestClientService {
+
+    private final ApplicationEventPublisher events;
 
     @Value("${thingsboard.url:}")
     private String url;
@@ -32,7 +40,6 @@ public class RestClientService {
 
     @Getter
     private RestClient client;
-    @Getter
     private ThingsBoardEdition edition;
     @Getter
     private String version;
@@ -80,6 +87,15 @@ public class RestClientService {
             }
             log.info("Connected to ThingsBoard [{} {}] at {}", edition.getName(), version, url);
         }
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void initEdition() {
+        events.publishEvent(new EditionChangedEvent(edition));
+    }
+
+    public ThingsBoardEdition getEdition() {
+        return edition != null ? edition : ThingsBoardEdition.CE;
     }
 
 }

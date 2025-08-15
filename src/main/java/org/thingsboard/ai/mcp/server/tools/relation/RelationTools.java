@@ -1,5 +1,6 @@
 package org.thingsboard.ai.mcp.server.tools.relation;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
@@ -30,12 +31,12 @@ public class RelationTools implements McpTools {
 
     @Tool(description = "Returns relation object between two specified entities if present. Otherwise throws exception. " + SECURITY_CHECKS_ENTITIES_DESCRIPTION)
     public String getRelation(
-            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) String strFromId,
-            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) String strFromType,
-            @ToolParam(description = RELATION_TYPE_PARAM_DESCRIPTION) String relationType,
+            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String strFromId,
+            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String strFromType,
+            @ToolParam(description = RELATION_TYPE_PARAM_DESCRIPTION) @NotBlank String relationType,
             @ToolParam(required = false, description = RELATION_TYPE_GROUP_PARAM_DESCRIPTION) String strRelationTypeGroup,
-            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) String strToId,
-            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) String strToType) {
+            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String strToId,
+            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String strToType) {
         EntityId fromId = EntityIdFactory.getByTypeAndId(strFromType, strFromId);
         EntityId toId = EntityIdFactory.getByTypeAndId(strToType, strToId);
         RelationTypeGroup typeGroup = parseRelationTypeGroup(strRelationTypeGroup);
@@ -44,8 +45,8 @@ public class RelationTools implements McpTools {
 
     @Tool(description = "Returns list of relation objects for the specified entity by the 'from' direction. " + SECURITY_CHECKS_ENTITIES_DESCRIPTION)
     public String findByFrom(
-            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) String strFromId,
-            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) String strFromType,
+            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String strFromId,
+            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String strFromType,
             @ToolParam(required = false, description = RELATION_TYPE_GROUP_PARAM_DESCRIPTION) String strRelationTypeGroup) {
         EntityId entityId = EntityIdFactory.getByTypeAndId(strFromType, strFromId);
         RelationTypeGroup typeGroup = parseRelationTypeGroup(strRelationTypeGroup);
@@ -54,8 +55,8 @@ public class RelationTools implements McpTools {
 
     @Tool(description = "Returns list of relation info objects for the specified entity by the 'from' direction. " + SECURITY_CHECKS_ENTITIES_DESCRIPTION + " " + RELATION_INFO_DESCRIPTION)
     public String findInfoByFrom(
-            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) String strFromId,
-            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) String strFromType,
+            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String strFromId,
+            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String strFromType,
             @ToolParam(required = false, description = RELATION_TYPE_GROUP_PARAM_DESCRIPTION) String strRelationTypeGroup) {
         EntityId entityId = EntityIdFactory.getByTypeAndId(strFromType, strFromId);
         RelationTypeGroup typeGroup = parseRelationTypeGroup(strRelationTypeGroup);
@@ -64,9 +65,9 @@ public class RelationTools implements McpTools {
 
     @Tool(description = "Returns list of relation objects for the specified entity by the 'from' direction and relation type. " + SECURITY_CHECKS_ENTITIES_DESCRIPTION)
     public String findByFromWithRelationType(
-            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) String strFromId,
-            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) String strFromType,
-            @ToolParam(description = RELATION_TYPE_PARAM_DESCRIPTION) String relationType,
+            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String strFromId,
+            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String strFromType,
+            @ToolParam(description = RELATION_TYPE_PARAM_DESCRIPTION) @NotBlank String relationType,
             @ToolParam(required = false, description = RELATION_TYPE_GROUP_PARAM_DESCRIPTION) String strRelationTypeGroup) {
         EntityId entityId = EntityIdFactory.getByTypeAndId(strFromType, strFromId);
         RelationTypeGroup typeGroup = parseRelationTypeGroup(strRelationTypeGroup);
@@ -75,8 +76,8 @@ public class RelationTools implements McpTools {
 
     @Tool(description = "Returns list of relation objects for the specified entity by the 'to' direction. " + SECURITY_CHECKS_ENTITIES_DESCRIPTION)
     public String findByTo(
-            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) String strToId,
-            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) String strToType,
+            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String strToId,
+            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String strToType,
             @ToolParam(required = false, description = RELATION_TYPE_GROUP_PARAM_DESCRIPTION) String strRelationTypeGroup) {
         EntityId entityId = EntityIdFactory.getByTypeAndId(strToType, strToId);
         RelationTypeGroup typeGroup = parseRelationTypeGroup(strRelationTypeGroup);
@@ -85,19 +86,19 @@ public class RelationTools implements McpTools {
 
     @Tool(description = "Returns list of relation info objects for the specified entity by the 'to' direction. " + SECURITY_CHECKS_ENTITIES_DESCRIPTION + " " + RELATION_INFO_DESCRIPTION)
     public String findInfoByTo(
-            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) String strToId,
-            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) String strToType,
+            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String strToId,
+            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String strToType,
             @ToolParam(required = false, description = RELATION_TYPE_GROUP_PARAM_DESCRIPTION) String strRelationTypeGroup) {
         EntityId entityId = EntityIdFactory.getByTypeAndId(strToType, strToId);
         RelationTypeGroup typeGroup = parseRelationTypeGroup(strRelationTypeGroup);
-        return JacksonUtil.toString(clientService.getClient().findByTo(entityId, typeGroup));
+        return JacksonUtil.toString(clientService.getClient().findInfoByTo(entityId, typeGroup));
     }
 
     @Tool(description = "Returns list of relation objects for the specified entity by the 'to' direction and relation type. " + SECURITY_CHECKS_ENTITIES_DESCRIPTION)
     public String findByToWithRelationType(
-            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) String strToId,
-            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) String strToType,
-            @ToolParam(description = RELATION_TYPE_PARAM_DESCRIPTION) String relationType,
+            @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String strToId,
+            @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String strToType,
+            @ToolParam(description = RELATION_TYPE_PARAM_DESCRIPTION) @NotBlank String relationType,
             @ToolParam(required = false, description = RELATION_TYPE_GROUP_PARAM_DESCRIPTION) String strRelationTypeGroup) {
         EntityId entityId = EntityIdFactory.getByTypeAndId(strToType, strToId);
         RelationTypeGroup typeGroup = parseRelationTypeGroup(strRelationTypeGroup);

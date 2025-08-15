@@ -260,6 +260,7 @@ The MCP server requires the following environment variables to connect to your T
 | `SPRING_AI_MCP_SERVER_STDIO` | Enable/disable standard I/O communication      | true |
 | `SPRING_AI_MCP_SERVER_SSE_ENDPOINT` | Server-Sent Events (SSE) endpoint URL          | /sse |
 | `SPRING_AI_MCP_SERVER_SSE_MESSAGE_ENDPOINT` | Server-Sent Events message endpoint URL        | /mcp/message |
+| `LOGGING_PATTERN_CONSOLE` | Logback console log pattern |  |
 | `SERVER_PORT` | HTTP server port number                        | 8080 |
 
 These variables can be set either:
@@ -345,8 +346,10 @@ The ThingsBoard MCP Server provides a wide range of tools that can be used throu
 |------|-------------|
 | `getRelation` | Returns relation object between two specified entities if present. |
 | `findByFrom` | Returns list of relation objects for the specified entity by the 'from' direction. |
+| `findByFromWithRelationType` | Returns list of relation objects for the specified entity by the 'from' direction and relation type. |
 | `findInfoByFrom` | Returns list of relation info objects for the specified entity by the 'from' direction. |
 | `findByTo` | Returns list of relation objects for the specified entity by the 'to' direction. |
+| `findByToWithRelationType` | Returns list of relation objects for the specified entity by the 'to' direction and relation type. |
 | `findInfoByTo` | Returns list of relation info objects for the specified entity by the 'to' direction. |
 
 ### Telemetry Tools
