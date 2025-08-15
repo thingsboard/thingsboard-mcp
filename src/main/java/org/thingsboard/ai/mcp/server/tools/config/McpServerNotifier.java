@@ -12,15 +12,18 @@ public class McpServerNotifier {
 
     private final McpSyncServer mcpServer;
 
+    private volatile boolean removed = false;
+
     public McpServerNotifier(McpSyncServer mcpServer) {
         this.mcpServer = mcpServer;
     }
 
     @EventListener
     public void handleEvent(RemoveToolsEvent event) {
-        try {
+        if (!removed) {
             event.tools().forEach(mcpServer::removeTool);
-        } catch (Exception ignore) {}
+            removed = true;
+        }
     }
 
 }

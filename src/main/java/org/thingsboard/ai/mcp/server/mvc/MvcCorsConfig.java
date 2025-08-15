@@ -15,7 +15,7 @@ import java.util.List;
 
 @Slf4j
 @Configuration
-@ConditionalOnProperty(name = "spring.ai.mcp.server.stdio", havingValue = "r")
+@ConditionalOnProperty(name = "spring.ai.mcp.server.stdio", havingValue = "false")
 class MvcCorsConfig implements WebMvcConfigurer {
 
     @Value("${spring.ai.mcp.server.sse-endpoint:}")

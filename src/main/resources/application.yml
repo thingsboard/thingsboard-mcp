@@ -27,8 +27,8 @@ logging:
   level:
     root: info
     io.modelcontextprotocol.server.McpAsyncServer: error
-    org.springframework.ai.mcp: off
-    org.thingsboard.ai.mcp.server: off
+    org.springframework.ai.mcp: info
+    org.thingsboard.ai.mcp.server: info
   pattern:
     console: "${LOGGING_PATTERN_CONSOLE:%d{yyyy-MM-dd HH:mm:ss} | %-5level | %logger{1.} | %msg%n}"
 
