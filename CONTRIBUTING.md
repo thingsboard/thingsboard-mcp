@@ -37,7 +37,7 @@ java -jar ./target/thingsboard-mcp-server-*.jar
 
 ### Run (SSE/HTTP mode)
 ```bash
-java -Dspring.ai.mcp.server.stdio=false      -Dspring.main.web-application-type=servlet      -jar ./target/thingsboard-mcp-server-*.jar
+java -Dspring.ai.mcp.server.stdio=false -Dspring.main.web-application-type=servlet -jar ./target/thingsboard-mcp-server-*.jar
 ```
 
 ### Environment Variables
@@ -55,25 +55,27 @@ Optional:
 
 ## 🧪 Testing Your Changes
 1. **Unit tests**: Ensure all existing and new tests pass.
-   ```bash
-   mvn test
-   ```
+```bash
+mvn test
+```
+
 2. **Integration smoke test**:
     - Run the server in your chosen mode
     - Connect with an MCP client (e.g., Claude Desktop, Cursor)
     - Exercise affected tools and verify responses
+
 3. **Docker test** (if changes affect container build/runtime):
-   ```bash
-   docker build -t my-mcp .
-   docker run --rm -i      -e THINGSBOARD_URL=<url>      -e THINGSBOARD_USERNAME=<user>      -e THINGSBOARD_PASSWORD=<pass>      my-mcp
-   ```
+```bash
+docker build -t my-mcp .
+docker run --rm -i -e THINGSBOARD_URL=<url> -e THINGSBOARD_USERNAME=<user> -e THINGSBOARD_PASSWORD=<pass> my-mcp
+```
 
 ---
 
 ## 📝 Pull Request Guidelines
 - Use the [Pull Request Template](.github/PULL_REQUEST_TEMPLATE.md)
 - Keep commits focused and well-described
-- Update relevant documentation (README, examples, Javadoc)
+- Update relevant documentation (README, examples)
 - Reference related issues (e.g., `Closes #123`)
 - Ensure code follows our formatting and style
 
