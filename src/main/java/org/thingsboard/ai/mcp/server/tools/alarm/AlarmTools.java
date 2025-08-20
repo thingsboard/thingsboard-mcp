@@ -66,13 +66,13 @@ public class AlarmTools implements McpTools {
             @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityId,
             @ToolParam(required = false, description = ALARM_QUERY_SEARCH_STATUS_DESCRIPTION) String searchStatus,
             @ToolParam(required = false, description = ALARM_QUERY_STATUS_DESCRIPTION) String status,
-            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive int pageSize,
-            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero int page,
+            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive String pageSize,
+            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero String page,
             @ToolParam(required = false, description = ALARM_QUERY_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'startTs', 'endTs', 'ackTs', 'clearTs', 'severity', 'status'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder,
-            @ToolParam(required = false, description = ALARM_QUERY_START_TIME_DESCRIPTION) Long startTs,
-            @ToolParam(required = false, description = ALARM_QUERY_END_TIME_DESCRIPTION) Long endTs,
+            @ToolParam(required = false, description = ALARM_QUERY_START_TIME_DESCRIPTION) String startTs,
+            @ToolParam(required = false, description = ALARM_QUERY_END_TIME_DESCRIPTION) String endTs,
             @ToolParam(required = false, description = ALARM_QUERY_FETCH_ORIGINATOR_DESCRIPTION) Boolean fetchOriginator) throws ThingsboardException {
         AlarmSearchStatus alarmSearchStatus = searchStatus != null ? AlarmSearchStatus.valueOf(searchStatus) : null;
         AlarmStatus alarmStatus = status != null ? AlarmStatus.valueOf(status) : null;
@@ -88,13 +88,13 @@ public class AlarmTools implements McpTools {
             @ToolParam(required = false, description = ALARM_QUERY_SEARCH_STATUS_DESCRIPTION) String searchStatus,
             @ToolParam(required = false, description = ALARM_QUERY_STATUS_DESCRIPTION) String status,
             @ToolParam(required = false, description = ALARM_QUERY_ASSIGNEE_DESCRIPTION) String assigneeId,
-            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive int pageSize,
-            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero int page,
+            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive String pageSize,
+            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero String page,
             @ToolParam(required = false, description = ALARM_QUERY_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'startTs', 'endTs', 'ackTs', 'clearTs', 'severity', 'status'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder,
-            @ToolParam(required = false, description = ALARM_QUERY_START_TIME_DESCRIPTION) Long startTs,
-            @ToolParam(required = false, description = ALARM_QUERY_END_TIME_DESCRIPTION) Long endTs,
+            @ToolParam(required = false, description = ALARM_QUERY_START_TIME_DESCRIPTION) String startTs,
+            @ToolParam(required = false, description = ALARM_QUERY_END_TIME_DESCRIPTION) String endTs,
             @ToolParam(required = false, description = ALARM_QUERY_FETCH_ORIGINATOR_DESCRIPTION) Boolean fetchOriginator) throws ThingsboardException {
         AlarmSearchStatus alarmSearchStatus = searchStatus != null ? AlarmSearchStatus.valueOf(searchStatus) : null;
         AlarmStatus alarmStatus = status != null ? AlarmStatus.valueOf(status) : null;
@@ -116,8 +116,8 @@ public class AlarmTools implements McpTools {
 
     @Tool(description = "Get a set of unique alarm types based on alarms that are either owned by tenant or assigned to the customer which user is performing the request. " + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
     public String getAlarmTypes(
-            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive int pageSize,
-            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero int page,
+            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive String pageSize,
+            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero String page,
             @ToolParam(required = false, description = ALARM_QUERY_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
         PageLink pageLink = createPageLink(pageSize, page, textSearch, "type", sortOrder);

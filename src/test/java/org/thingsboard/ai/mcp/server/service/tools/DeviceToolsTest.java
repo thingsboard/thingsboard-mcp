@@ -99,7 +99,7 @@ public class DeviceToolsTest {
         PageData<Device> page = new PageData<>(devices, 2, devices.size(), true);
         when(restClient.getTenantDevices(eq("sensor"), any(PageLink.class))).thenReturn(page);
 
-        String result = tools.getTenantDevices(40, 1, "sensor", "temp", "deviceProfileName", "DESC");
+        String result = tools.getTenantDevices("40", "1", "sensor", "temp", "deviceProfileName", "DESC");
 
         ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);
         verify(restClient).getTenantDevices(eq("sensor"), pageCap.capture());
@@ -143,7 +143,7 @@ public class DeviceToolsTest {
         PageData<Device> page = new PageData<>(devices, 1, devices.size(), false);
         when(restClient.getCustomerDevices(any(CustomerId.class), eq("meter"), any(PageLink.class))).thenReturn(page);
 
-        String result = tools.getCustomerDevices(customerUuid.toString(), 25, 0, "meter", "plant", "createdTime", "ASC");
+        String result = tools.getCustomerDevices(customerUuid.toString(), "25", "0", "meter", "plant", "createdTime", "ASC");
 
         ArgumentCaptor<CustomerId> customerCap = ArgumentCaptor.forClass(CustomerId.class);
         ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);
@@ -164,7 +164,7 @@ public class DeviceToolsTest {
     void testFindUserDevices_ceEdition() throws Exception {
         when(clientService.getEdition()).thenReturn(ThingsBoardEdition.CE);
 
-        String result = tools.getUserDevices(10, 0, null, null, null, null);
+        String result = tools.getUserDevices("10", "0", null, null, null, null);
 
         verify(clientService, never()).getClient();
         assertThat(result).isEqualTo(PE_ONLY_AVAILABLE);
@@ -185,7 +185,7 @@ public class DeviceToolsTest {
         PageData<Device> page = new PageData<>(devices, 1, devices.size(), false);
         when(restClient.getUserDevices(eq("pump"), any(PageLink.class))).thenReturn(page);
 
-        String result = tools.getUserDevices(15, 2, "pump", "abc", "name", "DESC");
+        String result = tools.getUserDevices("15", "2", "pump", "abc", "name", "DESC");
 
         ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);
         verify(restClient).getUserDevices(eq("pump"), pageCap.capture());
@@ -213,7 +213,7 @@ public class DeviceToolsTest {
         List<Device> devices = List.of(device1, device2);
         when(restClient.getDevicesByIds(anyList())).thenReturn(devices);
 
-        String result = tools.getDevicesByIds(id1.toString(), id2.toString());
+        String result = tools.getDevicesByIds(id1 + "," + id2);
 
         verify(restClient).getDevicesByIds(deviceIdsCaptor.capture());
 
@@ -227,7 +227,7 @@ public class DeviceToolsTest {
     void testFindDevicesByEntityGroupId_ceEdition() throws Exception {
         when(clientService.getEdition()).thenReturn(ThingsBoardEdition.CE);
 
-        String result = tools.getDevicesByEntityGroupId(UUID.randomUUID().toString(), 10, 0, null, null, null);
+        String result = tools.getDevicesByEntityGroupId(UUID.randomUUID().toString(), "10", "0", null, null, null);
 
         verify(clientService, never()).getClient();
         assertThat(result).isEqualTo(PE_ONLY_AVAILABLE);
@@ -249,7 +249,7 @@ public class DeviceToolsTest {
         PageData<Device> page = new PageData<>(devices, 1, devices.size(), false);
         when(restClient.getDevicesByEntityGroupId(any(EntityGroupId.class), any(PageLink.class))).thenReturn(page);
 
-        String result = tools.getDevicesByEntityGroupId(groupUuid.toString(), 20, 1, "xyz", "email", "ASC");
+        String result = tools.getDevicesByEntityGroupId(groupUuid.toString(), "20", "1", "xyz", "email", "ASC");
 
         ArgumentCaptor<EntityGroupId> groupCap = ArgumentCaptor.forClass(EntityGroupId.class);
         ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);

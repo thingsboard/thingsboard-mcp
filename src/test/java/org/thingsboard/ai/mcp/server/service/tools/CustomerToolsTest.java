@@ -73,7 +73,7 @@ public class CustomerToolsTest {
         PageData<Customer> page = new PageData<>(items, 2, items.size(), true);
         when(restClient.getCustomers(any(PageLink.class))).thenReturn(page);
 
-        String result = tools.getCustomers(50, 2, "acme", "title", "DESC");
+        String result = tools.getCustomers("50", "2", "acme", "title", "DESC");
 
         ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);
         verify(restClient).getCustomers(pageCap.capture());
@@ -106,7 +106,7 @@ public class CustomerToolsTest {
     void testFindUserCustomers_ceEdition() throws Exception {
         when(clientService.getEdition()).thenReturn(org.thingsboard.ai.mcp.server.data.ThingsBoardEdition.CE);
 
-        String result = tools.getUserCustomers(25, 0, null, null, null);
+        String result = tools.getUserCustomers("25", "0", null, null, null);
 
         verify(clientService, never()).getClient();
         assertThat(result).isEqualTo(PE_ONLY_AVAILABLE);
@@ -127,7 +127,7 @@ public class CustomerToolsTest {
         PageData<Customer> page = new PageData<>(items, 1, items.size(), false);
         when(restClient.getUserCustomers(any(PageLink.class))).thenReturn(page);
 
-        String result = tools.getUserCustomers(25, 1, "user", "createdTime", "ASC");
+        String result = tools.getUserCustomers("25", "1", "user", "createdTime", "ASC");
 
         ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);
         verify(restClient).getUserCustomers(pageCap.capture());
@@ -145,7 +145,7 @@ public class CustomerToolsTest {
     void testFindCustomersByEntityGroupId_ceEdition() throws Exception {
         when(clientService.getEdition()).thenReturn(org.thingsboard.ai.mcp.server.data.ThingsBoardEdition.CE);
 
-        String result = tools.getCustomersByEntityGroupId(UUID.randomUUID().toString(), 10, 0, null, null, null);
+        String result = tools.getCustomersByEntityGroupId(UUID.randomUUID().toString(), "10", "0", null, null, null);
 
         verify(clientService, never()).getClient();
         assertThat(result).isEqualTo(PE_ONLY_AVAILABLE);
@@ -167,7 +167,7 @@ public class CustomerToolsTest {
         PageData<Customer> page = new PageData<>(items, 1, items.size(), false);
         when(restClient.getCustomersByEntityGroupId(any(EntityGroupId.class), any(PageLink.class))).thenReturn(page);
 
-        String result = tools.getCustomersByEntityGroupId(groupUuid.toString(), 10, 3, "grp", "email", "DESC");
+        String result = tools.getCustomersByEntityGroupId(groupUuid.toString(), "10", "3", "grp", "email", "DESC");
 
         ArgumentCaptor<EntityGroupId> egCap = ArgumentCaptor.forClass(EntityGroupId.class);
         ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);

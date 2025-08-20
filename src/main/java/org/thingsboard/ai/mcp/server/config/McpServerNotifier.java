@@ -1,4 +1,4 @@
-package org.thingsboard.ai.mcp.server.tools.config;
+package org.thingsboard.ai.mcp.server.config;
 
 import io.modelcontextprotocol.server.McpSyncServer;
 import lombok.extern.slf4j.Slf4j;

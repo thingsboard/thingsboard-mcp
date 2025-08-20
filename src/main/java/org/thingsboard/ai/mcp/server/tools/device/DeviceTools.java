@@ -19,6 +19,7 @@ import org.thingsboard.server.common.data.id.EntityGroupId;
 import org.thingsboard.server.common.data.page.PageLink;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ASSET_TEXT_SEARCH_DESCRIPTION;
@@ -61,8 +62,8 @@ public class DeviceTools implements McpTools {
 
     @Tool(description = "Returns a page of devices owned by tenant. " + PAGE_DATA_PARAMETERS + TENANT_AUTHORITY_PARAGRAPH)
     public String getTenantDevices(
-            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive int pageSize,
-            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero int page,
+            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive String pageSize,
+            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero String page,
             @ToolParam(required = false, description = ASSET_TYPE_DESCRIPTION) String type,
             @ToolParam(required = false, description = ASSET_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'name', 'deviceProfileName', 'label', 'customerTitle'") String sortProperty,
@@ -81,8 +82,8 @@ public class DeviceTools implements McpTools {
             PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
     public String getCustomerDevices(
             @ToolParam(description = CUSTOMER_ID_PARAM_DESCRIPTION) @NotBlank String customerId,
-            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive int pageSize,
-            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero int page,
+            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive String pageSize,
+            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero String page,
             @ToolParam(required = false, description = ASSET_TYPE_DESCRIPTION) String type,
             @ToolParam(required = false, description = ASSET_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'name', 'deviceProfileName', 'label', 'customerTitle'") String sortProperty,
@@ -94,8 +95,8 @@ public class DeviceTools implements McpTools {
     @PeOnly
     @Tool(description = "Returns a page of device objects available for the current user. " + PE_ONLY_AVAILABLE + PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
     public String getUserDevices(
-            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive int pageSize,
-            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero int page,
+            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive String pageSize,
+            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero String page,
             @ToolParam(required = false, description = ASSET_TYPE_DESCRIPTION) String type,
             @ToolParam(required = false, description = ASSET_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'name', 'type', 'deviceProfileName', 'label', 'customerTitle'") String sortProperty,
@@ -108,16 +109,17 @@ public class DeviceTools implements McpTools {
     }
 
     @Tool(description = "Get Devices By Ids. Requested devices must be owned by tenant or assigned to customer which user is performing the request. " + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
-    public String getDevicesByIds(@ToolParam(description = "A list of assets ids, separated by comma ','") @NotBlank String... devicesIds) {
-        return JacksonUtil.toString(clientService.getClient().getDevicesByIds(Arrays.stream(devicesIds).map(UUID::fromString).map(DeviceId::new).toList()));
+    public String getDevicesByIds(@ToolParam(description = "A string of devices ids, separated by comma ','") @NotBlank String devicesIds) {
+        List<DeviceId> deviceIdList = Arrays.stream(devicesIds.split(",")).map(UUID::fromString).map(DeviceId::new).toList();
+        return JacksonUtil.toString(clientService.getClient().getDevicesByIds(deviceIdList));
     }
 
     @PeOnly
     @Tool(description = "Returns a page of device objects that belongs to specified Entity Group Id. " + PE_ONLY_AVAILABLE + PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH + RBAC_GROUP_READ_CHECK)
     public String getDevicesByEntityGroupId(
             @ToolParam(description = ENTITY_GROUP_ID_PARAM_DESCRIPTION) @NotBlank String entityGroupId,
-            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive int pageSize,
-            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero int page,
+            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive String pageSize,
+            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero String page,
             @ToolParam(required = false, description = CUSTOMER_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'firstName', 'lastName', 'email'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {

@@ -50,8 +50,8 @@ public class CustomerTools implements McpTools {
 
     @Tool(description = "Returns a page of customers owned by tenant. " + PAGE_DATA_PARAMETERS + TENANT_AUTHORITY_PARAGRAPH)
     public String getCustomers(
-            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive int pageSize,
-            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero int page,
+            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive String pageSize,
+            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero String page,
             @ToolParam(required = false, description = CUSTOMER_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'title', 'email', 'country', 'city'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
@@ -67,8 +67,8 @@ public class CustomerTools implements McpTools {
     @PeOnly
     @Tool(description = "Returns a page of customers available for the user. " + PE_ONLY_AVAILABLE + PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH + RBAC_READ_CHECK)
     public String getUserCustomers(
-            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive int pageSize,
-            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero int page,
+            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive String pageSize,
+            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero String page,
             @ToolParam(required = false, description = CUSTOMER_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'title', 'email', 'country', 'city'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
@@ -83,8 +83,8 @@ public class CustomerTools implements McpTools {
     @Tool(description = "Returns a page of Customer objects that belongs to specified Entity Group Id. " + PE_ONLY_AVAILABLE + PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH + RBAC_GROUP_READ_CHECK)
     public String getCustomersByEntityGroupId(
             @ToolParam(description = ENTITY_GROUP_ID_PARAM_DESCRIPTION) @NotBlank String entityGroupId,
-            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive int pageSize,
-            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero int page,
+            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive String pageSize,
+            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero String page,
             @ToolParam(required = false, description = CUSTOMER_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'title', 'email', 'country', 'city'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {

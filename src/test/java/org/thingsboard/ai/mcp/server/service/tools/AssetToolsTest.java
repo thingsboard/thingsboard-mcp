@@ -81,7 +81,7 @@ public class AssetToolsTest {
         PageData<Asset> page = new PageData<>(assets, 2, assets.size(), true);
         when(restClient.getTenantAssets(any(PageLink.class), eq("building"))).thenReturn(page);
 
-        String result = tools.getTenantAssets(50, 1, "building", "name", "name", "DESC");
+        String result = tools.getTenantAssets("50", "1", "building", "name", "name", "DESC");
 
         ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);
         verify(restClient).getTenantAssets(pageCap.capture(), eq("building"));
@@ -124,7 +124,7 @@ public class AssetToolsTest {
         PageData<Asset> page = new PageData<>(assets, 1, assets.size(), false);
         when(restClient.getCustomerAssets(any(CustomerId.class), any(PageLink.class), eq("meter"))).thenReturn(page);
 
-        String result = tools.getCustomerAssets(customerUuid.toString(), 25, 0, "meter", "plant", null, null);
+        String result = tools.getCustomerAssets(customerUuid.toString(), "25", "0", "meter", "plant", null, null);
 
         ArgumentCaptor<CustomerId> customerCap = ArgumentCaptor.forClass(CustomerId.class);
         ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);
@@ -144,7 +144,7 @@ public class AssetToolsTest {
     void testFindUserAssets_ceEdition() throws Exception {
         when(clientService.getEdition()).thenReturn(ThingsBoardEdition.CE);
 
-        String result = tools.getUserAssets(10, 0, null, null, null, null);
+        String result = tools.getUserAssets("10", "0", null, null, null, null);
 
         verify(clientService, never()).getClient();
         assertThat(result).isEqualTo(PE_ONLY_AVAILABLE);
@@ -165,7 +165,7 @@ public class AssetToolsTest {
         PageData<Asset> page = new PageData<>(assets, 1, assets.size(), false);
         when(restClient.getUserAssets(eq("pump"), any(PageLink.class))).thenReturn(page);
 
-        String result = tools.getUserAssets(15, 2, "pump", "abc", "createdTime", "DESC");
+        String result = tools.getUserAssets("15", "2", "pump", "abc", "createdTime", "DESC");
 
         ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);
         verify(restClient).getUserAssets(eq("pump"), pageCap.capture());
@@ -192,7 +192,7 @@ public class AssetToolsTest {
         List<Asset> assets = List.of(asset1, asset2);
         when(restClient.getAssetsByIds(anyList())).thenReturn(assets);
 
-        String result = tools.getAssetsByIds(id1.toString(), id2.toString());
+        String result = tools.getAssetsByIds(id1 + "," + id2);
 
         verify(restClient).getAssetsByIds(assetIdsCaptor.capture());
         List<AssetId> passedIds = assetIdsCaptor.getValue();
@@ -206,7 +206,7 @@ public class AssetToolsTest {
     void testFindAssetsByEntityGroupId_ceEdition() throws Exception {
         when(clientService.getEdition()).thenReturn(ThingsBoardEdition.CE);
 
-        String result = tools.getAssetsByEntityGroupId(UUID.randomUUID().toString(), 10, 0, null, null, null);
+        String result = tools.getAssetsByEntityGroupId(UUID.randomUUID().toString(), "10", "0", null, null, null);
 
         verify(clientService, never()).getClient();
         assertThat(result).isEqualTo(PE_ONLY_AVAILABLE);
@@ -228,7 +228,7 @@ public class AssetToolsTest {
         PageData<Asset> page = new PageData<>(assets, 1, assets.size(), false);
         when(restClient.getAssetsByEntityGroupId(any(EntityGroupId.class), any(PageLink.class))).thenReturn(page);
 
-        String result = tools.getAssetsByEntityGroupId(groupUuid.toString(), 20, 1, "xyz", "email", "ASC");
+        String result = tools.getAssetsByEntityGroupId(groupUuid.toString(), "20", "1", "xyz", "email", "ASC");
 
         ArgumentCaptor<EntityGroupId> groupCap = ArgumentCaptor.forClass(EntityGroupId.class);
         ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);
