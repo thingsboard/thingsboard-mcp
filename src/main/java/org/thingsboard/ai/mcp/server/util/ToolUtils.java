@@ -30,10 +30,10 @@ public class ToolUtils {
 
     public static PageLink createPageLink(String pageSizeStr, String pageStr, String textSearch, String sortProperty, String sortOrder) throws ThingsboardException {
         final int pageSize = sanitizePageSize(parseIntOrDefault(pageSizeStr, PAGE_SIZE));
-        final int pageNumber = sanitizePageNumber(parseIntOrDefault(pageStr, PAGE_NUMBER));
+        final int page = sanitizePageNumber(parseIntOrDefault(pageStr, PAGE_NUMBER));
 
         if (StringUtils.isBlank(sortProperty)) {
-            return new PageLink(pageSize, pageNumber, textSearch);
+            return new PageLink(pageSize, page, textSearch);
         }
 
         if (!isValidProperty(sortProperty)) {
@@ -42,10 +42,12 @@ public class ToolUtils {
 
         final SortOrder.Direction direction = resolveSortDirection(sortOrder);
         final SortOrder sort = new SortOrder(sortProperty, direction);
-        return new PageLink(pageSize, pageNumber, textSearch, sort);
+        return new PageLink(pageSize, page, textSearch, sort);
     }
 
-    public static EntityDataPageLink createPageLink(int pageSize, int page, String textSearch, String sortOrderKey, String sortOrderType, String sortOrder) throws ThingsboardException {
+    public static EntityDataPageLink createPageLink(String pageSizeStr, String pageStr, String textSearch, String sortOrderKey, String sortOrderType, String sortOrder) throws ThingsboardException {
+        final int pageSize = sanitizePageSize(parseIntOrDefault(pageSizeStr, PAGE_SIZE));
+        final int page = sanitizePageNumber(parseIntOrDefault(pageStr, PAGE_NUMBER));
         EntityKey entityKey = null;
         if (StringUtils.isNotEmpty(sortOrderKey) && StringUtils.isNotEmpty(sortOrderType)) {
             try {
@@ -94,7 +96,15 @@ public class ToolUtils {
         }
     }
 
-    private static int parseIntOrDefault(String candidate, int defaultValue) {
+    public static Long parseLong(String value, Long defaultValue) {
+        try {
+            return Long.parseLong(value);
+        } catch (Exception ignored) {
+            return defaultValue;
+        }
+    }
+
+    public static Integer parseIntOrDefault(String candidate, Integer defaultValue) {
         try {
             return Integer.parseInt(candidate);
         } catch (Exception ignored) {
@@ -102,12 +112,8 @@ public class ToolUtils {
         }
     }
 
-    private static Long parseLong(String candidate) {
-        try {
-            return Long.parseLong(candidate);
-        } catch (Exception ignored) {
-            return null;
-        }
+    public static Long parseLong(String value) {
+        return parseLong(value, null);
     }
 
     private static boolean isValidProperty(String key) {

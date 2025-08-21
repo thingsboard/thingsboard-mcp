@@ -42,6 +42,7 @@ import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.TELEMET
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.TELEMETRY_KEYS_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.TS_STRICT_DATA_EXAMPLE;
+import static org.thingsboard.ai.mcp.server.util.ToolUtils.parseLong;
 
 @Service
 @RequiredArgsConstructor
@@ -130,10 +131,9 @@ public class TelemetryTools implements McpTools {
             @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String entityType,
             @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityIdStr,
             @ToolParam(required = false, description = TELEMETRY_KEYS_DESCRIPTION) String keys,
-            @ToolParam(required = false, description = STRICT_DATA_TYPES_DESCRIPTION) Boolean useStrictDataTypes) {
+            @ToolParam(required = false, description = STRICT_DATA_TYPES_DESCRIPTION) String useStrictDataTypes) {
         EntityId entityId = EntityIdFactory.getByTypeAndId(entityType, entityIdStr);
-        useStrictDataTypes = useStrictDataTypes != null ? useStrictDataTypes : false;
-        return JacksonUtil.toString(clientService.getClient().getLatestTimeseries(entityId, List.of(keys.split(",")), useStrictDataTypes));
+        return JacksonUtil.toString(clientService.getClient().getLatestTimeseries(entityId, List.of(keys.split(",")), Boolean.parseBoolean(useStrictDataTypes)));
     }
 
     @Tool(description = "Returns a range of time series values for specified entity. " +
@@ -148,32 +148,32 @@ public class TelemetryTools implements McpTools {
             @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String entityType,
             @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityIdStr,
             @ToolParam(description = TELEMETRY_KEYS_DESCRIPTION) @NotBlank String keys,
-            @ToolParam(description = "A long value representing the start timestamp of the time range in milliseconds, UTC.") @Positive Long startTs,
-            @ToolParam(description = "A long value representing the end timestamp of the time range in milliseconds, UTC.") @Positive Long endTs,
+            @ToolParam(description = "A long value representing the start timestamp of the time range in milliseconds, UTC.") @Positive String startTs,
+            @ToolParam(description = "A long value representing the end timestamp of the time range in milliseconds, UTC.") @Positive String endTs,
             @ToolParam(required = false, description = "A string value representing the type fo the interval. Allowed values: 'MILLISECONDS', 'WEEK', 'WEEK_ISO', 'MONTH', 'QUARTER'") String intervalType,
-            @ToolParam(required = false, description = "A long value representing the aggregation interval range in milliseconds.") Long interval,
+            @ToolParam(required = false, description = "A long value representing the aggregation interval range in milliseconds.") String interval,
             @ToolParam(required = false, description = "A string value representing the timezone that will be used to calculate exact timestamps for 'WEEK', 'WEEK_ISO', 'MONTH' and 'QUARTER' interval types.") String timeZone,
-            @ToolParam(required = false, description = "An integer value that represents a max number of time series data points to fetch. This parameter is used only in the case if 'agg' parameter is set to 'NONE'. ") Integer limit,
+            @ToolParam(required = false, description = "An integer value that represents a max number of time series data points to fetch. This parameter is used only in the case if 'agg' parameter is set to 'NONE'. ") String limit,
             @ToolParam(required = false, description = "A string value representing the aggregation function. If the interval is not specified, 'agg' parameter will use 'NONE' value. Allowed value: 'MIN', 'MAX', 'SUM', 'AVG', 'COUNT', 'NONE'") String agg,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String orderBy,
-            @ToolParam(required = false, description = STRICT_DATA_TYPES_DESCRIPTION) Boolean useStrictDataTypes) {
+            @ToolParam(required = false, description = STRICT_DATA_TYPES_DESCRIPTION) String useStrictDataTypes) {
         EntityId entityId = EntityIdFactory.getByTypeAndId(entityType, entityIdStr);
         Aggregation aggregation = agg != null ? Aggregation.valueOf(agg) : Aggregation.NONE;
-        interval = interval != null ? interval : 0;
-        limit = limit != null ? limit : 100;
+        Long intervalInt = interval != null ? Long.parseLong(interval) : 0;
+        Integer limitInt = limit != null ? Integer.parseInt(limit) : 100;
         IntervalType type = intervalType != null ? IntervalType.valueOf(intervalType) : null;
         return JacksonUtil.toString(clientService.getClient().getTimeseries(
                 entityId,
                 List.of(keys.split(",")),
-                interval,
+                intervalInt,
                 aggregation,
                 type,
                 timeZone,
-                SortOrder.Direction.valueOf(orderBy),
-                startTs,
-                endTs,
-                limit,
-                useStrictDataTypes));
+                orderBy != null ? SortOrder.Direction.valueOf(orderBy) : SortOrder.Direction.ASC,
+                parseLong(startTs),
+                parseLong(endTs),
+                limitInt,
+                Boolean.parseBoolean(useStrictDataTypes)));
     }
 
     @Tool(description = "Creates or updates the device attributes based on device id and specified attribute scope. " +
@@ -248,10 +248,10 @@ public class TelemetryTools implements McpTools {
     public String saveEntityTelemetryWithTTL(
             @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String entityType,
             @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityIdStr,
-            @ToolParam(description = "A  long value representing TTL (Time to Live) parameter.") @PositiveOrZero Long ttl,
+            @ToolParam(description = "A  long value representing TTL (Time to Live) parameter.") @PositiveOrZero String ttl,
             @ToolParam(description = TELEMETRY_JSON_REQUEST_DESCRIPTION) @NotBlank String jsonBody) {
         EntityId entityId = EntityIdFactory.getByTypeAndId(entityType, entityIdStr);
-        boolean result = clientService.getClient().saveEntityTelemetryWithTTL(entityId, "ANY", ttl, JacksonUtil.toJsonNode(jsonBody));
+        boolean result = clientService.getClient().saveEntityTelemetryWithTTL(entityId, "ANY", parseLong(ttl, 0L), JacksonUtil.toJsonNode(jsonBody));
         if (result) {
             return "{\"status\":\"Telemetry with TTL submitted successfully\"}";
         }
