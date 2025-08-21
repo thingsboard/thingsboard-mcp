@@ -103,7 +103,7 @@ public class AlarmToolsTest {
 
         when(restClient.getAlarms(any(EntityId.class), isNull(), isNull(), any(TimePageLink.class), eq(false))).thenReturn(page);
 
-        String result = tools.getAlarms(deviceId.getEntityType().name(), deviceId.getId().toString(), null, null, 100, 0, null, null, null, 0L, 0L, false);
+        String result = tools.getAlarms(deviceId.getEntityType().name(), deviceId.getId().toString(), null, null, "100", "0", null, null, null, "0", "0", false);
 
         ArgumentCaptor<TimePageLink> pageCap = ArgumentCaptor.forClass(TimePageLink.class);
 
@@ -134,7 +134,7 @@ public class AlarmToolsTest {
         PageData<AlarmInfo> page = new PageData<>(alarms, 1, alarms.size(), false);
         when(restClient.getAllAlarms(isNull(), isNull(), isNull(), any(TimePageLink.class), eq(false))).thenReturn(page);
 
-        String result = tools.getAllAlarms(null, null, null, 100, 0, null, null, null, 0L, 0L, false);
+        String result = tools.getAllAlarms(null, null, null, "100", "0", null, null, null, "0", "0", false);
 
         ArgumentCaptor<TimePageLink> pageCap = ArgumentCaptor.forClass(TimePageLink.class);
         verify(restClient).getAllAlarms(isNull(), isNull(), isNull(), pageCap.capture(), eq(false));
@@ -175,7 +175,7 @@ public class AlarmToolsTest {
         PageData<EntitySubtype> page = new PageData<>(List.of(), 1, 0, false);
         when(restClient.getAlarmTypes(any(PageLink.class))).thenReturn(page);
 
-        String result = tools.getAlarmTypes(50, 3, "abc", "DESC");
+        String result = tools.getAlarmTypes("50", "3", "abc", "DESC");
 
         ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);
         verify(restClient).getAlarmTypes(pageCap.capture());

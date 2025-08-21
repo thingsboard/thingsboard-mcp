@@ -16,6 +16,7 @@ import org.thingsboard.server.common.data.id.EntityId;
 import org.thingsboard.server.common.data.id.EntityIdFactory;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -133,11 +134,12 @@ public class EntityGroupTools implements McpTools {
     @Tool(description = "Fetch the list of Entity Group Info objects based on the provided entity group ids list. "
             + PE_ONLY_AVAILABLE + ENTITY_GROUP_DESCRIPTION + ENTITY_GROUP_INFO_DESCRIPTION +
             TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH + RBAC_GROUP_READ_CHECK)
-    public String getEntityGroupsByIds(@ToolParam(description = "A list of entity ids, separated by comma ','") @NotBlank String... entityIds) {
+    public String getEntityGroupsByIds(@ToolParam(description = "A string of entity ids, separated by comma ','") @NotBlank String entityIds) {
         if (ThingsBoardEdition.CE == clientService.getEdition()) {
             return PE_ONLY_AVAILABLE;
         }
-        return JacksonUtil.toString(clientService.getClient().getEntityGroupsByIds(Arrays.stream(entityIds).map(UUID::fromString).map(EntityGroupId::new).toList()));
+        List<EntityGroupId> entityGroupIds = Arrays.stream(entityIds.split(",")).map(UUID::fromString).map(EntityGroupId::new).toList();
+        return JacksonUtil.toString(clientService.getClient().getEntityGroupsByIds(entityGroupIds));
     }
 
 }

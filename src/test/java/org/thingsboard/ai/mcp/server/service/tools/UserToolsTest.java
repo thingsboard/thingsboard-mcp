@@ -83,7 +83,7 @@ class UserToolsTest {
         PageData<User> pageData = page(users);
         when(restClient.getUsers(any(PageLink.class))).thenReturn(pageData);
 
-        String result = tools.getUsers(25, 0, null, null, null);
+        String result = tools.getUsers("25", "0", null, null, null);
 
         ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);
         verify(restClient).getUsers(pageCap.capture());
@@ -104,7 +104,7 @@ class UserToolsTest {
         PageData<User> pageData = page(users);
         when(restClient.getTenantAdmins(any(TenantId.class), any(PageLink.class))).thenReturn(pageData);
 
-        String result = tools.getTenantAdmins(tenantUuid.toString(), 50, 1, "john", "email", "ASC");
+        String result = tools.getTenantAdmins(tenantUuid.toString(), "50", "1", "john", "email", "ASC");
 
         ArgumentCaptor<TenantId> tenantCap = ArgumentCaptor.forClass(TenantId.class);
         ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);
@@ -129,7 +129,7 @@ class UserToolsTest {
         PageData<User> pageData = page(users);
         when(restClient.getCustomerUsers(any(CustomerId.class), any(PageLink.class))).thenReturn(pageData);
 
-        String result = tools.getCustomerUsers(customerUuid.toString(), 10, 2, "a", "firstName", "DESC");
+        String result = tools.getCustomerUsers(customerUuid.toString(), "10", "2", "a", "firstName", "DESC");
 
         ArgumentCaptor<CustomerId> custCap = ArgumentCaptor.forClass(CustomerId.class);
         ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);
@@ -155,7 +155,7 @@ class UserToolsTest {
         PageData<User> pageData = page(users);
         when(restClient.getAllCustomerUsers(any(PageLink.class))).thenReturn(pageData);
 
-        String result = tools.getAllCustomerUsers(15, 3, "x", "lastName", "ASC");
+        String result = tools.getAllCustomerUsers("15", "3", "x", "lastName", "ASC");
 
         ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);
         verify(restClient).getAllCustomerUsers(pageCap.capture());
@@ -178,7 +178,7 @@ class UserToolsTest {
         PageData<UserEmailInfo> pageData = new PageData<>(users, 1, users.size(), false);
         when(restClient.getUsersForAssign(any(AlarmId.class), any(PageLink.class))).thenReturn(pageData);
 
-        String result = tools.getUsersForAssign(alarmUuid.toString(), 30, 0, "doe", "email", "ASC");
+        String result = tools.getUsersForAssign(alarmUuid.toString(), "30", "0", "doe", "email", "ASC");
 
         ArgumentCaptor<AlarmId> alarmCap = ArgumentCaptor.forClass(AlarmId.class);
         ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);
@@ -205,7 +205,7 @@ class UserToolsTest {
         PageData<User> pageData = page(users);
         when(restClient.getUsersByEntityGroupId(any(EntityGroupId.class), any(PageLink.class))).thenReturn(pageData);
 
-        String result = tools.getUsersByEntityGroupId(groupId.toString(), 40, 4, "k", "createdTime", "DESC");
+        String result = tools.getUsersByEntityGroupId(groupId.toString(), "40", "4", "k", "createdTime", "DESC");
 
         ArgumentCaptor<EntityGroupId> groupCap = ArgumentCaptor.forClass(EntityGroupId.class);
         ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);

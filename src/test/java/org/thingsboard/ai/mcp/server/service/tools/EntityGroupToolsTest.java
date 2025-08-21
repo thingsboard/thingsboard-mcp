@@ -205,7 +205,7 @@ public class EntityGroupToolsTest {
     void testFindEntityGroupsByIds_ceEdition() {
         when(clientService.getEdition()).thenReturn(ThingsBoardEdition.CE);
 
-        String result = tools.getEntityGroupsByIds(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+        String result = tools.getEntityGroupsByIds(UUID.randomUUID() + "," + UUID.randomUUID());
 
         verify(clientService, never()).getClient();
         assertThat(result).isEqualTo(PE_ONLY_AVAILABLE);
@@ -222,7 +222,7 @@ public class EntityGroupToolsTest {
         List<EntityGroup> entityGroupInfos = List.of(new EntityGroup());
         when(restClient.getEntityGroupsByIds(anyList())).thenReturn(entityGroupInfos);
 
-        String result = tools.getEntityGroupsByIds(id1.toString(), id2.toString());
+        String result = tools.getEntityGroupsByIds(id1 + "," + id2);
 
         verify(restClient).getEntityGroupsByIds(entityGroupIdsCaptor.capture());
 
