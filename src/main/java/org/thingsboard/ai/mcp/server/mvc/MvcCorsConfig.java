@@ -69,7 +69,7 @@ class MvcCorsConfig implements WebMvcConfigurer {
     }
 
     private static String normalizePath(String path) {
-        if (StringUtils.hasText(path)) {
+        if (!StringUtils.hasText(path)) {
             return "/";
         }
         return path.startsWith("/") ? path : "/" + path;

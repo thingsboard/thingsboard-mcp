@@ -29,6 +29,8 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -60,6 +62,87 @@ class UserToolsTest {
     }
 
     @Test
+    void testSaveUser_defaultSendActivationEmail_true_noGroups() {
+        User payload = new User();
+        payload.setEmail("john@ex.com");
+        payload.setFirstName("John");
+
+        when(restClient.saveUser(any(User.class), eq(true))).thenAnswer(inv -> inv.getArgument(0));
+
+        String result = tools.saveUser(JacksonUtil.toString(payload), null, null, null);
+
+        ArgumentCaptor<User> userCap = ArgumentCaptor.forClass(User.class);
+        ArgumentCaptor<Boolean> flagCap = ArgumentCaptor.forClass(Boolean.class);
+        verify(restClient).saveUser(userCap.capture(), flagCap.capture());
+
+        assertThat(userCap.getValue().getEmail()).isEqualTo("john@ex.com");
+        assertThat(flagCap.getValue()).isTrue();
+        assertThat(result).isEqualTo(JacksonUtil.toString(payload));
+    }
+
+    @Test
+    void testSaveUser_withEntityGroupId() {
+        User payload = new User();
+        payload.setEmail("jane@ex.com");
+
+        UUID groupId = UUID.randomUUID();
+        when(restClient.saveUser(any(User.class), eq(true), any(EntityGroupId.class), eq((String) null)))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        String result = tools.saveUser(JacksonUtil.toString(payload), true, groupId.toString(), null);
+
+        ArgumentCaptor<User> userCap = ArgumentCaptor.forClass(User.class);
+        ArgumentCaptor<Boolean> flagCap = ArgumentCaptor.forClass(Boolean.class);
+        ArgumentCaptor<EntityGroupId> groupCap = ArgumentCaptor.forClass(EntityGroupId.class);
+
+        verify(restClient).saveUser(userCap.capture(), flagCap.capture(), groupCap.capture(), eq((String) null));
+        assertThat(flagCap.getValue()).isTrue();
+        assertThat(groupCap.getValue().getId()).isEqualTo(groupId);
+        assertThat(result).isEqualTo(JacksonUtil.toString(payload));
+    }
+
+    @Test
+    void testSaveUser_withEntityGroupIds() {
+        User payload = new User();
+        payload.setEmail("kate@ex.com");
+
+        String groupIds = UUID.randomUUID() + "," + UUID.randomUUID();
+        when(restClient.saveUser(any(User.class), eq(true), eq(null), eq(groupIds)))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        String result = tools.saveUser(JacksonUtil.toString(payload), true, null, groupIds);
+
+        ArgumentCaptor<User> userCap = ArgumentCaptor.forClass(User.class);
+        ArgumentCaptor<Boolean> flagCap = ArgumentCaptor.forClass(Boolean.class);
+        verify(restClient).saveUser(userCap.capture(), flagCap.capture(), eq(null), eq(groupIds));
+        assertThat(flagCap.getValue()).isTrue();
+        assertThat(result).isEqualTo(JacksonUtil.toString(payload));
+    }
+
+    @Test
+    void testDeleteUser_ok() {
+        UUID id = UUID.randomUUID();
+
+        String result = tools.deleteUser(id.toString());
+
+        ArgumentCaptor<UserId> idCap = ArgumentCaptor.forClass(UserId.class);
+        verify(restClient).deleteUser(idCap.capture());
+        assertThat(idCap.getValue().getId()).isEqualTo(id);
+
+        assertThat(result).contains("\"status\":\"OK\"").contains(id.toString());
+    }
+
+    @Test
+    void testDeleteUser_error() {
+        UUID id = UUID.randomUUID();
+        doThrow(new RuntimeException("boom")).when(restClient).deleteUser(any(UserId.class));
+
+        String result = tools.deleteUser(id.toString());
+
+        assertThat(result).contains("\"status\":\"ERROR\"").contains("boom").contains(id.toString());
+    }
+
+    @Test
     void testFindUserById() {
         UUID id = UUID.randomUUID();
         User user = createUser(id);
@@ -83,7 +166,7 @@ class UserToolsTest {
         PageData<User> pageData = page(users);
         when(restClient.getUsers(any(PageLink.class))).thenReturn(pageData);
 
-        String result = tools.getUsers(25, 0, null, null, null);
+        String result = tools.getUsers("25", "0", null, null, null);
 
         ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);
         verify(restClient).getUsers(pageCap.capture());
@@ -104,7 +187,7 @@ class UserToolsTest {
         PageData<User> pageData = page(users);
         when(restClient.getTenantAdmins(any(TenantId.class), any(PageLink.class))).thenReturn(pageData);
 
-        String result = tools.getTenantAdmins(tenantUuid.toString(), 50, 1, "john", "email", "ASC");
+        String result = tools.getTenantAdmins(tenantUuid.toString(), "50", "1", "john", "email", "ASC");
 
         ArgumentCaptor<TenantId> tenantCap = ArgumentCaptor.forClass(TenantId.class);
         ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);
@@ -129,7 +212,7 @@ class UserToolsTest {
         PageData<User> pageData = page(users);
         when(restClient.getCustomerUsers(any(CustomerId.class), any(PageLink.class))).thenReturn(pageData);
 
-        String result = tools.getCustomerUsers(customerUuid.toString(), 10, 2, "a", "firstName", "DESC");
+        String result = tools.getCustomerUsers(customerUuid.toString(), "10", "2", "a", "firstName", "DESC");
 
         ArgumentCaptor<CustomerId> custCap = ArgumentCaptor.forClass(CustomerId.class);
         ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);
@@ -155,7 +238,7 @@ class UserToolsTest {
         PageData<User> pageData = page(users);
         when(restClient.getAllCustomerUsers(any(PageLink.class))).thenReturn(pageData);
 
-        String result = tools.getAllCustomerUsers(15, 3, "x", "lastName", "ASC");
+        String result = tools.getAllCustomerUsers("15", "3", "x", "lastName", "ASC");
 
         ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);
         verify(restClient).getAllCustomerUsers(pageCap.capture());
@@ -178,7 +261,7 @@ class UserToolsTest {
         PageData<UserEmailInfo> pageData = new PageData<>(users, 1, users.size(), false);
         when(restClient.getUsersForAssign(any(AlarmId.class), any(PageLink.class))).thenReturn(pageData);
 
-        String result = tools.getUsersForAssign(alarmUuid.toString(), 30, 0, "doe", "email", "ASC");
+        String result = tools.getUsersForAssign(alarmUuid.toString(), "30", "0", "doe", "email", "ASC");
 
         ArgumentCaptor<AlarmId> alarmCap = ArgumentCaptor.forClass(AlarmId.class);
         ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);
@@ -205,7 +288,7 @@ class UserToolsTest {
         PageData<User> pageData = page(users);
         when(restClient.getUsersByEntityGroupId(any(EntityGroupId.class), any(PageLink.class))).thenReturn(pageData);
 
-        String result = tools.getUsersByEntityGroupId(groupId.toString(), 40, 4, "k", "createdTime", "DESC");
+        String result = tools.getUsersByEntityGroupId(groupId.toString(), "40", "4", "k", "createdTime", "DESC");
 
         ArgumentCaptor<EntityGroupId> groupCap = ArgumentCaptor.forClass(EntityGroupId.class);
         ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);

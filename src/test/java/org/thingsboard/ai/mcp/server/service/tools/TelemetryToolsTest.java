@@ -165,15 +165,15 @@ public class TelemetryToolsTest {
                 "DEVICE",
                 id.toString(),
                 "battery",
-                0L,
-                0L,
+                "0",
+                "0",
                 null,
                 null,
                 null,
                 null,
                 "NONE",
                 "DESC",
-                false
+                "false"
         );
 
         ArgumentCaptor<EntityId> entityCap = ArgumentCaptor.forClass(EntityId.class);
@@ -217,7 +217,6 @@ public class TelemetryToolsTest {
         assertThat(result).isEqualTo(JacksonUtil.toString(ts));
     }
 
-
     @Test
     void testFindTimeseries_withAggAndInterval() {
         when(clientService.getClient()).thenReturn(restClient);
@@ -245,15 +244,15 @@ public class TelemetryToolsTest {
                 "DEVICE",
                 id.toString(),
                 "temperature",
-                0L,
-                3600000L,
+                "0",
+                "3600000",
                 "MILLISECONDS",
-                60000L,
+                "60000",
                 "UTC",
-                1000,
+                "1000",
                 "AVG",
                 "ASC",
-                true
+                "true"
         );
 
         ArgumentCaptor<EntityId> entityCap = ArgumentCaptor.forClass(EntityId.class);
@@ -364,7 +363,7 @@ public class TelemetryToolsTest {
         UUID id = UUID.randomUUID();
         when(restClient.saveEntityTelemetryWithTTL(any(EntityId.class), eq("ANY"), eq(3600L), any(JsonNode.class))).thenReturn(true);
 
-        String result = tools.saveEntityTelemetryWithTTL("DEVICE", id.toString(), 3600L, "{\"ts\":1,\"values\":{\"t\":21}}");
+        String result = tools.saveEntityTelemetryWithTTL("DEVICE", id.toString(), "3600", "{\"ts\":1,\"values\":{\"t\":21}}");
 
         ArgumentCaptor<EntityId> entityCap = ArgumentCaptor.forClass(EntityId.class);
         ArgumentCaptor<Long> ttlCap = ArgumentCaptor.forClass(Long.class);

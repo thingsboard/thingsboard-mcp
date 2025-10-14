@@ -1,4 +1,4 @@
-package org.thingsboard.ai.mcp.server.tools.config;
+package org.thingsboard.ai.mcp.server.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -11,6 +11,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
+import org.thingsboard.ai.mcp.server.annotation.CeOnly;
 import org.thingsboard.ai.mcp.server.annotation.PeOnly;
 import org.thingsboard.ai.mcp.server.data.EditionChangedEvent;
 import org.thingsboard.ai.mcp.server.data.RemoveToolsEvent;
@@ -30,13 +31,15 @@ public class EditionAwareToolProvider implements ToolCallbackProvider {
 
     private final MethodToolCallbackProvider delegate;
     private final ApplicationEventPublisher eventPublisher;
+    private final Set<String> ceOnlyToolNames;
     private final Set<String> peOnlyToolNames;
 
     private volatile ThingsBoardEdition edition = ThingsBoardEdition.PE;
 
     public EditionAwareToolProvider(List<McpTools> tools, ApplicationEventPublisher eventPublisher) {
         this.delegate = MethodToolCallbackProvider.builder().toolObjects(tools.toArray()).build();
-        this.peOnlyToolNames = scanPeOnlyToolNames(tools);
+        this.peOnlyToolNames = scanEditionToolName(tools, true);
+        this.ceOnlyToolNames = scanEditionToolName(tools, false);
         this.eventPublisher = eventPublisher;
     }
 
@@ -51,10 +54,12 @@ public class EditionAwareToolProvider implements ToolCallbackProvider {
         this.edition = evt.edition();
         if (edition == ThingsBoardEdition.CE) {
             eventPublisher.publishEvent(new RemoveToolsEvent(peOnlyToolNames.stream().toList()));
+        } else if (edition == ThingsBoardEdition.PE) {
+            eventPublisher.publishEvent(new RemoveToolsEvent(ceOnlyToolNames.stream().toList()));
         }
     }
 
-    private static Set<String> scanPeOnlyToolNames(List<McpTools> tools) {
+    private static Set<String> scanEditionToolName(List<McpTools> tools, boolean isPe) {
         Set<String> names = new HashSet<>();
         for (Object bean : tools) {
             Class<?> targetClass = AopUtils.getTargetClass(bean);
@@ -63,12 +68,21 @@ public class EditionAwareToolProvider implements ToolCallbackProvider {
                 if (toolAnn == null) {
                     continue;
                 }
-                PeOnly peOnly = AnnotationUtils.findAnnotation(m, PeOnly.class);
-                if (peOnly == null) {
-                    continue;
+                if (isPe) {
+                    PeOnly peOnly = AnnotationUtils.findAnnotation(m, PeOnly.class);
+                    if (peOnly == null) {
+                        continue;
+                    }
+                    String name = StringUtils.hasText(toolAnn.name()) ? toolAnn.name() : m.getName();
+                    names.add(name);
+                } else {
+                    CeOnly peOnly = AnnotationUtils.findAnnotation(m, CeOnly.class);
+                    if (peOnly == null) {
+                        continue;
+                    }
+                    String name = StringUtils.hasText(toolAnn.name()) ? toolAnn.name() : m.getName();
+                    names.add(name);
                 }
-                String name = StringUtils.hasText(toolAnn.name()) ? toolAnn.name() : m.getName();
-                names.add(name);
             }
         }
         return Collections.unmodifiableSet(names);
