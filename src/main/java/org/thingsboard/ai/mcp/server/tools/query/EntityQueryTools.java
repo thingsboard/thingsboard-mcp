@@ -78,10 +78,14 @@ public class EntityQueryTools implements McpTools {
     private final RestClientService clientService;
 
     // Entity Data Query:
-    @Tool(description = "Find Entity Data for single entity by its id. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqGuide() - learn about EntityDataQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding Entity Data for single entity by its id. \
+            Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. \
+            Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. \
+            """)
     public String findEntityDataBySingleEntityFilter(
             @ToolParam(description = SINGLE_ENTITY) @Valid @NotNull SingleEntityFilter singleEntityFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters,
@@ -99,10 +103,14 @@ public class EntityQueryTools implements McpTools {
     }
 
     @PeOnly
-    @Tool(description = "Find Entity Data for entities of the same type using the entity group type and id. " +
-            "Supports fetching entity fields (e.g., name, type), and latest values from attributes or timeseries (telemetry) with ability to define (or not)" +
-            "operations complex logical expressions over entity field, attribute or latest time series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide(). " + PE_ONLY_AVAILABLE)
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqGuide() - learn about EntityDataQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding Entity Data for entities of the same type using the entity group type and id. " \s
+            Supports fetching entity fields (e.g., name, type), and latest values from attributes or timeseries (telemetry) with ability to define (or not)" \s
+            operations complex logical expressions over entity field, attribute or latest time series value. " \s
+            """ + PE_ONLY_AVAILABLE)
     public String findEntityDataByEntityGroupFilter(
             @ToolParam(description = ENTITY_GROUP_FILTER) @Valid @NotNull EntityGroupFilter entityGroupFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters,
@@ -119,10 +127,14 @@ public class EntityQueryTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
-    @Tool(description = "Find Entity Data for entities of the same type using their ids. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqGuide() - learn about EntityDataQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding Entity Data for entities of the same type using their ids. " \s
+            Supports fetching entity fields (e.g., name, type), and latest values from attributes or timeseries (telemetry) with ability to define (or not)" \s
+            operations complex logical expressions over entity field, attribute or latest time series value. " \s
+            """)
     public String findEntityDataByEntityListFilter(
             @ToolParam(description = ENTITY_LIST) @Valid @NotNull EntityListFilter entityListFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters,
@@ -139,10 +151,15 @@ public class EntityQueryTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
-    @Tool(description = "Find Entity Data for entities of the same type using the **'starts with'** expression over entity name. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqGuide() - learn about EntityDataQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding Entity Data for entities of the same type using the **'starts with'** expression over entity name. \s
+            In case DEVICE, ASSET, ENTITY_VIEW, EDGE types are using and their profile/types are specified use corresponding method, like findEntityDataByDeviceTypeFilter or findEntityDataByAssetTypeFilter " \s
+            Supports fetching entity fields (e.g., name, type), and latest values from attributes or timeseries (telemetry) with ability to define (or not)" \s
+            operations complex logical expressions over entity field, attribute or latest time series value. " \s
+            """)
     public String findEntityDataByEntityNameFilter(
             @ToolParam(description = ENTITY_NAME) @Valid @NotNull EntityNameFilter entityNameFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters,
@@ -159,10 +176,15 @@ public class EntityQueryTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
-    @Tool(description = "Find Entity Data for entities based on their type (CUSTOMER, USER, DASHBOARD, ASSET, DEVICE, etc). " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqGuide() - learn about EntityDataQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding Entity Data for entities based on their type (CUSTOMER, USER, DASHBOARD, ASSET, DEVICE, ENTITY_VIEW, EDGE, TENANT)
+             for Professional Edition (DATA_CONVERTER, INTEGRATION, SCHEDULER_EVENT, BLOB_ENTITY, REPORT, REPORT_TEMPLATE)" \s
+            Supports fetching entity fields (e.g., name, type), and latest values from attributes or timeseries (telemetry) with ability to define (or not)" \s
+            operations complex logical expressions over entity field, attribute or latest time series value. " \s
+            """)
     public String findEntityDataByEntityTypeFilter(
             @ToolParam(description = ENTITY_TYPE_FILTER) @Valid @NotNull EntityTypeFilter entityTypeFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters,
@@ -180,10 +202,14 @@ public class EntityQueryTools implements McpTools {
     }
 
     @PeOnly
-    @Tool(description = "Find Entity Data for multiple groups of the same type using specified ids. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide(). " + PE_ONLY_AVAILABLE)
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqGuide() - learn about EntityDataQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding Entity Data for multiple groups of the same type using specified ids." \s
+            Supports fetching entity fields (e.g., name, type), and latest values from attributes or timeseries (telemetry) with ability to define (or not)" \s
+            operations complex logical expressions over entity field, attribute or latest time series value. " \s
+            """ + PE_ONLY_AVAILABLE)
     public String findEntityDataByEntityGroupListFilter(
             @ToolParam(description = ENTITY_GROUP_LIST_FILTER) @Valid @NotNull EntityGroupListFilter entityGroupListFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters,
@@ -201,10 +227,14 @@ public class EntityQueryTools implements McpTools {
     }
 
     @PeOnly
-    @Tool(description = "Find Entity Data for entity groups based on their type and the **'starts with'** expression over their name. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide()." + PE_ONLY_AVAILABLE)
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqGuide() - learn about EntityDataQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding Entity Data for entity groups based on their type and the **'starts with'** expression over their name." \s
+            Supports fetching entity fields (e.g., name, type), and latest values from attributes or timeseries (telemetry) with ability to define (or not)" \s
+            operations complex logical expressions over entity field, attribute or latest time series value. " \s
+            """ + PE_ONLY_AVAILABLE)
     public String findEntityDataByEntityGroupNameFilter(
             @ToolParam(description = ENTITY_GROUP_NAME_FILTER) @Valid @NotNull EntityGroupNameFilter entityGroupNameFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters,
@@ -222,10 +252,14 @@ public class EntityQueryTools implements McpTools {
     }
 
     @PeOnly
-    @Tool(description = "Find Entity Data for entities that belong to group based on the entity type and the group name. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide(). " + PE_ONLY_AVAILABLE)
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqGuide() - learn about EntityDataQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding Entity Data for entities that belong to group based on the entity type and the group name." \s
+            Supports fetching entity fields (e.g., name, type), and latest values from attributes or timeseries (telemetry) with ability to define (or not)" \s
+            operations complex logical expressions over entity field, attribute or latest time series value. " \s
+            """ + PE_ONLY_AVAILABLE)
     public String findEntityDataByEntitiesGroupNameFilter(
             @ToolParam(description = ENTITIES_BY_GROUP_NAME_FILTER) @Valid @NotNull EntitiesByGroupNameFilter entitiesByGroupNameFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters,
@@ -242,10 +276,14 @@ public class EntityQueryTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
-    @Tool(description = "Find Entity Data for owner (Tenant or Customer) of the specified entity. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqGuide() - learn about EntityDataQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding Entity Data for owner (Tenant or Customer) of the specified entity. " \s
+            Supports fetching entity fields (e.g., name, type), and latest values from attributes or timeseries (telemetry) with ability to define (or not)" \s
+            operations complex logical expressions over entity field, attribute or latest time series value. " \s
+            """)
     public String findEntityDataByStateEntityOwnerFilter(
             @ToolParam(description = ENTITY_OWNER_FILTER) @Valid @NotNull StateEntityOwnerFilter stateEntityOwnerFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters,
@@ -262,10 +300,14 @@ public class EntityQueryTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
-    @Tool(description = "Find Entity Data for assets based on their type and the **'starts with'** expression over their name. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqGuide() - learn about EntityDataQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding Entity Data for assets based on their type (asset profile name) and the **'starts with'** expression over their name. " \s
+            Supports fetching entity fields (e.g., name, type), and latest values from attributes or timeseries (telemetry) with ability to define (or not)" \s
+            operations complex logical expressions over entity field, attribute or latest time series value. " \s
+            """)
     public String findEntityDataByAssetTypeFilter(
             @ToolParam(description = ASSET_TYPE) @Valid @NotNull AssetTypeFilter assetTypeFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters,
@@ -282,10 +324,14 @@ public class EntityQueryTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
-    @Tool(description = "Find Entity Data for devices based on their type and the **'starts with'** expression over their name. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqGuide() - learn about EntityDataQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding Entity Data for devices based on their type (device profile name) and the **'starts with'** expression over their name. " \s
+            Supports fetching entity fields (e.g., name, type), and latest values from attributes or timeseries (telemetry) with ability to define (or not)" \s
+            operations complex logical expressions over entity field, attribute or latest time series value. " \s
+            """)
     public String findEntityDataByDeviceTypeFilter(
             @ToolParam(description = DEVICE_TYPE) @Valid @NotNull DeviceTypeFilter deviceTypeFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters,
@@ -302,10 +348,14 @@ public class EntityQueryTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
-    @Tool(description = "Find Entity Data for edges based on their type and the **'starts with'** expression over their name. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqGuide() - learn about EntityDataQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding Entity Data for edges based on their type and the **'starts with'** expression over their name. " \s
+            Supports fetching entity fields (e.g., name, type), and latest values from attributes or timeseries (telemetry) with ability to define (or not)" \s
+            operations complex logical expressions over entity field, attribute or latest time series value. " \s
+            """)
     public String findEntityDataByEdgeTypeFilter(
             @ToolParam(description = EDGE_TYPE) @Valid @NotNull EdgeTypeFilter edgeTypeFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters,
@@ -322,10 +372,14 @@ public class EntityQueryTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
-    @Tool(description = "Find Entity Data for entity views based on their type and the **'starts with'** expression over their name. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqGuide() - learn about EntityDataQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding Entity Data for entity_views based on their type and the **'starts with'** expression over their name. " \s
+            Supports fetching entity fields (e.g., name, type), and latest values from attributes or timeseries (telemetry) with ability to define (or not)" \s
+            operations complex logical expressions over entity field, attribute or latest time series value. " \s
+            """)
     public String findEntityDataByEntityViewTypeFilter(
             @ToolParam(description = ENTITY_VIEW_TYPE) @Valid @NotNull EntityViewTypeFilter entityViewTypeFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters,
@@ -342,10 +396,14 @@ public class EntityQueryTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
-    @Tool(description = "Find Entity Data for api usage based on optional customer id. If the customer id is not set, returns current tenant API usage. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqGuide() - learn about EntityDataQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding Entity Data for for api usage based on optional customer id. If the customer id is not set, returns current tenant API usage. " \s
+            Supports fetching entity fields (e.g., name, type), and latest values from attributes or timeseries (telemetry) with ability to define (or not)" \s
+            operations complex logical expressions over entity field, attribute or latest time series value. " \s
+            """)
     public String findEntityDataByApiUsageStateFilter(
             @ToolParam(description = API_USAGE) @Valid @NotNull ApiUsageStateFilter apiUsageStateFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters,
@@ -362,10 +420,14 @@ public class EntityQueryTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
-    @Tool(description = "Find Entity Data for entities that are related to the provided root entity. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqGuide() - learn about EntityDataQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding Entity Data for for entities that are related to the provided root entity. " \s
+            Supports fetching entity fields (e.g., name, type), and latest values from attributes or timeseries (telemetry) with ability to define (or not)" \s
+            operations complex logical expressions over entity field, attribute or latest time series value. " \s
+            """)
     public String findEntityDataByRelationsQueryFilter(
             @ToolParam(description = RELATIONS_QUERY_FILTER) @Valid @NotNull RelationsQueryFilter relationsQueryFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters,
@@ -382,10 +444,14 @@ public class EntityQueryTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
-    @Tool(description = "Find Entity Data for assets that are related to the provided root entity. Filters related assets based on the relation type and set of asset types. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqGuide() - learn about EntityDataQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding Entity Data for assets that are related to the provided root entity. Filters related assets based on the relation type and set of asset types. " \s
+            Supports fetching entity fields (e.g., name, type), and latest values from attributes or timeseries (telemetry) with ability to define (or not)" \s
+            operations complex logical expressions over entity field, attribute or latest time series value. " \s
+            """)
     public String findEntityDataByAssetSearchQueryFilter(
             @ToolParam(description = ASSET_QUERY_FILTER) @Valid @NotNull AssetSearchQueryFilter assetSearchQueryFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters,
@@ -402,10 +468,14 @@ public class EntityQueryTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
-    @Tool(description = "Find Entity Data for devices that are related to the provided root entity.  Filters related devices based on the relation type and set of devices types. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqGuide() - learn about EntityDataQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding Entity Data for devices that are related to the provided root entity.  Filters related devices based on the relation type and set of devices types. " \s
+            Supports fetching entity fields (e.g., name, type), and latest values from attributes or timeseries (telemetry) with ability to define (or not)" \s
+            operations complex logical expressions over entity field, attribute or latest time series value. " \s
+            """)
     public String findEntityDataByDeviceSearchQueryFilter(
             @ToolParam(description = DEVICE_QUERY_FILTER) @Valid @NotNull DeviceSearchQueryFilter deviceSearchQueryFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters,
@@ -422,10 +492,14 @@ public class EntityQueryTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
-    @Tool(description = "Find Entity Data for entity views that are related to the provided root entity. Filters related entity views based on the relation type and set of entity view types. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqGuide() - learn about EntityDataQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for entity views that are related to the provided root entity. Filters related entity views based on the relation type and set of entity view types. " \s
+            Supports fetching entity fields (e.g., name, type), and latest values from attributes or timeseries (telemetry) with ability to define (or not)" \s
+            operations complex logical expressions over entity field, attribute or latest time series value. " \s
+            """)
     public String findEntityDataByEntityViewSearchQueryFilter(
             @ToolParam(description = EV_QUERY_FILTER) @Valid @NotNull EntityViewSearchQueryFilter entityViewSearchQueryFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters,
@@ -442,10 +516,14 @@ public class EntityQueryTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
-    @Tool(description = "Find Entity Data for edges that are related to the provided root entity. Filters related edges based on the relation type and set of edge types. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqGuide() - learn about EntityDataQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for edges that are related to the provided root entity. Filters related edges based on the relation type and set of edge types. " \s
+            Supports fetching entity fields (e.g., name, type), and latest values from attributes or timeseries (telemetry) with ability to define (or not)" \s
+            operations complex logical expressions over entity field, attribute or latest time series value. " \s
+            """)
     public String findEntityDataByEdgeQueryFilter(
             @ToolParam(description = EDGE_QUERY_FILTER) @Valid @NotNull EdgeSearchQueryFilter edgeSearchQueryFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters,
@@ -463,10 +541,12 @@ public class EntityQueryTools implements McpTools {
     }
 
     // Entity Count Query:
-    @Tool(description = "Find Entity Data count of single entity by its id. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqCountGuide() - learn about EntityCountQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding the amount of entities by its ids that are matching keyFilters if it presents. \
+            """)
     public String countBySingleEntityFilter(
             @ToolParam(description = SINGLE_ENTITY) @Valid @NotNull SingleEntityFilter singleEntityFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters) {
@@ -475,10 +555,12 @@ public class EntityQueryTools implements McpTools {
     }
 
     @PeOnly
-    @Tool(description = "Find Entity Data count of entities of the same type using the entity group type and id. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide(). " + PE_ONLY_AVAILABLE)
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqCountGuide() - learn about EntityCountQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding the amount of entities of the same type using the entity group type and id that are matching keyFilters if it presents. \
+            """ + PE_ONLY_AVAILABLE)
     public String countByEntityGroupFilter(
             @ToolParam(description = ENTITY_GROUP_FILTER) @Valid @NotNull EntityGroupFilter entityGroupFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters) {
@@ -486,10 +568,12 @@ public class EntityQueryTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
-    @Tool(description = "Find Entity Data count of entities of the same type using their ids. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqCountGuide() - learn about EntityCountQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding the amount of entities of the same type using their ids that are matching keyFilters if it presents. \
+            """)
     public String countByEntityListFilter(
             @ToolParam(description = ENTITY_LIST) @Valid @NotNull EntityListFilter entityListFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters) {
@@ -497,10 +581,12 @@ public class EntityQueryTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
-    @Tool(description = "Find Entity Data count of entities of the same type using the **'starts with'** expression over entity name. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqCountGuide() - learn about EntityCountQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding the amount of entities of the same type using the **'starts with'** expression over entity name that are matching keyFilters if it presents. \
+            """)
     public String countByEntityNameFilter(
             @ToolParam(description = ENTITY_NAME) @Valid @NotNull EntityNameFilter entityNameFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters) {
@@ -508,10 +594,13 @@ public class EntityQueryTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
-    @Tool(description = "Find Entity Data count of entities based on their type (CUSTOMER, USER, DASHBOARD, ASSET, DEVICE, etc). " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqCountGuide() - learn about EntityCountQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding the amount of entities based on their type (CUSTOMER, USER, DASHBOARD, ASSET, DEVICE, ENTITY_VIEW, EDGE, TENANT)
+            for Professional Edition (DATA_CONVERTER, INTEGRATION, SCHEDULER_EVENT, BLOB_ENTITY, REPORT, REPORT_TEMPLATE) that are matching keyFilters if it presents. \
+            """)
     public String countByEntityTypeFilter(
             @ToolParam(description = ENTITY_TYPE_FILTER) @Valid @NotNull EntityTypeFilter entityTypeFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters) {
@@ -520,10 +609,12 @@ public class EntityQueryTools implements McpTools {
     }
 
     @PeOnly
-    @Tool(description = "Find Entity Data count of multiple groups of the same type using specified ids. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqCountGuide() - learn about EntityCountQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding the amount of entities multiple groups of the same type using specified ids that are matching keyFilters if it presents. \
+            """ + PE_ONLY_AVAILABLE)
     public String countByEntityGroupListFilter(
             @ToolParam(description = ENTITY_GROUP_LIST_FILTER) @Valid @NotNull EntityGroupListFilter entityGroupListFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters) {
@@ -532,10 +623,12 @@ public class EntityQueryTools implements McpTools {
     }
 
     @PeOnly
-    @Tool(description = "Find Entity Data count of entity groups based on their type and the **'starts with'** expression over their name. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide(). " + PE_ONLY_AVAILABLE)
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqCountGuide() - learn about EntityCountQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding the amount of entity groups based on their type and the **'starts with'** expression over their name that are matching keyFilters if it presents. \
+            """ + PE_ONLY_AVAILABLE)
     public String countByEntityGroupNameFilter(
             @ToolParam(description = ENTITY_GROUP_NAME_FILTER) @Valid @NotNull EntityGroupNameFilter entityGroupNameFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters) {
@@ -544,10 +637,12 @@ public class EntityQueryTools implements McpTools {
     }
 
     @PeOnly
-    @Tool(description = "Find Entity Data count of entities that belong to group based on the entity type and the group name. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide(). " + PE_ONLY_AVAILABLE)
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqCountGuide() - learn about EntityCountQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding the amount of  that belong to group based on the entity type and the group name that are matching keyFilters if it presents. \
+            """ + PE_ONLY_AVAILABLE)
     public String countByEntitiesGroupNameFilter(
             @ToolParam(description = ENTITIES_BY_GROUP_NAME_FILTER) @Valid @NotNull EntitiesByGroupNameFilter entitiesByGroupNameFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters) {
@@ -555,21 +650,12 @@ public class EntityQueryTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
-    @Tool(description = "Find Entity Data count of owner (Tenant or Customer) of the specified entity. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
-    public String countByStateEntityOwnerFilter(
-            @ToolParam(description = ENTITY_OWNER_FILTER) @Valid @NotNull StateEntityOwnerFilter stateEntityOwnerFilter,
-            @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters) {
-        EntityCountQuery query = new EntityCountQuery(stateEntityOwnerFilter, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
-    }
-
-    @Tool(description = "Find Entity Data count of assets based on their type and the **'starts with'** expression over their name. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqCountGuide() - learn about EntityCountQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding the amount of assets based on their type (asset profile name) and the **'starts with'** expression over their name that are matching keyFilters if it presents. \
+            """)
     public String countByAssetTypeFilter(
             @ToolParam(description = ASSET_TYPE) @Valid @NotNull AssetTypeFilter assetTypeFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters) {
@@ -577,10 +663,12 @@ public class EntityQueryTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
-    @Tool(description = "Find Entity Data count of devices based on their type and the **'starts with'** expression over their name. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqCountGuide() - learn about EntityCountQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding the amount of devices based on their type (device profile name) and the **'starts with'** expression over their name that are matching keyFilters if it presents. \
+            """)
     public String countByDeviceTypeFilter(
             @ToolParam(description = DEVICE_TYPE) @Valid @NotNull DeviceTypeFilter deviceTypeFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters) {
@@ -588,10 +676,12 @@ public class EntityQueryTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
-    @Tool(description = "Find Entity Data count of edges based on their type and the **'starts with'** expression over their name. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqCountGuide() - learn about EntityCountQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding the amount of edges based on their type and the **'starts with'** expression over their name that are matching keyFilters if it presents. \
+            """)
     public String countByEdgeTypeFilter(
             @ToolParam(description = EDGE_TYPE) @Valid @NotNull EdgeTypeFilter edgeTypeFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters) {
@@ -599,10 +689,12 @@ public class EntityQueryTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
-    @Tool(description = "Find Entity Data count of entity views based on their type and the **'starts with'** expression over their name. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqCountGuide() - learn about EntityCountQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding the amount of entity views based on their type and the **'starts with'** expression over their name that are matching keyFilters if it presents. \
+            """)
     public String countByEntityViewTypeFilter(
             @ToolParam(description = ENTITY_VIEW_TYPE) @Valid @NotNull EntityViewTypeFilter entityViewTypeFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters) {
@@ -610,10 +702,12 @@ public class EntityQueryTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
-    @Tool(description = "Find Entity Data count of api usage based on optional customer id. If the customer id is not set, returns current tenant API usage. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqCountGuide() - learn about EntityCountQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding the api usage based on optional customer id. If the customer id is not set, returns current tenant API usage that are matching keyFilters if it presents. \
+            """)
     public String countByApiUsageStateFilter(
             @ToolParam(description = API_USAGE) @Valid @NotNull ApiUsageStateFilter apiUsageStateFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters) {
@@ -621,10 +715,12 @@ public class EntityQueryTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
-    @Tool(description = "Find Entity Data count of entities that are related to the provided root entity. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqCountGuide() - learn about EntityCountQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding the entities that are related to the provided root entity and matching keyFilters if it presents. \
+            """)
     public String countByRelationsQueryFilter(
             @ToolParam(description = RELATIONS_QUERY_FILTER) @Valid @NotNull RelationsQueryFilter relationsQueryFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters) {
@@ -632,10 +728,12 @@ public class EntityQueryTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
-    @Tool(description = "Find Entity Data count of assets that are related to the provided root entity. Filters related assets based on the relation type and set of asset types. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqCountGuide() - learn about EntityCountQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding of assets that are related to the provided root entity. Filters related assets based on the relation type and set of asset types that are matching keyFilters if it presents. \
+            """)
     public String countByAssetSearchQueryFilter(
             @ToolParam(description = ASSET_QUERY_FILTER) @Valid @NotNull AssetSearchQueryFilter assetSearchQueryFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters) {
@@ -643,10 +741,13 @@ public class EntityQueryTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
-    @Tool(description = "Find Entity Data count of devices that are related to the provided root entity. Filters related devices based on the relation type and set of devices types. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqCountGuide() - learn about EntityCountQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding of devices that are related to the provided root entity. Filters related devices based on the relation type and set of device types that are matching keyFilters if it presents. \
+            Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. \
+            """)
     public String countByDeviceSearchQueryFilter(
             @ToolParam(description = DEVICE_QUERY_FILTER) @Valid @NotNull DeviceSearchQueryFilter deviceSearchQueryFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters) {
@@ -654,10 +755,13 @@ public class EntityQueryTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
-    @Tool(description = "Find Entity Data count of entity views that are related to the provided root entity. Filters related entity views based on the relation type and set of entity views types. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqCountGuide() - learn about EntityCountQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding of entity views that are related to the provided root entity. Filters related entity views based on the \
+            relation type and set of entity views types that are matching keyFilters if it presents. \
+            """)
     public String countByEntityViewSearchQueryFilter(
             @ToolParam(description = EV_QUERY_FILTER) @Valid @NotNull EntityViewSearchQueryFilter entityViewSearchQueryFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters) {
@@ -665,10 +769,13 @@ public class EntityQueryTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
-    @Tool(description = "Find Entity Data count of edges that are related to the provided root entity. Filters related edges based on the relation type and set of edges types. " +
-            "Supports selectively fetching any combination of entity fields (e.g., name, type, label), attributes, and latest time-series (telemetry) values. " +
-            "Allows to define (if needed) complex logical expressions over entity field, attribute or latest time-series value. " +
-            "Tip: for structure & examples, call getEdqGuide() and getKeyFiltersGuide().")
+    @Tool(description = """
+            IMPORTANT: before using this tool, call these helpers:\s
+             - getEdqCountGuide() - learn about EntityCountQuery structure and example\s
+             - getKeyFiltersGuide() - learn how to build keyFilters and complex conditions.\s
+            Tool is responsible for finding of edges that are related to the provided root entity. Filters related edges based on the relation type \
+            and set of edges types that are matching keyFilters if it presents. \
+            """)
     public String countByEdgeQueryFilter(
             @ToolParam(description = EDGE_QUERY_FILTER) @Valid @NotNull EdgeSearchQueryFilter edgeSearchQueryFilter,
             @ToolParam(required = false, description = KEY_FILTERS) @Valid List<KeyFilter> keyFilters) {

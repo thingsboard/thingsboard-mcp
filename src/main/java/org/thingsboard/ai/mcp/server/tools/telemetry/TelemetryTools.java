@@ -41,7 +41,6 @@ import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.STRICT_
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.TELEMETRY_JSON_REQUEST_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.TELEMETRY_KEYS_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH;
-import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.TS_STRICT_DATA_EXAMPLE;
 import static org.thingsboard.ai.mcp.server.util.ToolUtils.parseLong;
 
 @Service
