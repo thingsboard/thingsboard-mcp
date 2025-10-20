@@ -249,8 +249,8 @@ public class AlarmToolsTest {
                 "2",
                 "temp",
                 "createdTime",
-                "1000",
                 "ASC",
+                "1000",
                 "2000",
                 true
         );
