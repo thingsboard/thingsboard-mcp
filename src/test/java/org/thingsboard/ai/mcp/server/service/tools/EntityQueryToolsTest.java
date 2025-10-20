@@ -485,7 +485,6 @@ public class EntityQueryToolsTest {
         @Test
         @DisplayName("Should count related entities")
         void testCountByRelationsQueryFilter() {
-            // Arrange
             UUID assetId = UUID.randomUUID();
             RelationsQueryFilter filter = new RelationsQueryFilter();
             filter.setRootEntity(new AssetId(assetId));
@@ -497,10 +496,8 @@ public class EntityQueryToolsTest {
 
             when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(12L);
 
-            // Act
             String result = tools.countByRelationsQueryFilter(filter, null);
 
-            // Assert
             verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
             EntityCountQuery query = entityCountQueryCaptor.getValue();
 
