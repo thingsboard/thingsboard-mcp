@@ -4,7 +4,7 @@ import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.thingsboard.ai.mcp.server.tools.config.EditionAwareToolProvider;
+import org.thingsboard.ai.mcp.server.config.EditionAwareToolProvider;
 
 @SpringBootApplication
 public class McpServerApplication {

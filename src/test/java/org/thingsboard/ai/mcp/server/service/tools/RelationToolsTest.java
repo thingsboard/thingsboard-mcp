@@ -23,6 +23,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -46,7 +47,8 @@ public class RelationToolsTest {
         UUID toUuid = UUID.randomUUID();
 
         EntityRelation relation = new EntityRelation();
-        when(restClient.getRelation(any(EntityId.class), eq("Contains"), eq(RelationTypeGroup.COMMON), any(EntityId.class))).thenReturn(Optional.of(relation));
+        when(restClient.getRelation(any(EntityId.class), eq("Contains"), eq(RelationTypeGroup.COMMON), any(EntityId.class)))
+                .thenReturn(Optional.of(relation));
 
         String result = tools.getRelation(fromUuid.toString(), "DEVICE", "Contains", null, toUuid.toString(), "ASSET");
 
@@ -75,7 +77,8 @@ public class RelationToolsTest {
         UUID toUuid = UUID.randomUUID();
 
         EntityRelation relation = new EntityRelation();
-        when(restClient.getRelation(any(EntityId.class), eq("Manages"), eq(RelationTypeGroup.RULE_CHAIN), any(EntityId.class))).thenReturn(Optional.of(relation));
+        when(restClient.getRelation(any(EntityId.class), eq("Manages"), eq(RelationTypeGroup.RULE_CHAIN), any(EntityId.class)))
+                .thenReturn(Optional.of(relation));
 
         String result = tools.getRelation(fromUuid.toString(), "USER", "Manages", "RULE_CHAIN", toUuid.toString(), "DEVICE");
 
@@ -265,6 +268,78 @@ public class RelationToolsTest {
         assertThat(groupCap.getValue()).isEqualTo(RelationTypeGroup.COMMON);
 
         assertThat(result).isEqualTo(JacksonUtil.toString(relations));
+    }
+
+    @Test
+    void testDeleteRelation_ok_defaultGroup() {
+        when(clientService.getClient()).thenReturn(restClient);
+
+        UUID fromId = UUID.randomUUID();
+        UUID toId = UUID.randomUUID();
+
+        String res = tools.deleteRelation(fromId.toString(), "DEVICE", "Contains", null, toId.toString(), "ASSET");
+        assertThat(res).contains("\"status\":\"OK\"");
+    }
+
+    @Test
+    void testDeleteRelation_ok_explicitGroup() {
+        when(clientService.getClient()).thenReturn(restClient);
+
+        UUID fromId = UUID.randomUUID();
+        UUID toId = UUID.randomUUID();
+
+        String res = tools.deleteRelation(fromId.toString(), "TENANT", "Owns", "RULE_CHAIN", toId.toString(), "CUSTOMER");
+        assertThat(res).contains("\"status\":\"OK\"");
+    }
+
+    @Test
+    void testDeleteRelations_ok() {
+        when(clientService.getClient()).thenReturn(restClient);
+
+        UUID entityUuid = UUID.randomUUID();
+        String type = "DEVICE";
+
+        String result = tools.deleteRelations(entityUuid.toString(), type);
+
+        ArgumentCaptor<EntityId> idCap = ArgumentCaptor.forClass(EntityId.class);
+        verify(restClient).deleteRelations(idCap.capture());
+
+        assertThat(idCap.getValue().getEntityType().name()).isEqualTo(type);
+        assertThat(idCap.getValue().getId()).isEqualTo(entityUuid);
+        assertThat(result).contains("\"status\":\"OK\"");
+    }
+
+    @Test
+    void testDeleteRelations_error() {
+        when(clientService.getClient()).thenReturn(restClient);
+
+        UUID entityUuid = UUID.randomUUID();
+        String type = "ASSET";
+
+        doThrow(new RuntimeException("boom")).when(restClient).deleteRelations(any(EntityId.class));
+
+        String result = tools.deleteRelations(entityUuid.toString(), type);
+
+        assertThat(result)
+                .contains("\"status\":\"ERROR\"")
+                .contains("\"entityId\":\"" + entityUuid + "\"")
+                .contains("\"entityType\":\"" + type + "\"")
+                .contains("boom");
+    }
+
+    @Test
+    void testDeleteRelation_error() {
+        when(clientService.getClient()).thenReturn(restClient);
+
+        UUID fromId = UUID.randomUUID();
+        UUID toId = UUID.randomUUID();
+
+        doThrow(new RuntimeException("boom"))
+                .when(restClient)
+                .deleteRelationV2(any(EntityId.class), any(String.class), any(RelationTypeGroup.class), any(EntityId.class));
+
+        String res = tools.deleteRelation(fromId.toString(), "DEVICE", "Contains", null, toId.toString(), "ASSET");
+        assertThat(res).contains("\"status\":\"ERROR\"").contains("boom");
     }
 
 }
