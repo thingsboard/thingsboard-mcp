@@ -199,8 +199,7 @@ java -Dspring.ai.mcp.server.stdio=false Dspring.main.web-application-type=servle
 
 ## Client Configuration
 
-To launch the server as a container when your MCP client starts (e.g., Claude Desktop), you need to add the appropriate configuration to your client's
-settings.
+To launch the server as a container when your MCP client starts (e.g., Claude Desktop), you need to add the appropriate configuration to your client's settings.
 
 ### Docker Configuration
 
