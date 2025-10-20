@@ -57,7 +57,6 @@ public class EntityGroupToolsTest {
 
     @BeforeEach
     void setup() {
-        // Single place to stub the RestClient
         when(clientService.getClient()).thenReturn(restClient);
     }
 

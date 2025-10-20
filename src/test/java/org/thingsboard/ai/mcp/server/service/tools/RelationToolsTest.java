@@ -1,4 +1,3 @@
-// src/test/java/org/thingsboard/ai/mcp/server/service/tools/RelationToolsTest.java
 package org.thingsboard.ai.mcp.server.service.tools;
 
 import org.junit.jupiter.api.Test;

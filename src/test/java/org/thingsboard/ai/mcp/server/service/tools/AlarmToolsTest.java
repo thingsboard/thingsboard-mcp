@@ -92,7 +92,6 @@ public class AlarmToolsTest {
 
     @Test
     void testSaveAlarm_createNew() {
-        // no id in payload -> create
         Alarm payload = new Alarm();
         payload.setTenantId(tenantId);
         payload.setType("Overheat");
@@ -244,16 +243,16 @@ public class AlarmToolsTest {
         String result = tools.getAlarms(
                 deviceId.getEntityType().name(),
                 deviceId.getId().toString(),
-                "ACTIVE", // searchStatus
-                "ACTIVE_ACK", // status
-                "25", // pageSize
-                "2", // page index
-                "temp", // textSearch
-                "createdTime", // sortProperty
-                "ASC", // sortOrder
-                "1000", // startTs
-                "2000", // endTs
-                true // fetchOriginator
+                "ACTIVE",
+                "ACTIVE_ACK",
+                "25",
+                "2",
+                "temp",
+                "createdTime",
+                "1000",
+                "ASC",
+                "2000",
+                true
         );
 
         ArgumentCaptor<TimePageLink> pageCap = ArgumentCaptor.forClass(TimePageLink.class);
@@ -341,7 +340,7 @@ public class AlarmToolsTest {
         when(restClient.getHighestAlarmSeverity(any(EntityId.class), any(), any())).thenReturn(Optional.empty());
 
         String result = tools.getHighestAlarmSeverity(entityType, entityId, null, null);
-        assertThat(result).isEqualTo("null"); // JacksonUtil serializes empty Optional to null
+        assertThat(result).isEqualTo("null");
     }
 
     @Test
