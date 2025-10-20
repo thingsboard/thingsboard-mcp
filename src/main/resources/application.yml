@@ -6,7 +6,7 @@ server:
 spring:
   main:
     banner-mode: off
-    web-application-type: "${SPRING_WEB_APPLICATION_TYPE:servlet}"
+    web-application-type: "${SPRING_WEB_APPLICATION_TYPE:none}"
   ai:
     mcp:
       server:
@@ -15,7 +15,7 @@ spring:
         version: 2.0.0
         # The WebMVC starter autoconfigures WebMVC SSE transport
         # Also enables STDIO so the same binary can be launched in either mode
-        stdio: "${SPRING_AI_MCP_SERVER_STDIO:false}" # true to use STDIO mode
+        stdio: "${SPRING_AI_MCP_SERVER_STDIO:true}" # true to use STDIO mode
         sse-endpoint: "${SPRING_AI_MCP_SERVER_SSE_ENDPOINT:/sse}"
         sse-message-endpoint: "${SPRING_AI_MCP_SERVER_SSE_MESSAGE_ENDPOINT:/mcp/message}"
         # Type of server to use for MCP communication
