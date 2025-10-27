@@ -11,7 +11,7 @@
     - [Telemetry Management](#telemetry-management)
     - [Relations](#relations)
     - [Alarms](#alarms)
-    - [Administration](#administration)
+    - [Entity Data Query](#entity-data-query)
 - [Quick Start Guide](#quick-start-guide)
 - [Installation](#installation)
     - [Docker Image](#docker-image)
@@ -26,7 +26,7 @@
     - [Customer Tools](#customer-tools)
     - [User Tools](#user-tools)
     - [Alarm Tools](#alarm-tools)
-    - [Entity Group Tools](#entity-group-tools)
+    - [Entity Group Tools](#entity-group-tools-pe)
     - [Relation Tools](#relation-tools)
     - [Telemetry Tools](#telemetry-tools)
 
@@ -399,7 +399,7 @@ The ThingsBoard MCP Server provides a wide range of tools that can be used throu
 ### Entity Data Query Tools
 
 | Tool                                               | Description                                                                                                                                                   |
-| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|----------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `findEntityDataBySingleEntityFilter`               | Find data for **one entity by ID**. Select entity fields, latest attributes/telemetry; optional key filters for expressions over fields/attributes/latest TS. |
 | `findEntityDataByEntityGroupFilter` **(PE)**       | Find data for entities using an **Entity Group** filter (group type + id). Supports fields/latest values and optional key filters.                            |
 | `findEntityDataByEntityListFilter`                 | Find data for a **list of entity IDs** (same type). Supports fields/latest values and optional key filters.                                                   |
@@ -422,7 +422,7 @@ The ThingsBoard MCP Server provides a wide range of tools that can be used throu
 ### Entity Count Query Tools
 
 | Tool                                      | Description                                                                                             |
-| ----------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+|-------------------------------------------|---------------------------------------------------------------------------------------------------------|
 | `countBySingleEntityFilter`               | Count results for a **single entity** by ID with optional key filters.                                  |
 | `countByEntityGroupFilter` **(PE)**       | Count results by **Entity Group** (group type + id) with optional key filters.                          |
 | `countByEntityListFilter`                 | Count results for a **list of entity IDs** (same type) with optional key filters.                       |
