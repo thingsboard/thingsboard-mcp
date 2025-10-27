@@ -84,10 +84,11 @@ Before you begin, ensure you have the following:
 
 ### Entity Operations
 
-- **Devices**: View device details, credentials, profiles, and manage device relationships
-- **Assets**: View and manage assets, asset profiles, and asset relationships
-- **Customers**: Access customer information, titles, and manage customer relationships
-- **Users**: Manage users, tokens, activation links, and user assignments
+- **Devices**: Create, delete, view device details, credentials, and manage device relationships
+- **Assets**: Create, delete, view, and manage asset relationships
+- **Customers**: Create, delete, access customer information, titles, and manage customer relationships
+- **Users**: Create, delete, manage users, tokens, activation links, and user assignments
+- **Entity Groups**: Create, delete, view entity groups. Assign/unassign entities to specific group.
 
 ### Telemetry Management
 
@@ -97,18 +98,15 @@ Before you begin, ensure you have the following:
 
 ### Relations
 
-Discover and navigate relationships between entities with direction-based queries.
+Create, delete, discover, and navigate relationships between entities with direction-based queries.
 
 ### Alarms
 
-Fetch alarms, alarm types, and severity information for specific entities.
+Create, delete, fetch alarms, alarm types, and severity information for specific entities.
 
-### Administration
+### Entity Data Query
 
-- **System Settings**: Access and manage administration settings
-- **Security Settings**: View security policies and JWT configuration
-- **Version Control**: Manage repository and auto-commit settings
-- **System Information**: Check for updates and retrieve usage statistics
+Run complex queries over platform entities (devices, assets, customers, etc.) and retrieve their data (fields, attributes, telemetry) in a structured, paginated format.
 
 ## Installation
 
@@ -158,7 +156,7 @@ Alternatively, you can download the release binary (JAR file) and use it with th
 Run the following command to download the binary to your PC:
 
 ```bash
-wget https://github.com/thingsboard/thingsboard-mcp/releases/download/v1.0.0/thingsboard-mcp-server-1.0.0.jar
+wget https://github.com/thingsboard/thingsboard-mcp/releases/download/v2.0.0/thingsboard-mcp-server-2.0.0.jar
 ```
 
 ### Build from Sources
@@ -182,19 +180,19 @@ mvn clean install -DskipTests
 3. The JAR file will be available in the target folder:
 
 ```bash
-./target/thingsboard-mcp-server-1.0.0.jar
+./target/thingsboard-mcp-server-2.0.0.jar
 ```
 
 4. Run the server using the JAR file:
 
 ```bash
 # For STDIO Mode
-java -jar ./target/thingsboard-mcp-server-1.0.0.jar
+java -jar ./target/thingsboard-mcp-server-2.0.0.jar
 ```
 
 ```bash
 # For SSE Mode
-java -Dspring.ai.mcp.server.stdio=false Dspring.main.web-application-type=servlet -jar ./target/thingsboard-mcp-server-1.0.0.jar
+java -Dspring.ai.mcp.server.stdio=false Dspring.main.web-application-type=servlet -jar ./target/thingsboard-mcp-server-2.0.0.jar
 ```
 
 ## Client Configuration
@@ -246,7 +244,7 @@ If you've built the JAR file from sources, use this configuration in your `claud
             "command": "java",
             "args": [
                 "-jar",
-                "/absolute/path/to/thingsboard-mcp-server-1.0.0.jar"
+                "/absolute/path/to/thingsboard-mcp-server-2.0.0.jar"
             ],
             "env": {
                 "THINGSBOARD_URL": "<thingsboard_url>",
@@ -444,4 +442,3 @@ The ThingsBoard MCP Server provides a wide range of tools that can be used throu
 | `countByDeviceSearchQueryFilter`          | Count **devices related** to a root entity with optional key filters.                                   |
 | `countByEntityViewSearchQueryFilter`      | Count **entity views related** to a root entity with optional key filters.                              |
 | `countByEdgeQueryFilter`                  | Count **edges related** to a root entity with optional key filters.                                     |
-
