@@ -19,7 +19,6 @@ Simplest query: get all devices with their names:
 {
   "entityFilter": {
     "type": "entityType",
-    "resolveMultiple": true,
     "entityType": "DEVICE"
   },
   "entityFields": [
@@ -35,7 +34,6 @@ Get devices where temperature > 25:
 {
   "entityFilter": {
     "type": "entityType",
-    "resolveMultiple": true,
     "entityType": "DEVICE"
   },
   "keyFilters": [
@@ -65,7 +63,6 @@ Devices where (temperature > 25 AND humidity < 60) OR batteryLevel < 20:
 {
   "entityFilter": {
     "type": "entityType",
-    "resolveMultiple": true,
     "entityType": "DEVICE"
   },
   "keyFilters": [
@@ -143,7 +140,6 @@ Defines **what entities** to search.
 ```json
 {
   "type": "entityType",
-  "resolveMultiple": true,
   "entityType": "DEVICE"
 }
 ```
@@ -163,7 +159,6 @@ Defines **what entities** to search.
 ```json
 {
   "type": "deviceType",
-  "resolveMultiple": true,
   "deviceType": "Temperature Sensor"
 }
 ```
@@ -172,7 +167,6 @@ Defines **what entities** to search.
 ```json
 {
   "type": "entityName",
-  "resolveMultiple": true,
   "entityType": "DEVICE",
   "entityNameFilter": "Sensor"
 }
@@ -299,7 +293,6 @@ Devices that haven't reported in 24+ hours:
 {
   "entityFilter": {
     "type": "entityType",
-    "resolveMultiple": true,
     "entityType": "DEVICE"
   },
   "keyFilters": [
@@ -335,7 +328,6 @@ Devices where active=true AND batteryLevel < 20:
 {
   "entityFilter": {
     "type": "entityType",
-    "resolveMultiple": true,
     "entityType": "DEVICE"
   },
   "keyFilters": [
@@ -375,7 +367,6 @@ Filter devices where temperature > tenant's configured threshold:
 {
   "entityFilter": {
     "type": "entityType",
-    "resolveMultiple": true,
     "entityType": "DEVICE"
   },
   "keyFilters": [
@@ -413,7 +404,6 @@ Find devices with "sensor" in the name:
 {
   "entityFilter": {
     "type": "entityType",
-    "resolveMultiple": true,
     "entityType": "DEVICE"
   },
   "entityFields": [
@@ -478,7 +468,7 @@ The query returns a paginated response:
 ### Pattern 1: Get all entities with specific fields
 ```json
 {
-  "entityFilter": {"type": "entityType", "resolveMultiple": true, "entityType": "DEVICE"},
+  "entityFilter": {"type": "entityType", "entityType": "DEVICE"},
   "entityFields": [{"type": "ENTITY_FIELD", "key": "name"}],
   "pageLink": {"pageSize": 100, "page": 0}
 }
@@ -487,7 +477,7 @@ The query returns a paginated response:
 ### Pattern 2: Filter + fetch latest values
 ```json
 {
-  "entityFilter": {"type": "entityType", "resolveMultiple": true, "entityType": "DEVICE"},
+  "entityFilter": {"type": "entityType", "entityType": "DEVICE"},
   "keyFilters": [],
   "latestValues": [{"type": "TIME_SERIES", "key": "temperature"}],
   "pageLink": {"pageSize": 50, "page": 0}
@@ -497,7 +487,7 @@ The query returns a paginated response:
 ### Pattern 3: Search with sorting
 ```json
 {
-  "entityFilter": {"type": "entityType", "resolveMultiple": true, "entityType": "DEVICE"},
+  "entityFilter": {"type": "entityType", "entityType": "DEVICE"},
   "entityFields": [{"type": "ENTITY_FIELD", "key": "name"}],
   "pageLink": {
     "pageSize": 20,

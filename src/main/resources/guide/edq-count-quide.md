@@ -17,11 +17,10 @@ Entity Count Query returns the **number of entities** that match your filter cri
 ### Example 1: Count all devices
 ```json
 {
-  "entityFilter": {
-    "type": "entityType",
-    "resolveMultiple": true,
-    "entityType": "DEVICE"
-  }
+    "entityFilter": {
+        "type": "entityType",
+        "entityType": "DEVICE"
+    }
 }
 ```
 **Returns:** `{"count": 157}`
@@ -32,7 +31,6 @@ Devices where temperature > 30:
 {
   "entityFilter": {
     "type": "entityType",
-    "resolveMultiple": true,
     "entityType": "DEVICE"
   },
   "keyFilters": [
@@ -56,7 +54,6 @@ Active = true AND batteryLevel < 20:
 {
   "entityFilter": {
     "type": "entityType",
-    "resolveMultiple": true,
     "entityType": "DEVICE"
   },
   "keyFilters": [
@@ -89,7 +86,6 @@ All "Temperature Sensor" devices:
 {
   "entityFilter": {
     "type": "deviceType",
-    "resolveMultiple": true,
     "deviceType": "Temperature Sensor"
   }
 }
@@ -159,27 +155,24 @@ Same as Entity Data Query - defines **what entities** to count.
 **Count all devices:**
 ```json
 {
-  "type": "entityType",
-  "resolveMultiple": true,
-  "entityType": "DEVICE"
+    "type": "entityType",
+    "entityType": "DEVICE"
 }
 ```
 
 **Count all assets:**
 ```json
 {
-  "type": "entityType",
-  "resolveMultiple": true,
-  "entityType": "ASSET"
+    "type": "entityType",
+    "entityType": "ASSET"
 }
 ```
 
 **Count devices by profile:**
 ```json
 {
-  "type": "deviceType",
-  "resolveMultiple": true,
-  "deviceType": "Temperature Sensor"
+    "type": "deviceType",
+    "deviceType": "Temperature Sensor"
 }
 ```
 
@@ -271,7 +264,7 @@ Entity Count Query returns a simple count:
 **Scenario:** Show device status counts on dashboard
 
 ```json
-{"entityFilter": {"type": "entityType", "resolveMultiple": true, "entityType": "DEVICE"}}
+{"entityFilter": {"type": "entityType", "entityType": "DEVICE"}}
 ```
 **Returns:** `{"count": 250}`
 
@@ -293,7 +286,6 @@ Entity Count Query returns a simple count:
 {
   "entityFilter": {
     "type": "entityType",
-    "resolveMultiple": true,
     "entityType": "DEVICE"
   },
   "keyFilters": [
@@ -315,7 +307,7 @@ Entity Count Query returns a simple count:
 {
   "entityFilter": {
     "type": "deviceType",
-    "resolveMultiple": true,
+
     "deviceType": "Temperature Sensor"
   },
   "keyFilters": []
@@ -329,7 +321,7 @@ Entity Count Query returns a simple count:
 
 ```json
 {
-  "entityFilter": {"type": "entityType", "resolveMultiple": true, "entityType": "DEVICE"},
+  "entityFilter": {"type": "entityType", "entityType": "DEVICE"},
   "keyFilters": [
     {"key": {"type": "TIME_SERIES", "key": "batteryLevel"}, "valueType": "NUMERIC", 
      "predicate": {"operation": "LESS", "value": {"defaultValue": 20}, "type": "NUMERIC"}}
@@ -340,7 +332,7 @@ Entity Count Query returns a simple count:
 
 ```json 
 {
-  "entityFilter": {"type": "entityType", "resolveMultiple": true, "entityType": "DEVICE"},
+  "entityFilter": {"type": "entityType", "entityType": "DEVICE"},
   "keyFilters": [
     {"key": {"type": "ATTRIBUTE", "key": "errorState"}, "valueType": "BOOLEAN",
      "predicate": {"operation": "EQUAL", "value": {"defaultValue": true}, "type": "BOOLEAN"}}
@@ -351,13 +343,13 @@ Entity Count Query returns a simple count:
 
 ### Use Case 5: Dynamic Threshold Monitoring
 
-**Scenario:** Count devices exceeding tenant-configured threshold
+**Scenario:** Count devices exceeding a tenant-configured threshold
 
 ```json
 {
   "entityFilter": {
     "type": "entityType",
-    "resolveMultiple": true,
+
     "entityType": "DEVICE"
   },
   "keyFilters": [
