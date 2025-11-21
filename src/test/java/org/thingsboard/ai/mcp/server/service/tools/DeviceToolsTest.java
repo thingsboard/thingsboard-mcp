@@ -1,7 +1,12 @@
 package org.thingsboard.ai.mcp.server.service.tools;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
@@ -19,6 +24,7 @@ import org.thingsboard.server.common.data.id.EntityGroupId;
 import org.thingsboard.server.common.data.id.UUIDBased;
 import org.thingsboard.server.common.data.page.PageData;
 import org.thingsboard.server.common.data.page.PageLink;
+import org.thingsboard.server.common.data.page.SortOrder;
 import org.thingsboard.server.common.data.security.DeviceCredentials;
 
 import java.util.ArrayList;
@@ -30,10 +36,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.PE_ONLY_AVAILABLE;
 
 @ExtendWith(MockitoExtension.class)
 public class DeviceToolsTest {
@@ -50,10 +55,16 @@ public class DeviceToolsTest {
     @Captor
     private ArgumentCaptor<List<DeviceId>> deviceIdsCaptor;
 
+    @Captor
+    private ArgumentCaptor<PageLink> pageLinkCaptor;
+
+    @BeforeEach
+    void setup() {
+        when(clientService.getClient()).thenReturn(restClient);
+    }
+
     @Test
     void testFindDeviceById() {
-        when(clientService.getClient()).thenReturn(restClient);
-
         UUID deviceUuid = UUID.randomUUID();
         Device device = new Device();
         device.setId(new DeviceId(deviceUuid));
@@ -70,8 +81,6 @@ public class DeviceToolsTest {
 
     @Test
     void testFindDeviceCredentialsByDeviceId() {
-        when(clientService.getClient()).thenReturn(restClient);
-
         UUID deviceUuid = UUID.randomUUID();
         DeviceCredentials credentials = new DeviceCredentials();
         when(restClient.getDeviceCredentialsByDeviceId(any(DeviceId.class))).thenReturn(Optional.of(credentials));
@@ -85,39 +94,38 @@ public class DeviceToolsTest {
         assertThat(result).isEqualTo(JacksonUtil.toString(credentials));
     }
 
-    @Test
-    void testFindTenantDevices() throws Exception {
-        when(clientService.getClient()).thenReturn(restClient);
-
+    @ParameterizedTest(name = "tenantDevices page={1} size={0} type={2} text={3} sort={4} {5}")
+    @CsvSource({
+            "40,1,sensor,temp,deviceProfileName,DESC",
+            "10,0,,room,name,ASC"
+    })
+    void testFindTenantDevices(int pageSize, int page, String type, String text, String sortProp, String dir) throws Exception {
         List<Device> devices = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
-            Device device = new Device();
-            device.setId(new DeviceId(UUID.randomUUID()));
-            devices.add(device);
+            Device d = new Device();
+            d.setId(new DeviceId(UUID.randomUUID()));
+            devices.add(d);
         }
+        PageData<Device> pageData = new PageData<>(devices, 2, devices.size(), true);
+        when(restClient.getTenantDevices(eq(type), any(PageLink.class))).thenReturn(pageData);
 
-        PageData<Device> page = new PageData<>(devices, 2, devices.size(), true);
-        when(restClient.getTenantDevices(eq("sensor"), any(PageLink.class))).thenReturn(page);
+        String result = tools.getTenantDevices(Integer.toString(pageSize), Integer.toString(page), type, text, sortProp, dir);
 
-        String result = tools.getTenantDevices(40, 1, "sensor", "temp", "deviceProfileName", "DESC");
-
-        ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);
-        verify(restClient).getTenantDevices(eq("sensor"), pageCap.capture());
-
-        PageLink pageLink = pageCap.getValue();
-        assertThat(pageLink.getPageSize()).isEqualTo(40);
-        assertThat(pageLink.getPage()).isEqualTo(1);
-        assertThat(pageLink.getTextSearch()).isEqualTo("temp");
-        assertThat(pageLink.getSortOrder().getProperty()).isEqualTo("deviceProfileName");
-        assertThat(pageLink.getSortOrder().getDirection().name()).isEqualTo("DESC");
-
-        assertThat(result).isEqualTo(JacksonUtil.toString(page));
+        verify(restClient).getTenantDevices(eq(type), pageLinkCaptor.capture());
+        PageLink pl = pageLinkCaptor.getValue();
+        assertThat(pl.getPageSize()).isEqualTo(pageSize);
+        assertThat(pl.getPage()).isEqualTo(page);
+        assertThat(pl.getTextSearch()).isEqualTo(text);
+        if (sortProp != null) {
+            assertThat(pl.getSortOrder()).isNotNull();
+            assertThat(pl.getSortOrder().getProperty()).isEqualTo(sortProp);
+            assertThat(pl.getSortOrder().getDirection()).isEqualTo(SortOrder.Direction.valueOf(dir));
+        }
+        assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
     }
 
     @Test
     void testFindTenantDevice() {
-        when(clientService.getClient()).thenReturn(restClient);
-
         Device device = new Device();
         device.setId(new DeviceId(UUID.randomUUID()));
         when(restClient.getTenantDevice("Boiler-Device-01")).thenReturn(Optional.of(device));
@@ -128,82 +136,79 @@ public class DeviceToolsTest {
         assertThat(result).isEqualTo(JacksonUtil.toString(device));
     }
 
-    @Test
-    void testFindCustomerDevices() throws Exception {
-        when(clientService.getClient()).thenReturn(restClient);
-
+    @ParameterizedTest(name = "customerDevices page={1} size={0} type={3} text={4} sort={5} {6}")
+    @CsvSource({
+            "25,0,meter,plant,createdTime,ASC",
+            "5,2,,heat,name,DESC"
+    })
+    void testFindCustomerDevices(int pageSize, int page, String type, String text, String sortProp, String dir) throws Exception {
         UUID customerUuid = UUID.randomUUID();
         List<Device> devices = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
-            Device device = new Device();
-            device.setId(new DeviceId(UUID.randomUUID()));
-            devices.add(device);
+            Device d = new Device();
+            d.setId(new DeviceId(UUID.randomUUID()));
+            devices.add(d);
         }
 
-        PageData<Device> page = new PageData<>(devices, 1, devices.size(), false);
-        when(restClient.getCustomerDevices(any(CustomerId.class), eq("meter"), any(PageLink.class))).thenReturn(page);
+        PageData<Device> pageData = new PageData<>(devices, 1, devices.size(), false);
+        when(restClient.getCustomerDevices(any(CustomerId.class), eq(type), any(PageLink.class))).thenReturn(pageData);
 
-        String result = tools.getCustomerDevices(customerUuid.toString(), 25, 0, "meter", "plant", "createdTime", "ASC");
+        String result = tools.getCustomerDevices(customerUuid.toString(), Integer.toString(pageSize), Integer.toString(page), type, text, sortProp, dir);
 
         ArgumentCaptor<CustomerId> customerCap = ArgumentCaptor.forClass(CustomerId.class);
-        ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);
-        verify(restClient).getCustomerDevices(customerCap.capture(), eq("meter"), pageCap.capture());
-
+        verify(restClient).getCustomerDevices(customerCap.capture(), eq(type), pageLinkCaptor.capture());
         assertThat(customerCap.getValue().getId()).isEqualTo(customerUuid);
 
-        PageLink pageLink = pageCap.getValue();
-        assertThat(pageLink.getPageSize()).isEqualTo(25);
-        assertThat(pageLink.getPage()).isEqualTo(0);
-        assertThat(pageLink.getTextSearch()).isEqualTo("plant");
-        assertThat(pageLink.getSortOrder().getDirection().name()).isEqualTo("ASC");
+        PageLink pl = pageLinkCaptor.getValue();
+        assertThat(pl.getPageSize()).isEqualTo(pageSize);
+        assertThat(pl.getPage()).isEqualTo(page);
+        assertThat(pl.getTextSearch()).isEqualTo(text);
+        if (sortProp != null) {
+            assertThat(pl.getSortOrder()).isNotNull();
+            assertThat(pl.getSortOrder().getProperty()).isEqualTo(sortProp);
+            assertThat(pl.getSortOrder().getDirection()).isEqualTo(SortOrder.Direction.valueOf(dir));
+        }
 
-        assertThat(result).isEqualTo(JacksonUtil.toString(page));
+        assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
     }
 
-    @Test
-    void testFindUserDevices_ceEdition() throws Exception {
-        when(clientService.getEdition()).thenReturn(ThingsBoardEdition.CE);
-
-        String result = tools.getUserDevices(10, 0, null, null, null, null);
-
-        verify(clientService, never()).getClient();
-        assertThat(result).isEqualTo(PE_ONLY_AVAILABLE);
-    }
-
-    @Test
-    void testFindUserDevices_peEdition() throws Exception {
+    @ParameterizedTest(name = "userDevices page={1} size={0} type={2} text={3} sort={4} {5}")
+    @CsvSource({
+            "15,2,pump,abc,name,DESC",
+            "8,0,,temp,createdTime,ASC"
+    })
+    void testFindUserDevices(int pageSize, int page, String type, String text, String sortProp, String dir) throws Exception {
         when(clientService.getEdition()).thenReturn(ThingsBoardEdition.PE);
         when(clientService.getClient()).thenReturn(restClient);
 
         List<Device> devices = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
-            Device device = new Device();
-            device.setId(new DeviceId(UUID.randomUUID()));
-            devices.add(device);
+            Device d = new Device();
+            d.setId(new DeviceId(UUID.randomUUID()));
+            devices.add(d);
         }
 
-        PageData<Device> page = new PageData<>(devices, 1, devices.size(), false);
-        when(restClient.getUserDevices(eq("pump"), any(PageLink.class))).thenReturn(page);
+        PageData<Device> pageData = new PageData<>(devices, 1, devices.size(), false);
+        when(restClient.getUserDevices(eq(type), any(PageLink.class))).thenReturn(pageData);
 
-        String result = tools.getUserDevices(15, 2, "pump", "abc", "name", "DESC");
+        String result = tools.getUserDevices(Integer.toString(pageSize), Integer.toString(page), type, text, sortProp, dir);
 
-        ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);
-        verify(restClient).getUserDevices(eq("pump"), pageCap.capture());
+        verify(restClient).getUserDevices(eq(type), pageLinkCaptor.capture());
+        PageLink pl = pageLinkCaptor.getValue();
+        assertThat(pl.getPageSize()).isEqualTo(pageSize);
+        assertThat(pl.getPage()).isEqualTo(page);
+        assertThat(pl.getTextSearch()).isEqualTo(text);
+        if (sortProp != null) {
+            assertThat(pl.getSortOrder()).isNotNull();
+            assertThat(pl.getSortOrder().getProperty()).isEqualTo(sortProp);
+            assertThat(pl.getSortOrder().getDirection()).isEqualTo(SortOrder.Direction.valueOf(dir));
+        }
 
-        PageLink pageLink = pageCap.getValue();
-        assertThat(pageLink.getPageSize()).isEqualTo(15);
-        assertThat(pageLink.getPage()).isEqualTo(2);
-        assertThat(pageLink.getTextSearch()).isEqualTo("abc");
-        assertThat(pageLink.getSortOrder().getProperty()).isEqualTo("name");
-        assertThat(pageLink.getSortOrder().getDirection().name()).isEqualTo("DESC");
-
-        assertThat(result).isEqualTo(JacksonUtil.toString(page));
+        assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
     }
 
     @Test
     void testFindDevicesByIds() {
-        when(clientService.getClient()).thenReturn(restClient);
-
         UUID id1 = UUID.randomUUID();
         UUID id2 = UUID.randomUUID();
 
@@ -213,7 +218,7 @@ public class DeviceToolsTest {
         List<Device> devices = List.of(device1, device2);
         when(restClient.getDevicesByIds(anyList())).thenReturn(devices);
 
-        String result = tools.getDevicesByIds(id1.toString(), id2.toString());
+        String result = tools.getDevicesByIds(id1 + "," + id2);
 
         verify(restClient).getDevicesByIds(deviceIdsCaptor.capture());
 
@@ -223,48 +228,135 @@ public class DeviceToolsTest {
         assertThat(result).isEqualTo(JacksonUtil.toString(devices));
     }
 
-    @Test
-    void testFindDevicesByEntityGroupId_ceEdition() throws Exception {
-        when(clientService.getEdition()).thenReturn(ThingsBoardEdition.CE);
-
-        String result = tools.getDevicesByEntityGroupId(UUID.randomUUID().toString(), 10, 0, null, null, null);
-
-        verify(clientService, never()).getClient();
-        assertThat(result).isEqualTo(PE_ONLY_AVAILABLE);
-    }
-
-    @Test
-    void testFindDevicesByEntityGroupId_peEdition() throws Exception {
+    @ParameterizedTest(name = "devicesByGroup page={1} size={0} sort={4} {5}")
+    @CsvSource({
+            "20,1,email,ASC,xyz",
+            "5,0,firstName,DESC,"
+    })
+    void testFindDevicesByEntityGroupId(int pageSize, int page, String sortProp, String dir, String text) throws Exception {
         when(clientService.getEdition()).thenReturn(ThingsBoardEdition.PE);
         when(clientService.getClient()).thenReturn(restClient);
 
         UUID groupUuid = UUID.randomUUID();
         List<Device> devices = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
-            Device device = new Device();
-            device.setId(new DeviceId(UUID.randomUUID()));
-            devices.add(device);
+            Device d = new Device();
+            d.setId(new DeviceId(UUID.randomUUID()));
+            devices.add(d);
         }
 
-        PageData<Device> page = new PageData<>(devices, 1, devices.size(), false);
-        when(restClient.getDevicesByEntityGroupId(any(EntityGroupId.class), any(PageLink.class))).thenReturn(page);
+        PageData<Device> pageData = new PageData<>(devices, 1, devices.size(), false);
+        when(restClient.getDevicesByEntityGroupId(any(EntityGroupId.class), any(PageLink.class))).thenReturn(pageData);
 
-        String result = tools.getDevicesByEntityGroupId(groupUuid.toString(), 20, 1, "xyz", "email", "ASC");
+        String result = tools.getDevicesByEntityGroupId(groupUuid.toString(), Integer.toString(pageSize), Integer.toString(page), text, sortProp, dir);
 
         ArgumentCaptor<EntityGroupId> groupCap = ArgumentCaptor.forClass(EntityGroupId.class);
-        ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);
-        verify(restClient).getDevicesByEntityGroupId(groupCap.capture(), pageCap.capture());
+        verify(restClient).getDevicesByEntityGroupId(groupCap.capture(), pageLinkCaptor.capture());
 
         assertThat(groupCap.getValue().getId()).isEqualTo(groupUuid);
 
-        PageLink pageLink = pageCap.getValue();
-        assertThat(pageLink.getPageSize()).isEqualTo(20);
-        assertThat(pageLink.getPage()).isEqualTo(1);
-        assertThat(pageLink.getTextSearch()).isEqualTo("xyz");
-        assertThat(pageLink.getSortOrder().getProperty()).isEqualTo("email");
-        assertThat(pageLink.getSortOrder().getDirection().name()).isEqualTo("ASC");
+        PageLink pl = pageLinkCaptor.getValue();
+        assertThat(pl.getPageSize()).isEqualTo(pageSize);
+        assertThat(pl.getPage()).isEqualTo(page);
+        assertThat(pl.getTextSearch()).isEqualTo(text);
+        assertThat(pl.getSortOrder()).isNotNull();
+        assertThat(pl.getSortOrder().getProperty()).isEqualTo(sortProp);
+        assertThat(pl.getSortOrder().getDirection()).isEqualTo(SortOrder.Direction.valueOf(dir));
 
-        assertThat(result).isEqualTo(JacksonUtil.toString(page));
+        assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
+    }
+
+    @Nested
+    @DisplayName("saveDevice variants")
+    class SaveDeviceVariants {
+        @Test
+        void testSaveDevice_withoutGroups_noToken() {
+            Device payload = new Device();
+            payload.setName("A4B72CCDFF233");
+            when(restClient.saveDevice(any(Device.class), eq((String) null))).thenAnswer(inv -> inv.getArgument(0));
+
+            String res = tools.saveDevice(JacksonUtil.toString(payload), null, null, null);
+
+            ArgumentCaptor<Device> cap = ArgumentCaptor.forClass(Device.class);
+            verify(restClient).saveDevice(cap.capture(), eq((String) null));
+            assertThat(cap.getValue().getName()).isEqualTo("A4B72CCDFF233");
+            assertThat(res).isEqualTo(JacksonUtil.toString(payload));
+        }
+
+        @Test
+        void testSaveDevice_withAccessToken_only() {
+            Device payload = new Device();
+            payload.setName("A1");
+            when(restClient.saveDevice(any(Device.class), eq("tok"))).thenAnswer(inv -> inv.getArgument(0));
+
+            String res = tools.saveDevice(JacksonUtil.toString(payload), "tok", null, null);
+
+            verify(restClient).saveDevice(any(Device.class), eq("tok"));
+            assertThat(res).isEqualTo(JacksonUtil.toString(payload));
+        }
+
+        @Test
+        void testSaveDevice_withSingleGroup() {
+            Device payload = new Device();
+            payload.setName("A2");
+            UUID group = UUID.randomUUID();
+
+            when(restClient.saveDevice(any(Device.class), eq("tok"), any(EntityGroupId.class), eq(null)))
+                    .thenAnswer(inv -> inv.getArgument(0));
+
+            String res = tools.saveDevice(JacksonUtil.toString(payload), "tok", group.toString(), null);
+
+            ArgumentCaptor<EntityGroupId> egCap = ArgumentCaptor.forClass(EntityGroupId.class);
+            verify(restClient).saveDevice(any(Device.class), eq("tok"), egCap.capture(), eq(null));
+            assertThat(egCap.getValue().getId()).isEqualTo(group);
+            assertThat(res).isEqualTo(JacksonUtil.toString(payload));
+        }
+
+        @Test
+        void testSaveDevice_withMultipleGroups() {
+            Device payload = new Device();
+            payload.setName("A3");
+            String groupIds = UUID.randomUUID() + "," + UUID.randomUUID();
+
+            when(restClient.saveDevice(any(Device.class), eq("tok"), eq(null), eq(groupIds)))
+                    .thenAnswer(inv -> inv.getArgument(0));
+
+            String res = tools.saveDevice(JacksonUtil.toString(payload), "tok", null, groupIds);
+
+            verify(restClient).saveDevice(any(Device.class), eq("tok"), eq(null), eq(groupIds));
+            assertThat(res).isEqualTo(JacksonUtil.toString(payload));
+        }
+
+    }
+
+    @Nested
+    @DisplayName("deleteDevice JSON contract")
+    class DeleteDeviceContract {
+        @Test
+        void testDeleteDevice_ok() {
+            UUID id = UUID.randomUUID();
+            String res = tools.deleteDevice(id.toString());
+
+            ArgumentCaptor<DeviceId> idCap = ArgumentCaptor.forClass(DeviceId.class);
+            verify(restClient).deleteDevice(idCap.capture());
+            assertThat(idCap.getValue().getId()).isEqualTo(id);
+
+            assertThat(res).contains("\"status\":\"OK\"");
+            assertThat(res).contains(id.toString());
+        }
+
+        @Test
+        void testDeleteDevice_error() {
+            UUID id = UUID.randomUUID();
+            doThrow(new RuntimeException("boom")).when(restClient).deleteDevice(any(DeviceId.class));
+
+            String res = tools.deleteDevice(id.toString());
+
+            assertThat(res).contains("\"status\":\"ERROR\"");
+            assertThat(res).contains(id.toString());
+            assertThat(res).contains("boom");
+        }
+
     }
 
 }

@@ -1,5 +1,6 @@
 package org.thingsboard.ai.mcp.server.tools.alarm;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.McpTools;
 import org.thingsboard.common.util.JacksonUtil;
+import org.thingsboard.server.common.data.alarm.Alarm;
 import org.thingsboard.server.common.data.alarm.AlarmSearchStatus;
 import org.thingsboard.server.common.data.alarm.AlarmStatus;
 import org.thingsboard.server.common.data.exception.ThingsboardException;
@@ -18,6 +20,8 @@ import org.thingsboard.server.common.data.id.EntityIdFactory;
 import org.thingsboard.server.common.data.page.PageLink;
 import org.thingsboard.server.common.data.page.TimePageLink;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ALARM_ID_PARAM_DESCRIPTION;
@@ -48,7 +52,123 @@ public class AlarmTools implements McpTools {
     private static final String ALARM_QUERY_FETCH_ORIGINATOR_DESCRIPTION = "A boolean value to specify if the alarm originator name will be " +
             "filled in the AlarmInfo object  field: 'originatorName' or will returns as null.";
 
+    private static final String ALARM_JSON_EXAMPLE = """
+            {
+              "id": {
+                "id": "1b2f5b43-7c07-4f3e-9f3a-5d28a9f2a111",
+                "entityType": "ALARM"
+              },
+              "createdTime": 1634058704567,
+              "tenantId": {
+                "id": "0a1b2c3d-4e5f-6789-abcd-001122334455",
+                "entityType": "TENANT"
+              },
+              "customerId": {
+                "id": "11223344-5566-7788-99aa-bbccddeeff00",
+                "entityType": "CUSTOMER"
+              },
+              "type": "High Temperature Alarm",
+              "originator": {
+                "id": "784f394c-42b6-435a-983c-b7beff2784f9",
+                "entityType": "DEVICE"
+              },
+              "severity": "CRITICAL",
+              "acknowledged": true,
+              "cleared": false,
+              "assigneeId": {
+                "id": "9c8b7a65-4321-4fed-ab12-34567890cdef",
+                "entityType": "USER"
+              },
+              "startTs": 1634058704565,
+              "endTs": 1634111163522,
+              "ackTs": 1634115221948,
+              "clearTs": 1634114528465,
+              "assignTs": 1634115928465,
+              "details": {
+                "message": "Temp > 85°C on line A",
+                "dashboardId": "a3b5d6c2-7e8f-4a91-b0a0-123456789abc",
+                "threshold": 85,
+                "unit": "°C"
+              },
+              "propagate": true,
+              "propagateToOwner": true,
+              "propagateToOwnerHierarchy": true,
+              "propagateToTenant": true,
+              "propagateRelationTypes": ["Contains"],
+              "status": "ACTIVE_ACK",
+            }
+            """;
+
     private final RestClientService clientService;
+
+    @Tool(description =
+            "Create or update an Alarm. If 'id' is provided, the existing Alarm is updated. " +
+                    "Referencing non-existing Alarm Id will cause 'Not Found' error. " +
+                    "\n\nPlatform also deduplicate the alarms based on the entity id of originator and alarm 'type'. " +
+                    "For example, if the user or system component create the alarm with the type 'HighTemperature' for device 'Device A' the new active alarm is created. " +
+                    "If the user tries to create 'HighTemperature' alarm for the same device again, the previous alarm will be updated (the 'end_ts' will be set to current timestamp). " +
+                    "If the user clears the alarm (see 'Clear Alarm(clearAlarm)'), than new alarm with the same type and same device may be created. " +
+                    "Remove 'id', 'tenantId' and optionally 'customerId' from the request body example (below) to create new Alarm entity. " +
+                    TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
+    public String saveAlarm(
+            @ToolParam(description = "A JSON string representing the Alarm entity. Remove 'id', 'tenantId' and optionally 'customerId' from the request body example (below) to create new Alarm entity." + ALARM_JSON_EXAMPLE)
+            @NotBlank @Valid String alarmJson) {
+        Alarm alarm = JacksonUtil.fromString(alarmJson, Alarm.class);
+        return JacksonUtil.toString(clientService.getClient().saveAlarm(alarm));
+    }
+
+    @Tool(description = "Deletes the alarm. Referencing non-existing alarm Id will cause an error. " + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
+    public String deleteAlarm(@ToolParam(description = ALARM_ID_PARAM_DESCRIPTION) @NotBlank String alarmIdStr) {
+        try {
+            AlarmId alarmId = new AlarmId(UUID.fromString(alarmIdStr));
+            clientService.getClient().deleteAlarm(alarmId);
+            return "{\"status\":\"OK\",\"id\":\"" + alarmId + "\"}";
+        } catch (Exception e) {
+            Map<String, Object> err = new HashMap<>();
+            err.put("status", "ERROR");
+            err.put("id", alarmIdStr);
+            err.put("message", e.getMessage());
+            return JacksonUtil.toString(err);
+        }
+    }
+
+    @Tool(description = "Acknowledge the Alarm. " +
+            "Once acknowledged, the 'ack_ts' field will be set to current timestamp and special rule chain event 'ALARM_ACK' will be generated. " +
+            "Referencing non-existing Alarm Id will cause an error." +
+            TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
+    public String ackAlarm(
+            @ToolParam(description = ALARM_ID_PARAM_DESCRIPTION) @NotBlank String alarmIdStr) {
+        try {
+            AlarmId alarmId = new AlarmId(UUID.fromString(alarmIdStr));
+            clientService.getClient().ackAlarm(alarmId);
+            return "{\"status\":\"OK\",\"id\":\"" + alarmId + "\"}";
+        } catch (Exception e) {
+            Map<String, Object> err = new HashMap<>();
+            err.put("status", "ERROR");
+            err.put("id", alarmIdStr);
+            err.put("message", e.getMessage());
+            return JacksonUtil.toString(err);
+        }
+    }
+
+    @Tool(description = "Clear the Alarm. " +
+            "Once cleared, the 'clear_ts' field will be set to the current timestamp and a rule chain event 'ALARM_CLEAR' will be generated. " +
+            "Referencing a non-existing Alarm Id will cause an error. " +
+            TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
+    public String clearAlarm(
+            @ToolParam(description = ALARM_ID_PARAM_DESCRIPTION) @NotBlank String alarmIdStr) {
+        try {
+            AlarmId alarmId = new AlarmId(UUID.fromString(alarmIdStr));
+            clientService.getClient().clearAlarm(alarmId);
+            return "{\"status\":\"OK\",\"id\":\"" + alarmId + "\"}";
+        } catch (Exception e) {
+            Map<String, Object> err = new HashMap<>();
+            err.put("status", "ERROR");
+            err.put("id", alarmIdStr);
+            err.put("message", e.getMessage());
+            return JacksonUtil.toString(err);
+        }
+    }
 
     @Tool(description = "Get the Alarm object based on the provided alarm id. " + ALARM_SECURITY_CHECK)
     public String getAlarmById(@ToolParam(description = ALARM_ID_PARAM_DESCRIPTION) @NotBlank String alarmId) {
@@ -66,13 +186,13 @@ public class AlarmTools implements McpTools {
             @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityId,
             @ToolParam(required = false, description = ALARM_QUERY_SEARCH_STATUS_DESCRIPTION) String searchStatus,
             @ToolParam(required = false, description = ALARM_QUERY_STATUS_DESCRIPTION) String status,
-            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive int pageSize,
-            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero int page,
+            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive String pageSize,
+            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero String page,
             @ToolParam(required = false, description = ALARM_QUERY_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'startTs', 'endTs', 'ackTs', 'clearTs', 'severity', 'status'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder,
-            @ToolParam(required = false, description = ALARM_QUERY_START_TIME_DESCRIPTION) Long startTs,
-            @ToolParam(required = false, description = ALARM_QUERY_END_TIME_DESCRIPTION) Long endTs,
+            @ToolParam(required = false, description = ALARM_QUERY_START_TIME_DESCRIPTION) String startTs,
+            @ToolParam(required = false, description = ALARM_QUERY_END_TIME_DESCRIPTION) String endTs,
             @ToolParam(required = false, description = ALARM_QUERY_FETCH_ORIGINATOR_DESCRIPTION) Boolean fetchOriginator) throws ThingsboardException {
         AlarmSearchStatus alarmSearchStatus = searchStatus != null ? AlarmSearchStatus.valueOf(searchStatus) : null;
         AlarmStatus alarmStatus = status != null ? AlarmStatus.valueOf(status) : null;
@@ -88,13 +208,13 @@ public class AlarmTools implements McpTools {
             @ToolParam(required = false, description = ALARM_QUERY_SEARCH_STATUS_DESCRIPTION) String searchStatus,
             @ToolParam(required = false, description = ALARM_QUERY_STATUS_DESCRIPTION) String status,
             @ToolParam(required = false, description = ALARM_QUERY_ASSIGNEE_DESCRIPTION) String assigneeId,
-            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive int pageSize,
-            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero int page,
+            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive String pageSize,
+            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero String page,
             @ToolParam(required = false, description = ALARM_QUERY_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'startTs', 'endTs', 'ackTs', 'clearTs', 'severity', 'status'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder,
-            @ToolParam(required = false, description = ALARM_QUERY_START_TIME_DESCRIPTION) Long startTs,
-            @ToolParam(required = false, description = ALARM_QUERY_END_TIME_DESCRIPTION) Long endTs,
+            @ToolParam(required = false, description = ALARM_QUERY_START_TIME_DESCRIPTION) String startTs,
+            @ToolParam(required = false, description = ALARM_QUERY_END_TIME_DESCRIPTION) String endTs,
             @ToolParam(required = false, description = ALARM_QUERY_FETCH_ORIGINATOR_DESCRIPTION) Boolean fetchOriginator) throws ThingsboardException {
         AlarmSearchStatus alarmSearchStatus = searchStatus != null ? AlarmSearchStatus.valueOf(searchStatus) : null;
         AlarmStatus alarmStatus = status != null ? AlarmStatus.valueOf(status) : null;
@@ -116,8 +236,8 @@ public class AlarmTools implements McpTools {
 
     @Tool(description = "Get a set of unique alarm types based on alarms that are either owned by tenant or assigned to the customer which user is performing the request. " + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
     public String getAlarmTypes(
-            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive int pageSize,
-            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero int page,
+            @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive String pageSize,
+            @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero String page,
             @ToolParam(required = false, description = ALARM_QUERY_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
         PageLink pageLink = createPageLink(pageSize, page, textSearch, "type", sortOrder);

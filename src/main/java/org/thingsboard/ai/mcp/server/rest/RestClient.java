@@ -228,7 +228,7 @@ import static org.thingsboard.server.common.data.StringUtils.isEmpty;
 
 public class RestClient implements Closeable {
 
-    private static final String JWT_TOKEN_HEADER_PARAM = "X-Authorization";
+    private static final String TOKEN_HEADER_PARAM = "X-Authorization";
     private static final long AVG_REQUEST_TIMEOUT = TimeUnit.SECONDS.toMillis(30);
     protected static final String ACTIVATE_TOKEN_REGEX = "/api/noauth/activate?activateToken=";
     private final LazyInitializer<ExecutorService> executor = LazyInitializer.<ExecutorService>builder()
@@ -242,44 +242,58 @@ public class RestClient implements Closeable {
     private String username;
     private String password;
     private String mainToken;
-    @Getter private String refreshToken;
+    @Getter
+    private String refreshToken;
     private long mainTokenExpTs;
     private long refreshTokenExpTs;
     private long clientServerTimeDiff;
+
+    public enum AuthType {JWT, API_KEY}
 
     public RestClient(String baseURL) {
         this(new RestTemplate(), baseURL);
     }
 
     public RestClient(RestTemplate restTemplate, String baseURL) {
-        this(restTemplate, baseURL, null);
+        this(restTemplate, baseURL, AuthType.JWT, null);
     }
 
-    public RestClient(RestTemplate restTemplate, String baseURL, String accessToken) {
+    public RestClient(RestTemplate restTemplate, String baseURL, AuthType authType, String token) {
         this.restTemplate = restTemplate;
         this.loginRestTemplate = new RestTemplate(restTemplate.getRequestFactory());
         this.baseURL = baseURL;
         this.restTemplate.getInterceptors().add((request, bytes, execution) -> {
             HttpRequest wrapper = new HttpRequestWrapper(request);
-            if (accessToken == null) {
-                long calculatedTs = System.currentTimeMillis() + clientServerTimeDiff + AVG_REQUEST_TIMEOUT;
-                if (calculatedTs > mainTokenExpTs) {
-                    synchronized (RestClient.this) {
+            switch (authType) {
+                case JWT -> {
+                    if (token == null) {
+                        long calculatedTs = System.currentTimeMillis() + clientServerTimeDiff + AVG_REQUEST_TIMEOUT;
                         if (calculatedTs > mainTokenExpTs) {
-                            if (calculatedTs < refreshTokenExpTs) {
-                                refreshToken();
-                            } else {
-                                doLogin();
+                            synchronized (RestClient.this) {
+                                if (calculatedTs > mainTokenExpTs) {
+                                    if (calculatedTs < refreshTokenExpTs) {
+                                        refreshToken();
+                                    } else {
+                                        doLogin();
+                                    }
+                                }
                             }
                         }
+                    } else {
+                        mainToken = token;
                     }
+                    wrapper.getHeaders().set(TOKEN_HEADER_PARAM, "Bearer " + mainToken);
                 }
-            } else {
-                mainToken = accessToken;
+                case API_KEY -> {
+                    wrapper.getHeaders().set(TOKEN_HEADER_PARAM, "ApiKey " + token);
+                }
             }
-            wrapper.getHeaders().set(JWT_TOKEN_HEADER_PARAM, "Bearer " + mainToken);
             return execution.execute(wrapper, bytes);
         });
+    }
+
+    public static RestClient withApiKey(String baseURL, String token) {
+        return new RestClient(new RestTemplate(), baseURL, AuthType.API_KEY, token);
     }
 
     public String getToken() {
@@ -656,15 +670,16 @@ public class RestClient implements Closeable {
     }
 
     public Asset saveAsset(Asset asset) {
-        return saveAsset(asset, null);
+        return saveAsset(asset, null, null);
     }
 
-    public Asset saveAsset(Asset asset, EntityGroupId entityGroupId) {
-        if (entityGroupId == null) {
-            return restTemplate.postForEntity(baseURL + "/api/asset", asset, Asset.class).getBody();
+    public Asset saveAsset(Asset asset, EntityGroupId entityGroupId, String entityGroupIds) {
+        if (entityGroupId != null) {
+            return restTemplate.postForEntity(baseURL + "/api/asset?entityGroupId={entityGroupId}", asset, Asset.class, entityGroupId.getId()).getBody();
+        } else if (StringUtils.isNotBlank(entityGroupIds)) {
+            return restTemplate.postForEntity(baseURL + "/api/asset?entityGroupIds={entityGroupIds}", asset, Asset.class, entityGroupIds).getBody();
         } else {
-            return restTemplate.postForEntity(baseURL + "/api/asset?entityGroupId={entityGroupId}",
-                    asset, Asset.class, entityGroupId.getId()).getBody();
+            return restTemplate.postForEntity(baseURL + "/api/asset", asset, Asset.class).getBody();
         }
     }
 
@@ -994,7 +1009,17 @@ public class RestClient implements Closeable {
     }
 
     public Customer saveCustomer(Customer customer) {
-        return restTemplate.postForEntity(baseURL + "/api/customer", customer, Customer.class).getBody();
+        return saveCustomer(customer, null, null);
+    }
+
+    public Customer saveCustomer(Customer customer, EntityGroupId entityGroupId, String entityGroupIds) {
+        if (entityGroupId != null) {
+            return restTemplate.postForEntity(baseURL + "/api/customer?entityGroupId={entityGroupId}", customer, Customer.class, entityGroupId.getId()).getBody();
+        } else if (StringUtils.isNotBlank(entityGroupIds)) {
+            return restTemplate.postForEntity(baseURL + "/api/asset?entityGroupIds={entityGroupIds}", customer, Customer.class, entityGroupIds).getBody();
+        } else {
+            return restTemplate.postForEntity(baseURL + "/api/customer", customer, Customer.class).getBody();
+        }
     }
 
     public void deleteCustomer(CustomerId customerId) {
@@ -1151,15 +1176,18 @@ public class RestClient implements Closeable {
     }
 
     public Device saveDevice(Device device, String accessToken) {
-        return saveDevice(device, accessToken, null);
+        return saveDevice(device, accessToken, null, null);
     }
 
-    public Device saveDevice(Device device, String accessToken, EntityGroupId entityGroupId) {
-        if (entityGroupId == null) {
-            return restTemplate.postForEntity(baseURL + "/api/device?accessToken={accessToken}", device, Device.class, accessToken).getBody();
-        } else {
+    public Device saveDevice(Device device, String accessToken, EntityGroupId entityGroupId, String entityGroupIds) {
+        if (entityGroupId != null) {
             return restTemplate.postForEntity(baseURL + "/api/device?accessToken={accessToken}&entityGroupId={entityGroupId}",
                     device, Device.class, accessToken, entityGroupId.getId()).getBody();
+        } else if (StringUtils.isNotBlank(entityGroupIds)) {
+            return restTemplate.postForEntity(baseURL + "/api/device?accessToken={accessToken}&entityGroupIds={entityGroupIds}",
+                    device, Device.class, accessToken, entityGroupIds).getBody();
+        } else {
+            return restTemplate.postForEntity(baseURL + "/api/device?accessToken={accessToken}", device, Device.class, accessToken).getBody();
         }
     }
 
@@ -2565,14 +2593,16 @@ public class RestClient implements Closeable {
     }
 
     public User saveUser(User user, boolean sendActivationMail) {
-        return saveUser(user, sendActivationMail, null);
+        return saveUser(user, sendActivationMail, null, null);
     }
 
-    public User saveUser(User user, boolean sendActivationMail, EntityGroupId entityGroupId) {
-        if (entityGroupId == null) {
-            return restTemplate.postForEntity(baseURL + "/api/user?sendActivationMail={sendActivationMail}", user, User.class, sendActivationMail).getBody();
-        } else {
+    public User saveUser(User user, boolean sendActivationMail, EntityGroupId entityGroupId, String entityGroupIds) {
+        if (entityGroupId != null) {
             return restTemplate.postForEntity(baseURL + "/api/user?sendActivationMail={sendActivationMail}&entityGroupId={entityGroupId}", user, User.class, sendActivationMail, entityGroupId.getId()).getBody();
+        } else if (StringUtils.isNotBlank(entityGroupIds)) {
+            return restTemplate.postForEntity(baseURL + "/api/user?sendActivationMail={sendActivationMail}&entityGroupIds={entityGroupIds}", user, User.class, sendActivationMail, entityGroupId.getId()).getBody();
+        } else {
+            return restTemplate.postForEntity(baseURL + "/api/user?sendActivationMail={sendActivationMail}", user, User.class, sendActivationMail).getBody();
         }
     }
 

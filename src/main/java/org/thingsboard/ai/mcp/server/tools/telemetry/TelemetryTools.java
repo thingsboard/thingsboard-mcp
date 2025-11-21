@@ -41,7 +41,7 @@ import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.STRICT_
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.TELEMETRY_JSON_REQUEST_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.TELEMETRY_KEYS_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH;
-import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.TS_STRICT_DATA_EXAMPLE;
+import static org.thingsboard.ai.mcp.server.util.ToolUtils.parseLong;
 
 @Service
 @RequiredArgsConstructor
@@ -130,50 +130,77 @@ public class TelemetryTools implements McpTools {
             @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String entityType,
             @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityIdStr,
             @ToolParam(required = false, description = TELEMETRY_KEYS_DESCRIPTION) String keys,
-            @ToolParam(required = false, description = STRICT_DATA_TYPES_DESCRIPTION) Boolean useStrictDataTypes) {
+            @ToolParam(required = false, description = STRICT_DATA_TYPES_DESCRIPTION) String useStrictDataTypes) {
         EntityId entityId = EntityIdFactory.getByTypeAndId(entityType, entityIdStr);
-        useStrictDataTypes = useStrictDataTypes != null ? useStrictDataTypes : false;
-        return JacksonUtil.toString(clientService.getClient().getLatestTimeseries(entityId, List.of(keys.split(",")), useStrictDataTypes));
+        return JacksonUtil.toString(clientService.getClient().getLatestTimeseries(entityId, List.of(keys.split(",")), Boolean.parseBoolean(useStrictDataTypes)));
     }
 
-    @Tool(description = "Returns a range of time series values for specified entity. " +
-            "Returns not aggregated data by default. " +
-            "Use aggregation function ('agg') and aggregation interval ('interval') to enable aggregation of the results on the database / server side. " +
-            "The aggregation is generally more efficient then fetching all records. \n\n"
-            + MARKDOWN_CODE_BLOCK_START
-            + TS_STRICT_DATA_EXAMPLE
-            + MARKDOWN_CODE_BLOCK_END
-            + "\n\n" + INVALID_ENTITY_ID_OR_ENTITY_TYPE_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
+    @Tool(description =
+            "Returns a range of time series values for specified entity.  By default returns RAW data points (no aggregation)." +
+
+                    "### Aggregation: how to get MIN / MAX / AVG / SUM / COUNT\n" +
+                    "- Set `agg` to one of: `MIN`, `MAX`, `AVG`, `SUM`, `COUNT`.\n" +
+                    "- Provide an aggregation **interval** to enable aggregation:\n" +
+                    "  - Use `interval` (milliseconds), or\n" +
+                    "  - Use `intervalType` = `MILLISECONDS | WEEK | WEEK_ISO | MONTH | QUARTER` (optional `timeZone`).\n" +
+                    "- **Global min/max over the whole range**: make a **single bucket** that covers the entire `[startTs, endTs]` window:\n" +
+                    "  - Set `agg=MIN` (or `MAX`) and `interval = endTs - startTs + 1`.\n" +
+                    "  - Set `limit=1` (optional).\n\n" +
+
+                    "### Keys & ordering\n" +
+                    "- `keys` = comma-separated telemetry keys (e.g., `temperature,humidity`).\n" +
+                    "- Aggregation runs **per key** independently.\n" +
+                    "- `orderBy` controls sort order of returned datapoints (use `ASC` or `DESC`).\n\n" +
+
+                    "### Limits\n" +
+                    "- `limit` is used **only when `agg=NONE`** (raw mode). Ignored for aggregated queries.\n\n" +
+
+                    "### Examples\n" +
+                    "1) **Global MAX temperature** for a day (one value):\n" +
+                    "   - entityType=`DEVICE`\n" +
+                    "   - entityId=`<deviceUUID>`\n" +
+                    "   - keys=`temperature`\n" +
+                    "   - startTs=`1719878400000`, endTs=`1719964800000`\n" +
+                    "   - agg=`MAX`, interval=`86400001`, limit=`1`\n" +
+                    "\n" +
+                    "2) **Hourly AVG temperature**:\n" +
+                    "   - agg=`AVG`, interval=`3600000`\n" +
+                    "\n" +
+                    "3) **Raw values** (no aggregation), latest 500 points descending:\n" +
+                    "   - agg=`NONE` (or omit), limit=`500`, orderBy=`DESC`\n\n" +
+
+                    INVALID_ENTITY_ID_OR_ENTITY_TYPE_DESCRIPTION +
+                    TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
     public String getTimeseries(
             @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String entityType,
             @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityIdStr,
             @ToolParam(description = TELEMETRY_KEYS_DESCRIPTION) @NotBlank String keys,
-            @ToolParam(description = "A long value representing the start timestamp of the time range in milliseconds, UTC.") @Positive Long startTs,
-            @ToolParam(description = "A long value representing the end timestamp of the time range in milliseconds, UTC.") @Positive Long endTs,
+            @ToolParam(required = false, description = "A long value representing the start timestamp of the time range in milliseconds, UTC. If not set 0 ts is used") @Positive String startTs,
+            @ToolParam(required = false, description = "A long value representing the end timestamp of the time range in milliseconds, UTC. If not set, current ts is used") @Positive String endTs,
             @ToolParam(required = false, description = "A string value representing the type fo the interval. Allowed values: 'MILLISECONDS', 'WEEK', 'WEEK_ISO', 'MONTH', 'QUARTER'") String intervalType,
-            @ToolParam(required = false, description = "A long value representing the aggregation interval range in milliseconds.") Long interval,
+            @ToolParam(required = false, description = "A long value representing the aggregation interval range in milliseconds.") String interval,
             @ToolParam(required = false, description = "A string value representing the timezone that will be used to calculate exact timestamps for 'WEEK', 'WEEK_ISO', 'MONTH' and 'QUARTER' interval types.") String timeZone,
-            @ToolParam(required = false, description = "An integer value that represents a max number of time series data points to fetch. This parameter is used only in the case if 'agg' parameter is set to 'NONE'. ") Integer limit,
+            @ToolParam(required = false, description = "An integer value that represents a max number of time series data points to fetch. This parameter is used only in the case if 'agg' parameter is set to 'NONE'. ") String limit,
             @ToolParam(required = false, description = "A string value representing the aggregation function. If the interval is not specified, 'agg' parameter will use 'NONE' value. Allowed value: 'MIN', 'MAX', 'SUM', 'AVG', 'COUNT', 'NONE'") String agg,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String orderBy,
-            @ToolParam(required = false, description = STRICT_DATA_TYPES_DESCRIPTION) Boolean useStrictDataTypes) {
+            @ToolParam(required = false, description = STRICT_DATA_TYPES_DESCRIPTION) String useStrictDataTypes) {
         EntityId entityId = EntityIdFactory.getByTypeAndId(entityType, entityIdStr);
         Aggregation aggregation = agg != null ? Aggregation.valueOf(agg) : Aggregation.NONE;
-        interval = interval != null ? interval : 0;
-        limit = limit != null ? limit : 100;
+        Long intervalInt = interval != null ? Long.parseLong(interval) : 0;
+        Integer limitInt = limit != null ? Integer.parseInt(limit) : 100;
         IntervalType type = intervalType != null ? IntervalType.valueOf(intervalType) : null;
         return JacksonUtil.toString(clientService.getClient().getTimeseries(
                 entityId,
                 List.of(keys.split(",")),
-                interval,
+                intervalInt,
                 aggregation,
                 type,
                 timeZone,
-                SortOrder.Direction.valueOf(orderBy),
-                startTs,
-                endTs,
-                limit,
-                useStrictDataTypes));
+                orderBy != null ? SortOrder.Direction.valueOf(orderBy) : SortOrder.Direction.ASC,
+                parseLong(startTs, 0L),
+                parseLong(endTs, System.currentTimeMillis()),
+                limitInt,
+                Boolean.parseBoolean(useStrictDataTypes)));
     }
 
     @Tool(description = "Creates or updates the device attributes based on device id and specified attribute scope. " +
@@ -248,10 +275,10 @@ public class TelemetryTools implements McpTools {
     public String saveEntityTelemetryWithTTL(
             @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String entityType,
             @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityIdStr,
-            @ToolParam(description = "A  long value representing TTL (Time to Live) parameter.") @PositiveOrZero Long ttl,
+            @ToolParam(description = "A  long value representing TTL (Time to Live) parameter.") @PositiveOrZero String ttl,
             @ToolParam(description = TELEMETRY_JSON_REQUEST_DESCRIPTION) @NotBlank String jsonBody) {
         EntityId entityId = EntityIdFactory.getByTypeAndId(entityType, entityIdStr);
-        boolean result = clientService.getClient().saveEntityTelemetryWithTTL(entityId, "ANY", ttl, JacksonUtil.toJsonNode(jsonBody));
+        boolean result = clientService.getClient().saveEntityTelemetryWithTTL(entityId, "ANY", parseLong(ttl, 0L), JacksonUtil.toJsonNode(jsonBody));
         if (result) {
             return "{\"status\":\"Telemetry with TTL submitted successfully\"}";
         }
