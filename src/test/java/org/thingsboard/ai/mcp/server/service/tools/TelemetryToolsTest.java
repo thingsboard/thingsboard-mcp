@@ -105,6 +105,65 @@ public class TelemetryToolsTest {
 
     @SuppressWarnings("unchecked")
     @Test
+    void testFindAttributes_nullKeys() {
+        UUID id = UUID.randomUUID();
+        List<Map<String, Object>> body = List.of(Map.of("k", "temp", "v", 22));
+        when(restClient.getAttributeKvEntries(any(EntityId.class), anyList())).thenReturn((List) body);
+
+        String result = tools.getAttributes("DEVICE", id.toString(), null);
+
+        ArgumentCaptor<EntityId> entityCap = ArgumentCaptor.forClass(EntityId.class);
+        ArgumentCaptor<List<String>> keysCap = ArgumentCaptor.forClass(List.class);
+        verify(restClient).getAttributeKvEntries(entityCap.capture(), keysCap.capture());
+        assertThat(entityCap.getValue().getId()).isEqualTo(id);
+        assertThat(keysCap.getValue()).isEmpty();
+
+        assertThat(result).isEqualTo(JacksonUtil.toString(body));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void testFindAttributesByScope_nullKeys() {
+        UUID id = UUID.randomUUID();
+        List<Map<String, Object>> body = List.of(Map.of("k", "sharedKey", "v", true));
+        when(restClient.getAttributesByScope(any(EntityId.class), eq("SHARED_SCOPE"), anyList())).thenReturn((List) body);
+
+        String result = tools.getAttributesByScope("DEVICE", id.toString(), "SHARED_SCOPE", null);
+
+        ArgumentCaptor<EntityId> entityCap = ArgumentCaptor.forClass(EntityId.class);
+        ArgumentCaptor<String> scopeCap = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<List<String>> keysCap = ArgumentCaptor.forClass(List.class);
+        verify(restClient).getAttributesByScope(entityCap.capture(), scopeCap.capture(), keysCap.capture());
+        assertThat(entityCap.getValue().getId()).isEqualTo(id);
+        assertThat(scopeCap.getValue()).isEqualTo("SHARED_SCOPE");
+        assertThat(keysCap.getValue()).isEmpty();
+
+        assertThat(result).isEqualTo(JacksonUtil.toString(body));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void testFindLatestTimeseries_nullKeys() {
+        UUID id = UUID.randomUUID();
+        Map<String, Object> body = Map.of(
+                "temperature",
+                List.of(Map.of("ts", 1, "value", "22"))
+        );
+        when(restClient.getLatestTimeseries(any(EntityId.class), anyList(), eq(false))).thenReturn((Map) body);
+
+        String result = tools.getLatestTimeseries("DEVICE", id.toString(), null, "false");
+
+        ArgumentCaptor<EntityId> entityCap = ArgumentCaptor.forClass(EntityId.class);
+        ArgumentCaptor<List<String>> keysCap = ArgumentCaptor.forClass(List.class);
+        verify(restClient).getLatestTimeseries(entityCap.capture(), keysCap.capture(), eq(false));
+        assertThat(entityCap.getValue().getId()).isEqualTo(id);
+        assertThat(keysCap.getValue()).isEmpty();
+
+        assertThat(result).isEqualTo(JacksonUtil.toString(body));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
     void testFindAttributesByScope() {
         UUID id = UUID.randomUUID();
         List<Map<String, Object>> body = List.of(Map.of("k", "sharedKey", "v", true));
@@ -291,7 +350,7 @@ public class TelemetryToolsTest {
         assertThat(startCap.getValue()).isEqualTo(0L);
         assertThat(endCap.getValue()).isEqualTo(3600000L);
         assertThat(limitCap.getValue()).isEqualTo(1000);
-        assertThat(strictCap.getValue()).isTrue();
+        assertThat(strictCap.getValue()).isEqualTo(true);
 
         assertThat(result).isEqualTo(JacksonUtil.toString(ts));
     }
