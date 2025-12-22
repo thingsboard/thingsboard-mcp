@@ -49,6 +49,13 @@ public class TelemetryTools implements McpTools {
 
     private final RestClientService clientService;
 
+    private static List<String> parseKeys(String keys) {
+        if (keys == null || keys.isBlank()) {
+            return List.of();
+        }
+        return List.of(keys.split(","));
+    }
+
     @Tool(description = "Returns a set of unique attribute key names for the selected entity. " +
             "The response will include merged key names set for all attribute scopes:" +
             "\n\n * SERVER_SCOPE - supported for all entity types;" +
@@ -86,7 +93,7 @@ public class TelemetryTools implements McpTools {
             @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityIdStr,
             @ToolParam(required = false, description = ATTRIBUTES_KEYS_DESCRIPTION) String keys) {
         EntityId entityId = EntityIdFactory.getByTypeAndId(entityType, entityIdStr);
-        return JacksonUtil.toString(clientService.getClient().getAttributeKvEntries(entityId, List.of(keys.split(","))));
+        return JacksonUtil.toString(clientService.getClient().getAttributeKvEntries(entityId, parseKeys(keys)));
     }
 
     @Tool(description = "Returns all attributes of a specified scope that belong to specified entity." +
@@ -103,7 +110,7 @@ public class TelemetryTools implements McpTools {
             @ToolParam(description = ATTRIBUTES_SCOPE_DESCRIPTION + " Allowable values: 'SERVER_SCOPE', 'SHARED_SCOPE', 'CLIENT_SCOPE'") @NotBlank String scope,
             @ToolParam(required = false, description = ATTRIBUTES_KEYS_DESCRIPTION) String keys) {
         EntityId entityId = EntityIdFactory.getByTypeAndId(entityType, entityIdStr);
-        return JacksonUtil.toString(clientService.getClient().getAttributesByScope(entityId, scope, List.of(keys.split(","))));
+        return JacksonUtil.toString(clientService.getClient().getAttributesByScope(entityId, scope, parseKeys(keys)));
     }
 
     @Tool(description = "Returns a set of unique time series key names for the selected entity. " +
@@ -132,7 +139,7 @@ public class TelemetryTools implements McpTools {
             @ToolParam(required = false, description = TELEMETRY_KEYS_DESCRIPTION) String keys,
             @ToolParam(required = false, description = STRICT_DATA_TYPES_DESCRIPTION) String useStrictDataTypes) {
         EntityId entityId = EntityIdFactory.getByTypeAndId(entityType, entityIdStr);
-        return JacksonUtil.toString(clientService.getClient().getLatestTimeseries(entityId, List.of(keys.split(",")), Boolean.parseBoolean(useStrictDataTypes)));
+        return JacksonUtil.toString(clientService.getClient().getLatestTimeseries(entityId, parseKeys(keys), Boolean.parseBoolean(useStrictDataTypes)));
     }
 
     @Tool(description =
