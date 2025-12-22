@@ -11,6 +11,7 @@
     - [Telemetry Management](#telemetry-management)
     - [Relations](#relations)
     - [Alarms](#alarms)
+    - [OTA Packages](#ota-packages)
     - [Entity Data Query](#entity-data-query)
 - [Quick Start Guide](#quick-start-guide)
 - [Installation](#installation)
@@ -26,6 +27,7 @@
     - [Customer Tools](#customer-tools)
     - [User Tools](#user-tools)
     - [Alarm Tools](#alarm-tools)
+    - [OTA Tools](#ota-tools)
     - [Entity Group Tools](#entity-group-tools-pe)
     - [Relation Tools](#relation-tools)
     - [Telemetry Tools](#telemetry-tools)
@@ -103,6 +105,10 @@ Create, delete, discover, and navigate relationships between entities with direc
 ### Alarms
 
 Create, delete, fetch alarms, alarm types, and severity information for specific entities.
+
+### OTA Packages
+
+Create, upload, list, download, and delete OTA packages for device firmware/software updates.
 
 ### Entity Data Query
 
@@ -350,6 +356,22 @@ The ThingsBoard MCP Server provides a wide range of tools that can be used throu
 | `getAllAlarms`            | Get a page of alarms that belongs to the current user owner.                                                 |
 | `getHighestAlarmSeverity` | Get highest alarm severity by originator and optional status filters.                                        |
 | `getAlarmTypes`           | Get a set of unique alarm types based on alarms that are either owned by tenant or assigned to the customer. |
+
+### OTA Tools
+
+| Tool                             | Description                                                                 |
+|----------------------------------|-----------------------------------------------------------------------------|
+| `saveOtaPackageInfo`             | Create or update OTA package info.                                          |
+| `saveOtaPackageData`             | Upload OTA package binary data from a file path on the MCP host.            |
+| `downloadOtaPackage`             | Download OTA package binary to a local file path on the MCP host.           |
+| `getOtaPackageInfoById`          | Get OTA package info by id.                                                 |
+| `getOtaPackageById`              | Get OTA package by id.                                                      |
+| `getOtaPackages`                 | Get OTA packages (paged).                                                   |
+| `getOtaPackagesByDeviceProfile`  | Get OTA packages by device profile and type (paged).                        |
+| `assignOtaPackageToDevice`       | Assign or clear OTA package for a device.                                   |
+| `assignOtaPackageToDeviceProfile`| Assign or clear OTA package for a device profile.                           |
+| `countByDeviceProfileAndEmptyOtaPackage` | Count devices in a profile without assigned OTA package.           |
+| `deleteOtaPackage`               | Delete OTA package by id.                                                   |
 
 ### Entity Group Tools (PE)
 
