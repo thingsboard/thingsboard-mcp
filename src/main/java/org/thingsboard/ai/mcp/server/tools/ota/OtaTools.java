@@ -83,6 +83,9 @@ public class OtaTools implements McpTools {
             @ToolParam(description = "File path to OTA binary on the MCP host.") @NotBlank String filePath,
             @ToolParam(required = false, description = "Checksum algorithm: MD5, SHA256, SHA384, SHA512. Default: SHA256.") String checksumAlgorithm,
             @ToolParam(required = false, description = "Optional checksum (hex). If omitted, checksum is computed from file.") String checksum) throws Exception {
+        if (!StringUtils.isBlank(checksum)) {
+            return errorJson("Checksum input is not supported yet. Omit checksum to let ThingsBoard compute it.");
+        }
         Path path = Paths.get(filePath);
         if (!Files.exists(path)) {
             return errorJson("File not found: " + filePath);
@@ -90,7 +93,7 @@ public class OtaTools implements McpTools {
         byte[] bytes = Files.readAllBytes(path);
         String fileName = path.getFileName().toString();
         ChecksumAlgorithm algo = parseChecksumAlgorithm(checksumAlgorithm);
-        String digest = StringUtils.isBlank(checksum) ? null : checksum;
+        String digest = null;
         return JacksonUtil.toString(clientService.getClient().saveOtaPackageData(new OtaPackageId(UUID.fromString(otaPackageId)), digest, algo, fileName, bytes));
     }
 
