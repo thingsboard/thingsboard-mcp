@@ -362,7 +362,7 @@ The ThingsBoard MCP Server provides a wide range of tools that can be used throu
 | Tool                             | Description                                                                 |
 |----------------------------------|-----------------------------------------------------------------------------|
 | `saveOtaPackageInfo`             | Create or update OTA package info.                                          |
-| `saveOtaPackageData`             | Upload OTA package binary data from a file path on the MCP host.            |
+| `saveOtaPackageData`             | Upload OTA package binary data from a file path on the MCP host. Provide `checksum` only if you already have an official hash. |
 | `downloadOtaPackage`             | Download OTA package binary to a local file path on the MCP host.           |
 | `getOtaPackageInfoById`          | Get OTA package info by id.                                                 |
 | `getOtaPackageById`              | Get OTA package by id.                                                      |
