@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <springProperty scope="context" name="CONSOLE_LOG_PATTERN" source="logging.pattern.console"
+                  defaultValue="%d{yyyy-MM-dd HH:mm:ss} | %-5level | %logger{1.} | %msg%n"/>
+  <springProperty scope="context" name="ROOT_LOG_LEVEL" source="logging.level.root" defaultValue="INFO"/>
+
+  <property name="CONSOLE_TARGET" value="${LOGGING_CONSOLE_TARGET:-System.err}"/>
+
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <target>${CONSOLE_TARGET}</target>
+    <encoder>
+      <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+    </encoder>
+  </appender>
+
+  <logger name="io.modelcontextprotocol.server.McpAsyncServer" level="ERROR"/>
+  <logger name="org.springframework.ai.mcp" level="INFO"/>
+  <logger name="org.thingsboard.ai.mcp.server" level="INFO"/>
+
+  <root level="${ROOT_LOG_LEVEL}">
+    <appender-ref ref="CONSOLE"/>
+  </root>
+</configuration>
