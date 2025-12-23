@@ -145,11 +145,10 @@ public class TelemetryToolsTest {
     @Test
     void testFindLatestTimeseries_nullKeys() {
         UUID id = UUID.randomUUID();
-        Map<String, Object> body = Map.of(
-                "temperature",
-                List.of(Map.of("ts", 1, "value", "22"))
+        List<TsKvEntry> body = List.of(
+                new BasicTsKvEntry(1L, new DoubleDataEntry("temperature", 22.0))
         );
-        when(restClient.getLatestTimeseries(any(EntityId.class), anyList(), eq(false))).thenReturn((Map) body);
+        when(restClient.getLatestTimeseries(any(EntityId.class), anyList(), eq(false))).thenReturn(body);
 
         String result = tools.getLatestTimeseries("DEVICE", id.toString(), null, "false");
 
