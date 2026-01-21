@@ -119,7 +119,7 @@ public class RestClientService {
             }
             JsonNode jsonNode = client.getSystemVersionInfo().orElse(null);
             if (jsonNode != null) {
-                edition = ThingsBoardEdition.valueOf(jsonNode.get("type").asText());
+                edition = ThingsBoardEdition.fromType(jsonNode.get("type").asText());
                 version = jsonNode.get("version").asText();
             } else {
                 edition = ThingsBoardEdition.CE;

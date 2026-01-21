@@ -14,4 +14,19 @@ public enum ThingsBoardEdition {
         this.name = name;
     }
 
+    public static ThingsBoardEdition fromType(String name) {
+        if (name == null) {
+            return CE;
+        }
+        String normalized = name.trim().toUpperCase();
+        if ("PAAS".equals(normalized)) {
+            return PE;
+        }
+        try {
+            return ThingsBoardEdition.valueOf(normalized);
+        } catch (Exception ignored) {
+            return CE;
+        }
+    }
+
 }

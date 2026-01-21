@@ -10,12 +10,13 @@
     <description>MCP server for ThingsBoard platform</description>
 
     <properties>
-        <spring-boot.version>3.4.8</spring-boot.version>
+        <spring-boot.version>3.4.10</spring-boot.version>
         <spring.ai.version>1.0.1</spring.ai.version>
-        <thingsboard.version>4.0.0PE</thingsboard.version>
+        <thingsboard.version>4.3.0PE</thingsboard.version>
         <lombok.version>1.18.32</lombok.version>
         <auth0-jwt.version>4.4.0</auth0-jwt.version>
         <surefire.version>3.2.5</surefire.version>
+        <commons-lang3.version>3.18.0</commons-lang3.version> <!-- to fix CVE-2025-48924. TODO: remove when fixed in spring-boot-dependencies -->
     </properties>
 
     <dependencyManagement>
@@ -90,6 +91,11 @@
         <dependency>
             <groupId>org.thingsboard.common</groupId>
             <artifactId>util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-lang3.version}</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate.validator</groupId>
