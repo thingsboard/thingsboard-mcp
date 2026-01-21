@@ -39,6 +39,10 @@ logging:
 # ThingsBoard auth parameters
 thingsboard:
   url: "${THINGSBOARD_URL:}"
-  username: "${THINGSBOARD_USERNAME:}"
-  password: "${THINGSBOARD_PASSWORD:}"
+  api-key: "${THINGSBOARD_API_KEY:}"
+  username: "${THINGSBOARD_USERNAME:}" # leave for backward compatibility, but since 4.3, use an API key instead
+  password: "${THINGSBOARD_PASSWORD:}" # leave for backward compatibility, but since 4.3, use an API key instead
   login-interval-seconds: "${THINGSBOARD_LOGIN_INTERVAL_SECONDS:1800}"
+  connection:
+    max-retries: "${THINGSBOARD_CONNECTION_MAX_RETRIES:3}"
+    retry-delay-seconds: "${THINGSBOARD_CONNECTION_RETRY_DELAY_SECONDS:5}"
