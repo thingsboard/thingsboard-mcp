@@ -3591,6 +3591,7 @@ public class RestClient implements Closeable {
 
         if (checkSum != null) {
             url += "&checkSum={checkSum}";
+            params.put("checkSum", checkSum);
         }
 
         return restTemplate.postForEntity(
