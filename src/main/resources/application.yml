@@ -19,7 +19,7 @@ spring:
       server:
         enabled: true
         name: thingsboard-mcp-server
-        version: 2.0.0
+        version: 2.1.0
         # The WebMVC starter autoconfigures WebMVC SSE transport
         # Also enables STDIO so the same binary can be launched in either mode
         stdio: "${SPRING_AI_MCP_SERVER_STDIO:true}" # true to use STDIO mode
