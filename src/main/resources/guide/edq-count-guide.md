@@ -29,21 +29,27 @@ Entity Count Query returns the **number of entities** that match your filter cri
 Devices where temperature > 30:
 ```json
 {
-  "entityFilter": {
-    "type": "entityType",
-    "entityType": "DEVICE"
-  },
-  "keyFilters": [
-    {
-      "key": {"type": "TIME_SERIES", "key": "temperature"},
-      "valueType": "NUMERIC",
-      "predicate": {
-        "operation": "GREATER",
-        "value": {"defaultValue": 30},
-        "type": "NUMERIC"
-      }
-    }
-  ]
+    "entityFilter": {
+        "type": "entityType",
+        "entityType": "DEVICE"
+    },
+    "keyFilters": [
+        {
+            "key": {
+                "type": "TIME_SERIES",
+                "key": "temperature"
+            },
+            "valueType": "NUMERIC",
+            "predicate": {
+                "operation": "GREATER",
+                "value": {
+                    "defaultValue": 30,
+                    "dynamicValue": null
+                },
+                "type": "NUMERIC"
+            }
+        }
+    ]
 }
 ```
 **Returns:** `{"count": 23}`
@@ -52,30 +58,42 @@ Devices where temperature > 30:
 Active = true AND batteryLevel < 20:
 ```json
 {
-  "entityFilter": {
-    "type": "entityType",
-    "entityType": "DEVICE"
-  },
-  "keyFilters": [
-    {
-      "key": {"type": "ATTRIBUTE", "key": "active"},
-      "valueType": "BOOLEAN",
-      "predicate": {
-        "operation": "EQUAL",
-        "value": {"defaultValue": true},
-        "type": "BOOLEAN"
-      }
+    "entityFilter": {
+        "type": "entityType",
+        "entityType": "DEVICE"
     },
-    {
-      "key": {"type": "TIME_SERIES", "key": "batteryLevel"},
-      "valueType": "NUMERIC",
-      "predicate": {
-        "operation": "LESS",
-        "value": {"defaultValue": 20},
-        "type": "NUMERIC"
-      }
-    }
-  ]
+    "keyFilters": [
+        {
+            "key": {
+                "type": "ATTRIBUTE",
+                "key": "active"
+            },
+            "valueType": "BOOLEAN",
+            "predicate": {
+                "operation": "EQUAL",
+                "value": {
+                    "defaultValue": true,
+                    "dynamicValue": null
+                },
+                "type": "BOOLEAN"
+            }
+        },
+        {
+            "key": {
+                "type": "TIME_SERIES",
+                "key": "batteryLevel"
+            },
+            "valueType": "NUMERIC",
+            "predicate": {
+                "operation": "LESS",
+                "value": {
+                    "defaultValue": 20,
+                    "dynamicValue": null
+                },
+                "type": "NUMERIC"
+            }
+        }
+    ]
 }
 ```
 **Returns:** `{"count": 7}`
@@ -117,16 +135,6 @@ An Entity Count Query has only two parts (simpler than EDQ):
 Same as Entity Data Query - defines **what entities** to count.
 
 ### Common Entity Filter Types
-
-| Type | Purpose | Example |
-|------|---------|---------|
-| `entityType` | Count all of a type | All devices |
-| `deviceType` | Count by device profile | All "Temperature Sensor" devices |
-| `assetType` | Count by asset profile | All "Building" assets |
-| `entityName` | Count by name pattern | Devices with "sensor" in name |
-| `relationsQuery` | Count related entities | Devices related to Asset X |
-
-**Entity filter types:**
 
 | Type                   | Purpose                                          | Example Use Case                                                |
 |------------------------|--------------------------------------------------|-----------------------------------------------------------------|
@@ -211,31 +219,57 @@ Same as Entity Data Query - filters entities by field/attribute/telemetry values
 **Count by temperature threshold:**
 ```json
 [
-  {
-    "key": {"type": "TIME_SERIES", "key": "temperature"},
-    "valueType": "NUMERIC",
-    "predicate": {
-      "operation": "GREATER",
-      "value": {"defaultValue": 25},
-      "type": "NUMERIC"
+    {
+        "key": {
+            "type": "TIME_SERIES",
+            "key": "temperature"
+        },
+        "valueType": "NUMERIC",
+        "predicate": {
+            "operation": "GREATER",
+            "value": {
+                "defaultValue": 25,
+                "dynamicValue": null
+            },
+            "type": "NUMERIC"
+        }
     }
-  }
 ]
 ```
 
 **Count by multiple conditions (AND):**
 ```json
 [
-  {
-    "key": {"type": "TIME_SERIES", "key": "temperature"},
-    "valueType": "NUMERIC",
-    "predicate": {"operation": "GREATER", "value": {"defaultValue": 30}, "type": "NUMERIC"}
-  },
-  {
-    "key": {"type": "ATTRIBUTE", "key": "active"},
-    "valueType": "BOOLEAN",
-    "predicate": {"operation": "EQUAL", "value": {"defaultValue": true}, "type": "BOOLEAN"}
-  }
+    {
+        "key": {
+            "type": "TIME_SERIES",
+            "key": "temperature"
+        },
+        "valueType": "NUMERIC",
+        "predicate": {
+            "operation": "GREATER",
+            "value": {
+                "defaultValue": 30,
+                "dynamicValue": null
+            },
+            "type": "NUMERIC"
+        }
+    },
+    {
+        "key": {
+            "type": "ATTRIBUTE",
+            "key": "active"
+        },
+        "valueType": "BOOLEAN",
+        "predicate": {
+            "operation": "EQUAL",
+            "value": {
+                "defaultValue": true,
+                "dynamicValue": null
+            },
+            "type": "BOOLEAN"
+        }
+    }
 ]
 ```
 
@@ -249,7 +283,7 @@ Entity Count Query returns a simple count:
 
 ```json
 {
-  "count": 42
+    "count": 42
 }
 ```
 
@@ -264,17 +298,42 @@ Entity Count Query returns a simple count:
 **Scenario:** Show device status counts on dashboard
 
 ```json
-{"entityFilter": {"type": "entityType", "entityType": "DEVICE"}}
+{
+    "entityFilter": {
+        "type": "entityType",
+        "entityType": "DEVICE"
+    }
+}
 ```
 **Returns:** `{"count": 250}`
 
 ```json
-{"entityFilter": {}, "keyFilters": [{"key": {"type": "ATTRIBUTE", "key": "active"}}]}
+{
+    "entityFilter": {},
+    "keyFilters": [
+        {
+            "key": {
+                "type": "ATTRIBUTE",
+                "key": "active"
+            }
+        }
+    ]
+}
 ```
 **Returns:** `{"count": 237}`
 
 ```json
-{"entityFilter": {}, "keyFilters": [{"key": {"type": "TIME_SERIES", "key": "lastActivityTime"}}]}
+{
+    "entityFilter": {},
+    "keyFilters": [
+        {
+            "key": {
+                "type": "TIME_SERIES",
+                "key": "lastActivityTime"
+            }
+        }
+    ]
+}
 ```
 **Returns:** `{"count": 13}`
 
@@ -284,17 +343,27 @@ Entity Count Query returns a simple count:
 
 ```json
 {
-  "entityFilter": {
-    "type": "entityType",
-    "entityType": "DEVICE"
-  },
-  "keyFilters": [
-    {
-      "key": {"type": "TIME_SERIES", "key": "temperature"},
-      "valueType": "NUMERIC",
-      "predicate": {"operation": "GREATER", "value": {"defaultValue": 80}, "type": "NUMERIC"}
-    }
-  ]
+    "entityFilter": {
+        "type": "entityType",
+        "entityType": "DEVICE"
+    },
+    "keyFilters": [
+        {
+            "key": {
+                "type": "TIME_SERIES",
+                "key": "temperature"
+            },
+            "valueType": "NUMERIC",
+            "predicate": {
+                "operation": "GREATER",
+                "value": {
+                    "defaultValue": 80,
+                    "dynamicValue": null
+                },
+                "type": "NUMERIC"
+            }
+        }
+    ]
 }
 ```
 **Returns:** `{"count": 15}` → Trigger alert!
@@ -305,12 +374,11 @@ Entity Count Query returns a simple count:
 
 ```json
 {
-  "entityFilter": {
-    "type": "deviceType",
-
-    "deviceType": "Temperature Sensor"
-  },
-  "keyFilters": []
+    "entityFilter": {
+        "type": "deviceType",
+        "deviceType": "Temperature Sensor"
+    },
+    "keyFilters": []
 }
 ```
 **Returns:** `{"count": 1}` → Run full EDQ!
@@ -321,22 +389,54 @@ Entity Count Query returns a simple count:
 
 ```json
 {
-  "entityFilter": {"type": "entityType", "entityType": "DEVICE"},
-  "keyFilters": [
-    {"key": {"type": "TIME_SERIES", "key": "batteryLevel"}, "valueType": "NUMERIC", 
-     "predicate": {"operation": "LESS", "value": {"defaultValue": 20}, "type": "NUMERIC"}}
-  ]
+    "entityFilter": {
+        "type": "entityType",
+        "entityType": "DEVICE"
+    },
+    "keyFilters": [
+        {
+            "key": {
+                "type": "TIME_SERIES",
+                "key": "batteryLevel"
+            },
+            "valueType": "NUMERIC",
+            "predicate": {
+                "operation": "LESS",
+                "value": {
+                    "defaultValue": 20,
+                    "dynamicValue": null
+                },
+                "type": "NUMERIC"
+            }
+        }
+    ]
 }
 ```
 **Returns:** `{"count": 8}`
 
 ```json 
 {
-  "entityFilter": {"type": "entityType", "entityType": "DEVICE"},
-  "keyFilters": [
-    {"key": {"type": "ATTRIBUTE", "key": "errorState"}, "valueType": "BOOLEAN",
-     "predicate": {"operation": "EQUAL", "value": {"defaultValue": true}, "type": "BOOLEAN"}}
-  ]
+    "entityFilter": {
+        "type": "entityType",
+        "entityType": "DEVICE"
+    },
+    "keyFilters": [
+        {
+            "key": {
+                "type": "ATTRIBUTE",
+                "key": "errorState"
+            },
+            "valueType": "BOOLEAN",
+            "predicate": {
+                "operation": "EQUAL",
+                "value": {
+                    "defaultValue": true,
+                    "dynamicValue": null
+                },
+                "type": "BOOLEAN"
+            }
+        }
+    ]
 }
 ```
 **Returns:** `{"count": 3}`
@@ -347,29 +447,31 @@ Entity Count Query returns a simple count:
 
 ```json
 {
-  "entityFilter": {
-    "type": "entityType",
-
-    "entityType": "DEVICE"
-  },
-  "keyFilters": [
-    {
-      "key": {"type": "TIME_SERIES", "key": "temperature"},
-      "valueType": "NUMERIC",
-      "predicate": {
-        "operation": "GREATER",
-        "value": {
-          "defaultValue": 25,
-          "dynamicValue": {
-            "sourceType": "CURRENT_TENANT",
-            "sourceAttribute": "temperatureThreshold",
-            "inherit": false
-          }
-        },
-        "type": "NUMERIC"
-      }
-    }
-  ]
+    "entityFilter": {
+        "type": "entityType",
+        "entityType": "DEVICE"
+    },
+    "keyFilters": [
+        {
+            "key": {
+                "type": "TIME_SERIES",
+                "key": "temperature"
+            },
+            "valueType": "NUMERIC",
+            "predicate": {
+                "operation": "GREATER",
+                "value": {
+                    "defaultValue": 25,
+                    "dynamicValue": {
+                        "sourceType": "CURRENT_TENANT",
+                        "sourceAttribute": "temperatureThreshold",
+                        "inherit": false
+                    }
+                },
+                "type": "NUMERIC"
+            }
+        }
+    ]
 }
 ```
 **If tenant has `temperatureThreshold = 30`:** Returns count of devices > 30°  

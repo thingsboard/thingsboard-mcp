@@ -413,28 +413,32 @@ public class ControllerConstants {
                        • Dynamic: Replace defaultValue with dynamicValue: {"sourceType": "CURRENT_USER", "sourceAttribute": "threshold"}""";
 
     public static final String KEY_FILTERS =
-            "⚠️ COMPLEX STRUCTURE - Read carefully or call getKeyFiltersGuide() for full details!\n\n" +
+            "COMPLEX STRUCTURE - Read carefully or call getKeyFiltersGuide() for full details!\n\n" +
                     "KeyFilter allows complex logical expressions over entity fields, attributes, or time-series values.\n" +
                     "Each filter has 3 required parts: 'key', 'valueType', and 'predicate'.\n" +
                     "Multiple filters use logical AND.\n\n" +
                     "## Quick Example - Temperature > 20\n" +
-                    MARKDOWN_CODE_BLOCK_START +
+                    "```json\n" +
                     "[\n" +
                     "  {\n" +
                     "    \"key\": {\"type\": \"TIME_SERIES\", \"key\": \"temperature\"},\n" +
                     "    \"valueType\": \"NUMERIC\",\n" +
                     "    \"predicate\": {\n" +
                     "      \"operation\": \"GREATER\",\n" +
-                    "      \"value\": {\"defaultValue\": 20, \"dynamicValue\": null},\n" +
+                    "      \"value\": {\n" +
+                    "        \"defaultValue\": 20,\n" +
+                    "        \"dynamicValue\": {\n" +
+                    "          \"sourceType\": \"CURRENT_USER\",\n" +
+                    "          \"sourceAttribute\": \"tempThreshold\",\n" +
+                    "          \"inherit\": false\n" +
+                    "        }\n" +
+                    "      },\n" +
                     "      \"type\": \"NUMERIC\"\n" +
                     "    }\n" +
                     "  }\n" +
                     "]\n" +
-                    MARKDOWN_CODE_BLOCK_END +
-                    "\n## Structure Breakdown\n" +
-                    FILTER_KEY_SUMMARY + "\n" +
-                    FILTER_VALUE_TYPE_SUMMARY + "\n" +
-                    FILTER_PREDICATE_SUMMARY + "\n\n" +
+                    "```\n" +
+                    FILTER_KEY_SUMMARY + "\n" + FILTER_VALUE_TYPE_SUMMARY + "\n" + FILTER_PREDICATE_SUMMARY + "\n" +
                     "For complex predicates (OR/AND logic), nested conditions, and dynamic values → call getKeyFiltersGuide()";
 
     public static final String ENTITY_COUNT_QUERY_DESCRIPTION =

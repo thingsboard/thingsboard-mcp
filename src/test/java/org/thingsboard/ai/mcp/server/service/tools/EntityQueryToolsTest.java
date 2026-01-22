@@ -10,13 +10,13 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.thingsboard.ai.mcp.server.data.KeyFilterInput;
 import org.thingsboard.ai.mcp.server.rest.RestClient;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.query.EntityQueryTools;
 import org.thingsboard.common.util.JacksonUtil;
 import org.thingsboard.server.common.data.EntityType;
 import org.thingsboard.server.common.data.exception.ThingsboardException;
-import org.thingsboard.server.common.data.id.AssetId;
 import org.thingsboard.server.common.data.id.DeviceId;
 import org.thingsboard.server.common.data.page.PageData;
 import org.thingsboard.server.common.data.query.AssetTypeFilter;
@@ -39,9 +39,6 @@ import org.thingsboard.server.common.data.query.NumericFilterPredicate;
 import org.thingsboard.server.common.data.query.RelationsQueryFilter;
 import org.thingsboard.server.common.data.query.SingleEntityFilter;
 import org.thingsboard.server.common.data.query.TsValue;
-import org.thingsboard.server.common.data.relation.EntityRelationsQuery;
-import org.thingsboard.server.common.data.relation.EntitySearchDirection;
-import org.thingsboard.server.common.data.relation.RelationEntityTypeFilter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -85,10 +82,11 @@ public class EntityQueryToolsTest {
         @DisplayName("Should find entity data by single entity filter with all parameters")
         void testFindEntityDataBySingleEntityFilter_withAllParams() throws ThingsboardException {
             UUID deviceId = UUID.randomUUID();
-            SingleEntityFilter filter = new SingleEntityFilter();
-            filter.setSingleEntity(new DeviceId(deviceId));
+            String filterJson = String.format("""
+                    {"type":"singleEntity","singleEntity":{"entityType":"DEVICE","id":"%s"}}
+                    """, deviceId);
 
-            List<KeyFilter> keyFilters = List.of(createNumericTemperatureKeyTelemetryFilter(25.0));
+            List<KeyFilterInput> keyFilters = List.of(createNumericTemperatureKeyTelemetryFilter(25.0));
             List<EntityKey> entityFields = List.of(new EntityKey(EntityKeyType.ENTITY_FIELD, "name"));
             List<EntityKey> latestValues = List.of(new EntityKey(EntityKeyType.TIME_SERIES, "temperature"));
 
@@ -96,7 +94,7 @@ public class EntityQueryToolsTest {
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataBySingleEntityFilter(
-                    filter, keyFilters, entityFields, latestValues,
+                    filterJson, keyFilters, entityFields, latestValues,
                     "10", "0", "sensor", "name", "ENTITY_FIELD", "ASC"
             );
 
@@ -118,14 +116,15 @@ public class EntityQueryToolsTest {
         @DisplayName("Should find entity data with minimal parameters")
         void testFindEntityDataBySingleEntityFilter_minimalParams() throws ThingsboardException {
             UUID deviceId = UUID.randomUUID();
-            SingleEntityFilter filter = new SingleEntityFilter();
-            filter.setSingleEntity(new DeviceId(deviceId));
+            String filterJson = String.format("""
+                    {"type":"singleEntity","singleEntity":{"entityType":"DEVICE","id":"%s"}}
+                    """, deviceId);
 
             PageData<EntityData> pageData = createMockPageData();
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataBySingleEntityFilter(
-                    filter, null, null, null,
+                    filterJson, null, null, null,
                     "20", "0", null, null, null, null
             );
 
@@ -160,7 +159,7 @@ public class EntityQueryToolsTest {
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByEntityTypeFilter(
-                    filter, null, entityFields, null,
+                    JacksonUtil.toString(filter), null, entityFields, null,
                     "50", "0", null, null, null, null
             );
 
@@ -186,7 +185,7 @@ public class EntityQueryToolsTest {
             filter.setDeviceTypes(List.of("Temperature Sensor"));
             filter.setDeviceNameFilter("Room");
 
-            List<KeyFilter> keyFilters = List.of(
+            List<KeyFilterInput> keyFilters = List.of(
                     createNumericTemperatureKeyTelemetryFilter(30.0)
             );
 
@@ -199,7 +198,7 @@ public class EntityQueryToolsTest {
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByDeviceTypeFilter(
-                    filter, keyFilters, null, latestValues,
+                    JacksonUtil.toString(filter), keyFilters, null, latestValues,
                     "25", "1", "Room", "temperature", "TIME_SERIES", "DESC"
             );
 
@@ -224,19 +223,15 @@ public class EntityQueryToolsTest {
         @DisplayName("Should find entities related to root entity")
         void testFindEntityDataByRelationsQueryFilter() throws ThingsboardException {
             UUID assetId = UUID.randomUUID();
-            RelationsQueryFilter filter = new RelationsQueryFilter();
-            filter.setRootEntity(new AssetId(assetId));
-            filter.setDirection(EntitySearchDirection.FROM);
-
-            EntityRelationsQuery relationsQuery = new EntityRelationsQuery();
-            relationsQuery.setFilters(List.of(new RelationEntityTypeFilter()));
-            filter.setFilters(relationsQuery.getFilters());
+            String filterJson = String.format("""
+                    {"type":"relationsQuery","rootEntity":{"entityType":"ASSET","id":"%s"},"direction":"FROM","maxLevel":1,"filters":[]}
+                    """, assetId);
 
             PageData<EntityData> pageData = createMockPageData();
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByRelationsQueryFilter(
-                    filter, null, List.of(new EntityKey(EntityKeyType.ENTITY_FIELD, "name")), null,
+                    filterJson, null, List.of(new EntityKey(EntityKeyType.ENTITY_FIELD, "name")), null,
                     "100", "0", null, null, null, null
             );
 
@@ -264,7 +259,7 @@ public class EntityQueryToolsTest {
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByEntityNameFilter(
-                    filter, null, List.of(new EntityKey(EntityKeyType.ENTITY_FIELD, "name")), null,
+                    JacksonUtil.toString(filter), null, List.of(new EntityKey(EntityKeyType.ENTITY_FIELD, "name")), null,
                     "30", "0", "Sensor", null, null, null
             );
 
@@ -293,7 +288,7 @@ public class EntityQueryToolsTest {
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByAssetTypeFilter(
-                    filter, null, List.of(new EntityKey(EntityKeyType.ENTITY_FIELD, "name")), null,
+                    JacksonUtil.toString(filter), null, List.of(new EntityKey(EntityKeyType.ENTITY_FIELD, "name")), null,
                     "10", "0", null, null, null, null
             );
 
@@ -312,7 +307,7 @@ public class EntityQueryToolsTest {
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByEdgeTypeFilter(
-                    filter, null, null, null,
+                    JacksonUtil.toString(filter), null, null, null,
                     "15", "0", null, null, null, null
             );
 
@@ -331,7 +326,7 @@ public class EntityQueryToolsTest {
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByEntityViewTypeFilter(
-                    filter, null, null, null,
+                    JacksonUtil.toString(filter), null, null, null,
                     "20", "0", null, null, null, null
             );
 
@@ -350,12 +345,13 @@ public class EntityQueryToolsTest {
         @DisplayName("Should count single entity without filters")
         void testCountBySingleEntityFilter_noFilters() {
             UUID deviceId = UUID.randomUUID();
-            SingleEntityFilter filter = new SingleEntityFilter();
-            filter.setSingleEntity(new DeviceId(deviceId));
+            String filterJson = String.format("""
+                    {"type":"singleEntity","singleEntity":{"entityType":"DEVICE","id":"%s"}}
+                    """, deviceId);
 
             when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(1L);
 
-            String result = tools.countBySingleEntityFilter(filter, null);
+            String result = tools.countBySingleEntityFilter(filterJson, null);
 
             verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
             EntityCountQuery query = entityCountQueryCaptor.getValue();
@@ -369,16 +365,17 @@ public class EntityQueryToolsTest {
         @DisplayName("Should count single entity with key filters")
         void testCountBySingleEntityFilter_withFilters() {
             UUID deviceId = UUID.randomUUID();
-            SingleEntityFilter filter = new SingleEntityFilter();
-            filter.setSingleEntity(new DeviceId(deviceId));
+            String filterJson = String.format("""
+                    {"type":"singleEntity","singleEntity":{"entityType":"DEVICE","id":"%s"}}
+                    """, deviceId);
 
-            List<KeyFilter> keyFilters = List.of(
+            List<KeyFilterInput> keyFilters = List.of(
                     createNumericTemperatureKeyTelemetryFilter(25.0)
             );
 
             when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(1L);
 
-            String result = tools.countBySingleEntityFilter(filter, keyFilters);
+            String result = tools.countBySingleEntityFilter(filterJson, keyFilters);
 
             verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
             EntityCountQuery query = entityCountQueryCaptor.getValue();
@@ -401,7 +398,7 @@ public class EntityQueryToolsTest {
 
             when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(157L);
 
-            String result = tools.countByEntityTypeFilter(filter, null);
+            String result = tools.countByEntityTypeFilter(JacksonUtil.toString(filter), null);
 
             verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
             EntityCountQuery query = entityCountQueryCaptor.getValue();
@@ -416,13 +413,13 @@ public class EntityQueryToolsTest {
             EntityTypeFilter filter = new EntityTypeFilter();
             filter.setEntityType(EntityType.DEVICE);
 
-            List<KeyFilter> keyFilters = List.of(
+            List<KeyFilterInput> keyFilters = List.of(
                     createNumericTemperatureKeyTelemetryFilter(30.0)
             );
 
             when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(23L);
 
-            String result = tools.countByEntityTypeFilter(filter, keyFilters);
+            String result = tools.countByEntityTypeFilter(JacksonUtil.toString(filter), keyFilters);
 
             verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
             EntityCountQuery query = entityCountQueryCaptor.getValue();
@@ -445,7 +442,7 @@ public class EntityQueryToolsTest {
 
             when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(45L);
 
-            String result = tools.countByDeviceTypeFilter(filter, null);
+            String result = tools.countByDeviceTypeFilter(JacksonUtil.toString(filter), null);
 
             verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
             EntityCountQuery query = entityCountQueryCaptor.getValue();
@@ -460,14 +457,14 @@ public class EntityQueryToolsTest {
             DeviceTypeFilter filter = new DeviceTypeFilter();
             filter.setDeviceTypes(List.of("Temperature Sensor"));
 
-            List<KeyFilter> keyFilters = List.of(
+            List<KeyFilterInput> keyFilters = List.of(
                     createNumericTemperatureKeyTelemetryFilter(30.0),
                     createBooleanActiveKeyAttributeFilter()
             );
 
             when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(7L);
 
-            String result = tools.countByDeviceTypeFilter(filter, keyFilters);
+            String result = tools.countByDeviceTypeFilter(JacksonUtil.toString(filter), keyFilters);
 
             verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
             EntityCountQuery query = entityCountQueryCaptor.getValue();
@@ -486,17 +483,13 @@ public class EntityQueryToolsTest {
         @DisplayName("Should count related entities")
         void testCountByRelationsQueryFilter() {
             UUID assetId = UUID.randomUUID();
-            RelationsQueryFilter filter = new RelationsQueryFilter();
-            filter.setRootEntity(new AssetId(assetId));
-            filter.setDirection(EntitySearchDirection.FROM);
-
-            EntityRelationsQuery relationsQuery = new EntityRelationsQuery();
-            relationsQuery.setFilters(List.of(new RelationEntityTypeFilter()));
-            filter.setFilters(relationsQuery.getFilters());
+            String filterJson = String.format("""
+                    {"type":"relationsQuery","rootEntity":{"entityType":"ASSET","id":"%s"},"direction":"FROM","maxLevel":1,"filters":[]}
+                    """, assetId);
 
             when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(12L);
 
-            String result = tools.countByRelationsQueryFilter(filter, null);
+            String result = tools.countByRelationsQueryFilter(filterJson, null);
 
             verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
             EntityCountQuery query = entityCountQueryCaptor.getValue();
@@ -519,7 +512,7 @@ public class EntityQueryToolsTest {
 
             when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(8L);
 
-            String result = tools.countByAssetTypeFilter(filter, null);
+            String result = tools.countByAssetTypeFilter(JacksonUtil.toString(filter), null);
 
             verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
             assertThat(entityCountQueryCaptor.getValue().getEntityFilter()).isInstanceOf(AssetTypeFilter.class);
@@ -534,7 +527,7 @@ public class EntityQueryToolsTest {
 
             when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(3L);
 
-            String result = tools.countByEdgeTypeFilter(filter, null);
+            String result = tools.countByEdgeTypeFilter(JacksonUtil.toString(filter), null);
 
             verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
             assertThat(entityCountQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EdgeTypeFilter.class);
@@ -549,7 +542,7 @@ public class EntityQueryToolsTest {
 
             when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(5L);
 
-            String result = tools.countByEntityViewTypeFilter(filter, null);
+            String result = tools.countByEntityViewTypeFilter(JacksonUtil.toString(filter), null);
 
             verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
             assertThat(entityCountQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EntityViewTypeFilter.class);
@@ -571,7 +564,7 @@ public class EntityQueryToolsTest {
 
             when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(34L);
 
-            String result = tools.countByEntityNameFilter(filter, null);
+            String result = tools.countByEntityNameFilter(JacksonUtil.toString(filter), null);
 
             verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
             EntityCountQuery query = entityCountQueryCaptor.getValue();
@@ -599,7 +592,7 @@ public class EntityQueryToolsTest {
 
             when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(2L);
 
-            String result = tools.countByEntityListFilter(filter, null);
+            String result = tools.countByEntityListFilter(JacksonUtil.toString(filter), null);
 
             verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
             EntityCountQuery query = entityCountQueryCaptor.getValue();
@@ -664,7 +657,7 @@ public class EntityQueryToolsTest {
         return new PageData<>(data, 1, 3, false);
     }
 
-    private KeyFilter createNumericTemperatureKeyTelemetryFilter(double threshold) {
+    private KeyFilterInput createNumericTemperatureKeyTelemetryFilter(double threshold) {
         KeyFilter filter = new KeyFilter();
         filter.setKey(new EntityKey(EntityKeyType.TIME_SERIES, "temperature"));
         filter.setValueType(EntityKeyValueType.NUMERIC);
@@ -676,10 +669,10 @@ public class EntityQueryToolsTest {
         predicate.setValue(value);
 
         filter.setPredicate(predicate);
-        return filter;
+        return new KeyFilterInput(filter);
     }
 
-    private KeyFilter createBooleanActiveKeyAttributeFilter() {
+    private KeyFilterInput createBooleanActiveKeyAttributeFilter() {
         KeyFilter filter = new KeyFilter();
         filter.setKey(new EntityKey(EntityKeyType.ATTRIBUTE, "active"));
         filter.setValueType(EntityKeyValueType.BOOLEAN);
@@ -691,7 +684,7 @@ public class EntityQueryToolsTest {
         predicate.setValue(predicateValue);
 
         filter.setPredicate(predicate);
-        return filter;
+        return new KeyFilterInput(filter);
     }
 
 }
