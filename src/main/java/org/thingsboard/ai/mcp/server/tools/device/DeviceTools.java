@@ -73,8 +73,17 @@ public class DeviceTools implements McpTools {
     private final RestClientService clientService;
 
     @Tool(description =
-            "Create or update a Device. Remove 'id', 'tenantId' and optionally 'customerId' from the request body to create new Device entity. " +
-                    "If 'id' is provided, the existing Device is updated. Device names must be unique within a tenant \n" +
+            "### [ADVANCED TOOL] Save/Update Device (Raw JSON/Full Config)\n" +
+                    "**USE ONLY IF** the primary 'createOrUpsertDevice' tool is insufficient. This tool requires a full " +
+                    "JSON structure and existing UUIDs. It does NOT perform name-to-ID resolution.\n\n" +
+
+                    "**Best for:**\n" +
+                    "- Modifying nested 'deviceData' (configuration/transport settings).\n" +
+                    "- Updating Firmware (firmwareId) or Software (softwareId) packages.\n" +
+                    "- Performing bulk updates where you already have the full Device JSON object.\n\n" +
+
+                    "**Warning:** Requires exact JSON format. Omit 'id' to create; include 'id' to update. " +
+                    "If you only have a name and want to create/assign a device, use 'createOrUpsertDevice' instead." +
 
                     "### Device Profile selection logic:\n" +
                     "- You can define the device’s profile either by specifying **deviceProfileId** or by setting a **type**.\n" +
