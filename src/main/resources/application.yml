@@ -2,11 +2,18 @@
 server:
   address: "${HTTP_BIND_ADDRESS:127.0.0.1}"
   port: "${HTTP_BIND_PORT:8000}"
+  # Servlet async timeout for SSE connections (5 minutes default)
+  servlet:
+    session:
+      timeout: "${SERVER_SERVLET_SESSION_TIMEOUT:5m}"
 
 spring:
   main:
     banner-mode: off
     web-application-type: "${SPRING_WEB_APPLICATION_TYPE:none}"
+  mvc:
+    async:
+      request-timeout: "${SPRING_MVC_ASYNC_REQUEST_TIMEOUT:300000}" # 5 minutes in milliseconds
   ai:
     mcp:
       server:
@@ -18,11 +25,22 @@ spring:
         stdio: "${SPRING_AI_MCP_SERVER_STDIO:true}" # true to use STDIO mode
         sse-endpoint: "${SPRING_AI_MCP_SERVER_SSE_ENDPOINT:/sse}"
         sse-message-endpoint: "${SPRING_AI_MCP_SERVER_SSE_MESSAGE_ENDPOINT:/mcp/message}"
-        # Type of server to use for MCP communication
+        # Type of server to use for MCP communication (SYNC for WebMVC, ASYNC for WebFlux)
         type: sync
-        # Enable/disable notifications for tool changes
+        # Request timeout - how long to wait for tool execution responses
+        request-timeout: "${SPRING_AI_MCP_SERVER_REQUEST_TIMEOUT:60s}"
+        # SSE keep-alive interval - CRITICAL for Ollama MCP client compatibility
+        # Sends periodic heartbeat to prevent connection timeout
+        keep-alive-interval: "${SPRING_AI_MCP_SERVER_KEEP_ALIVE_INTERVAL:30s}"
+        # Change notifications
         tool-change-notification: true
+        resource-change-notification: false
+        prompt-change-notification: false
+        # Capabilities
         capabilities:
+          tool: true
+          resource: true
+          prompt: true
           completion: false
       cors:
         allowed-origins: "${SPRING_AI_MCP_CORS_ALLOWED_ORIGINS:*}" # comma-separated list
@@ -30,9 +48,13 @@ spring:
 logging:
   level:
     root: info
-    io.modelcontextprotocol.server.McpAsyncServer: error
-    org.springframework.ai.mcp: info
-    org.thingsboard.ai.mcp.server: info
+    io.modelcontextprotocol.server.McpAsyncServer: "${LOG_LEVEL_MCP_ASYNC:error}"
+    io.modelcontextprotocol.server.McpSyncServer: "${LOG_LEVEL_MCP_SYNC:info}"
+    io.modelcontextprotocol.spec: "${LOG_LEVEL_MCP_SPEC:info}"
+    org.springframework.ai.mcp: "${LOG_LEVEL_SPRING_AI_MCP:info}"
+    org.thingsboard.ai.mcp.server: "${LOG_LEVEL_APP:info}"
+    org.thingsboard.ai.mcp.server.tools: "${LOG_LEVEL_TOOLS:info}"
+    org.thingsboard.ai.mcp.server.util.ToolResponse: "${LOG_LEVEL_TOOL_RESPONSE:info}"
   pattern:
     console: "${LOGGING_PATTERN_CONSOLE:%d{yyyy-MM-dd HH:mm:ss} | %-5level | %logger{1} | %msg%n}"
 
@@ -46,3 +68,6 @@ thingsboard:
   connection:
     max-retries: "${THINGSBOARD_CONNECTION_MAX_RETRIES:3}"
     retry-delay-seconds: "${THINGSBOARD_CONNECTION_RETRY_DELAY_SECONDS:5}"
+    # HTTP client timeouts for ThingsBoard API requests
+    connect-timeout-seconds: "${THINGSBOARD_CONNECTION_CONNECT_TIMEOUT_SECONDS:10}"
+    read-timeout-seconds: "${THINGSBOARD_CONNECTION_READ_TIMEOUT_SECONDS:60}"

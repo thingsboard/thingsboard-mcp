@@ -296,6 +296,10 @@ public class RestClient implements Closeable {
         return new RestClient(new RestTemplate(), baseURL, AuthType.API_KEY, token);
     }
 
+    public static RestClient withApiKey(RestTemplate restTemplate, String baseURL, String token) {
+        return new RestClient(restTemplate, baseURL, AuthType.API_KEY, token);
+    }
+
     public String getToken() {
         return mainToken;
     }

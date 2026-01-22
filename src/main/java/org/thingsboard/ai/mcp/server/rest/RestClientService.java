@@ -8,13 +8,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.thingsboard.ai.mcp.server.data.EditionChangedEvent;
 import org.thingsboard.ai.mcp.server.data.ThingsBoardEdition;
 import org.thingsboard.server.common.data.StringUtils;
 
+import java.time.Duration;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -46,6 +49,12 @@ public class RestClientService {
 
     @Value("${thingsboard.connection.retry-delay-seconds:5}")
     private int retryDelaySeconds;
+
+    @Value("${thingsboard.connection.connect-timeout-seconds:10}")
+    private int connectTimeoutSeconds;
+
+    @Value("${thingsboard.connection.read-timeout-seconds:60}")
+    private int readTimeoutSeconds;
 
     @Getter
     private RestClient client;
@@ -108,12 +117,18 @@ public class RestClientService {
     private void initClient() {
         usingCredentials = false;
         try {
+            RestTemplate restTemplate = new RestTemplateBuilder()
+                    .connectTimeout(Duration.ofSeconds(connectTimeoutSeconds))
+                    .readTimeout(Duration.ofSeconds(readTimeoutSeconds))
+                    .build();
+            log.debug("Created RestTemplate with connect timeout: {}s, read timeout: {}s", connectTimeoutSeconds, readTimeoutSeconds);
+
             if (StringUtils.isNotBlank(url)) {
                 if (StringUtils.isNotBlank(apiKey)) {
-                    client = RestClient.withApiKey(url, apiKey);
+                    client = RestClient.withApiKey(restTemplate, url, apiKey);
                 } else if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
                     usingCredentials = true;
-                    client = new RestClient(url);
+                    client = new RestClient(restTemplate, url);
                     client.login(username, password);
                 }
             }
