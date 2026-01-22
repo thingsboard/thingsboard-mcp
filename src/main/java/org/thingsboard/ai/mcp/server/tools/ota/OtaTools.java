@@ -52,15 +52,15 @@ public class OtaTools implements McpTools {
             """
                     ```json
                     {
-                      \"id\": { \"entityType\": \"OTA_PACKAGE\", \"id\": \"d3cfc080-a295-11f0-848c-93db0ade7d93\" },
-                      \"tenantId\": { \"entityType\": \"TENANT\", \"id\": \"d3cfc080-a295-11f0-848c-93db0ade7d93\" },
-                      \"deviceProfileId\": { \"entityType\": \"DEVICE_PROFILE\", \"id\": \"716a92d0-9d36-11f0-a79c-e726b4e8048a\" },
-                      \"type\": \"FIRMWARE\",
-                      \"title\": \"tracker_lorawan_heltec\",
-                      \"version\": \"1.0.32\",
-                      \"tag\": \"tracker_lorawan_heltec 1.0.32\",
-                      \"url\": null,
-                      \"additionalInfo\": { \"description\": \"Heltec tracker OTA\" }
+                      "id": { "entityType": "OTA_PACKAGE", "id": "d3cfc080-a295-11f0-848c-93db0ade7d93" },
+                      "tenantId": { "entityType": "TENANT", "id": "d3cfc080-a295-11f0-848c-93db0ade7d93" },
+                      "deviceProfileId": { "entityType": "DEVICE_PROFILE", "id": "716a92d0-9d36-11f0-a79c-e726b4e8048a" },
+                      "type": "FIRMWARE",
+                      "title": "tracker_lorawan_heltec",
+                      "version": "1.0.32",
+                      "tag": "tracker_lorawan_heltec 1.0.32",
+                      "url": null,
+                      "additionalInfo": { "description": "Heltec tracker OTA" }
                     }
                     ```""";
 
