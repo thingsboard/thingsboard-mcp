@@ -22,7 +22,10 @@ Simplest query: get all devices with their names:
     "entityType": "DEVICE"
   },
   "entityFields": [
-    {"type": "ENTITY_FIELD", "key": "name"}
+    {
+      "type": "ENTITY_FIELD",
+      "key": "name"
+    }
   ]
 }
 ```
@@ -38,20 +41,32 @@ Get devices where temperature > 25:
   },
   "keyFilters": [
     {
-      "key": {"type": "TIME_SERIES", "key": "temperature"},
+      "key": {
+        "type": "TIME_SERIES",
+        "key": "temperature"
+      },
       "valueType": "NUMERIC",
       "predicate": {
         "operation": "GREATER",
-        "value": {"defaultValue": 25},
+        "value": {
+          "defaultValue": 25,
+          "dynamicValue": null
+        },
         "type": "NUMERIC"
       }
     }
   ],
   "entityFields": [
-    {"type": "ENTITY_FIELD", "key": "name"}
+    {
+      "type": "ENTITY_FIELD",
+      "key": "name"
+    }
   ],
   "latestValues": [
-    {"type": "TIME_SERIES", "key": "temperature"}
+    {
+      "type": "TIME_SERIES",
+      "key": "temperature"
+    }
   ]
 }
 ```
@@ -67,20 +82,32 @@ Devices where (temperature > 25 AND humidity < 60) OR batteryLevel < 20:
   },
   "keyFilters": [
     {
-      "key": {"type": "TIME_SERIES", "key": "temperature"},
+      "key": {
+        "type": "TIME_SERIES",
+        "key": "temperature"
+      },
       "valueType": "NUMERIC",
       "predicate": {
         "operation": "GREATER",
-        "value": {"defaultValue": 25},
+        "value": {
+          "defaultValue": 25,
+          "dynamicValue": null
+        },
         "type": "NUMERIC"
       }
     },
     {
-      "key": {"type": "TIME_SERIES", "key": "humidity"},
+      "key": {
+        "type": "TIME_SERIES",
+        "key": "humidity"
+      },
       "valueType": "NUMERIC",
       "predicate": {
         "operation": "LESS",
-        "value": {"defaultValue": 60},
+        "value": {
+          "defaultValue": 60,
+          "dynamicValue": null
+        },
         "type": "NUMERIC"
       }
     }
@@ -187,11 +214,17 @@ Defines **what entities** to search.
 ```json
 [
   {
-    "key": {"type": "TIME_SERIES", "key": "temperature"},
+    "key": {
+      "type": "TIME_SERIES",
+      "key": "temperature"
+    },
     "valueType": "NUMERIC",
     "predicate": {
       "operation": "GREATER",
-      "value": {"defaultValue": 20},
+      "value": {
+        "defaultValue": 20,
+        "dynamicValue": null
+      },
       "type": "NUMERIC"
     }
   }
@@ -214,9 +247,18 @@ Specifies **which entity properties** to include in the response.
 **Example:**
 ```json
 [
-  {"type": "ENTITY_FIELD", "key": "name"},
-  {"type": "ENTITY_FIELD", "key": "label"},
-  {"type": "ENTITY_FIELD", "key": "createdTime"}
+  {
+    "type": "ENTITY_FIELD",
+    "key": "name"
+  },
+  {
+    "type": "ENTITY_FIELD",
+    "key": "label"
+  },
+  {
+    "type": "ENTITY_FIELD",
+    "key": "createdTime"
+  }
 ]
 ```
 
@@ -229,16 +271,28 @@ Specifies **which attributes and telemetry** to include in the response.
 **Example - Fetch temperature and humidity:**
 ```json
 [
-  {"type": "TIME_SERIES", "key": "temperature"},
-  {"type": "TIME_SERIES", "key": "humidity"}
+  {
+    "type": "TIME_SERIES",
+    "key": "temperature"
+  },
+  {
+    "type": "TIME_SERIES",
+    "key": "humidity"
+  }
 ]
 ```
 
 **Example - Fetch attributes:**
 ```json
 [
-  {"type": "ATTRIBUTE", "key": "active"},
-  {"type": "SERVER_ATTRIBUTE", "key": "configuration"}
+  {
+    "type": "ATTRIBUTE",
+    "key": "active"
+  },
+  {
+    "type": "SERVER_ATTRIBUTE",
+    "key": "configuration"
+  }
 ]
 ```
 
@@ -297,21 +351,36 @@ Devices that haven't reported in 24+ hours:
   },
   "keyFilters": [
     {
-      "key": {"type": "TIME_SERIES", "key": "lastActivityTime"},
+      "key": {
+        "type": "TIME_SERIES",
+        "key": "lastActivityTime"
+      },
       "valueType": "DATE_TIME",
       "predicate": {
         "operation": "LESS",
-        "value": {"defaultValue": 1729036800000},
+        "value": {
+          "defaultValue": 1729036800000,
+          "dynamicValue": null
+        },
         "type": "NUMERIC"
       }
     }
   ],
   "entityFields": [
-    {"type": "ENTITY_FIELD", "key": "name"},
-    {"type": "ENTITY_FIELD", "key": "label"}
+    {
+      "type": "ENTITY_FIELD",
+      "key": "name"
+    },
+    {
+      "type": "ENTITY_FIELD",
+      "key": "label"
+    }
   ],
   "latestValues": [
-    {"type": "TIME_SERIES", "key": "lastActivityTime"}
+    {
+      "type": "TIME_SERIES",
+      "key": "lastActivityTime"
+    }
   ],
   "pageLink": {
     "pageSize": 50,
@@ -332,29 +401,47 @@ Devices where active=true AND batteryLevel < 20:
   },
   "keyFilters": [
     {
-      "key": {"type": "ATTRIBUTE", "key": "active"},
+      "key": {
+        "type": "ATTRIBUTE",
+        "key": "active"
+      },
       "valueType": "BOOLEAN",
       "predicate": {
         "operation": "EQUAL",
-        "value": {"defaultValue": true},
+        "value": {
+          "defaultValue": true,
+          "dynamicValue": null
+        },
         "type": "BOOLEAN"
       }
     },
     {
-      "key": {"type": "TIME_SERIES", "key": "batteryLevel"},
+      "key": {
+        "type": "TIME_SERIES",
+        "key": "batteryLevel"
+      },
       "valueType": "NUMERIC",
       "predicate": {
         "operation": "LESS",
-        "value": {"defaultValue": 20},
+        "value": {
+          "defaultValue": 20,
+          "dynamicValue": null
+        },
         "type": "NUMERIC"
       }
     }
   ],
   "entityFields": [
-    {"type": "ENTITY_FIELD", "key": "name"}
+    {
+      "type": "ENTITY_FIELD",
+      "key": "name"
+    }
   ],
   "latestValues": [
-    {"type": "TIME_SERIES", "key": "batteryLevel"}
+    {
+      "type": "TIME_SERIES",
+      "key": "batteryLevel"
+    }
   ]
 }
 ```
@@ -371,7 +458,10 @@ Filter devices where temperature > tenant's configured threshold:
   },
   "keyFilters": [
     {
-      "key": {"type": "TIME_SERIES", "key": "temperature"},
+      "key": {
+        "type": "TIME_SERIES",
+        "key": "temperature"
+      },
       "valueType": "NUMERIC",
       "predicate": {
         "operation": "GREATER",
@@ -388,10 +478,16 @@ Filter devices where temperature > tenant's configured threshold:
     }
   ],
   "entityFields": [
-    {"type": "ENTITY_FIELD", "key": "name"}
+    {
+      "type": "ENTITY_FIELD",
+      "key": "name"
+    }
   ],
   "latestValues": [
-    {"type": "TIME_SERIES", "key": "temperature"}
+    {
+      "type": "TIME_SERIES",
+      "key": "temperature"
+    }
   ]
 }
 ```
@@ -407,8 +503,14 @@ Find devices with "sensor" in the name:
     "entityType": "DEVICE"
   },
   "entityFields": [
-    {"type": "ENTITY_FIELD", "key": "name"},
-    {"type": "ENTITY_FIELD", "key": "label"}
+    {
+      "type": "ENTITY_FIELD",
+      "key": "name"
+    },
+    {
+      "type": "ENTITY_FIELD",
+      "key": "label"
+    }
   ],
   "pageLink": {
     "pageSize": 20,
@@ -468,33 +570,66 @@ The query returns a paginated response:
 ### Pattern 1: Get all entities with specific fields
 ```json
 {
-  "entityFilter": {"type": "entityType", "entityType": "DEVICE"},
-  "entityFields": [{"type": "ENTITY_FIELD", "key": "name"}],
-  "pageLink": {"pageSize": 100, "page": 0}
+  "entityFilter": {
+    "type": "entityType",
+    "entityType": "DEVICE"
+  },
+  "entityFields": [
+    {
+      "type": "ENTITY_FIELD",
+      "key": "name"
+    }
+  ],
+  "pageLink": {
+    "pageSize": 100,
+    "page": 0
+  }
 }
 ```
 
 ### Pattern 2: Filter + fetch latest values
 ```json
 {
-  "entityFilter": {"type": "entityType", "entityType": "DEVICE"},
+  "entityFilter": {
+    "type": "entityType",
+    "entityType": "DEVICE"
+  },
   "keyFilters": [],
-  "latestValues": [{"type": "TIME_SERIES", "key": "temperature"}],
-  "pageLink": {"pageSize": 50, "page": 0}
+  "latestValues": [
+    {
+      "type": "TIME_SERIES",
+      "key": "temperature"
+    }
+  ],
+  "pageLink": {
+    "pageSize": 50,
+    "page": 0
+  }
 }
 ```
 
 ### Pattern 3: Search with sorting
 ```json
 {
-  "entityFilter": {"type": "entityType", "entityType": "DEVICE"},
-  "entityFields": [{"type": "ENTITY_FIELD", "key": "name"}],
+  "entityFilter": {
+    "type": "entityType",
+    "entityType": "DEVICE"
+  },
+  "entityFields": [
+    {
+      "type": "ENTITY_FIELD",
+      "key": "name"
+    }
+  ],
   "pageLink": {
     "pageSize": 20,
     "page": 0,
     "textSearch": "sensor",
     "sortOrder": {
-      "key": {"type": "ENTITY_FIELD", "key": "createdTime"},
+      "key": {
+        "type": "ENTITY_FIELD",
+        "key": "createdTime"
+      },
       "direction": "DESC"
     }
   }

@@ -112,7 +112,8 @@ Create, upload, list, download, and delete OTA packages for device firmware/soft
 
 ### Entity Data Query
 
-Run complex queries over platform entities (devices, assets, customers, etc.) and retrieve their data (fields, attributes, telemetry) in a structured, paginated format.
+Run complex queries over platform entities (devices, assets, customers, etc.) and retrieve their data (fields, attributes, telemetry) in a structured,
+paginated format.
 
 ## Installation
 
@@ -203,7 +204,8 @@ java -Dspring.ai.mcp.server.stdio=false Dspring.main.web-application-type=servle
 
 ## Client Configuration
 
-To launch the server as a container when your MCP client starts (e.g., Claude Desktop), you need to add the appropriate configuration to your client's settings.
+To launch the server as a container when your MCP client starts (e.g., Claude Desktop), you need to add the appropriate configuration to your client's
+settings.
 
 ### Docker Configuration
 
