@@ -8,21 +8,23 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.McpTools;
 import org.thingsboard.common.util.JacksonUtil;
-import org.thingsboard.server.common.data.OtaPackageInfo;
-import org.thingsboard.server.common.data.StringUtils;
-import org.thingsboard.server.common.data.ota.ChecksumAlgorithm;
-import org.thingsboard.server.common.data.ota.OtaPackageType;
 import org.thingsboard.server.common.data.Device;
 import org.thingsboard.server.common.data.DeviceProfile;
+import org.thingsboard.server.common.data.OtaPackageInfo;
+import org.thingsboard.server.common.data.StringUtils;
 import org.thingsboard.server.common.data.exception.ThingsboardException;
 import org.thingsboard.server.common.data.id.DeviceId;
 import org.thingsboard.server.common.data.id.DeviceProfileId;
 import org.thingsboard.server.common.data.id.OtaPackageId;
+import org.thingsboard.server.common.data.ota.ChecksumAlgorithm;
+import org.thingsboard.server.common.data.ota.OtaPackageType;
 import org.thingsboard.server.common.data.page.PageLink;
 
 import java.io.InputStream;
@@ -82,10 +84,14 @@ public class OtaTools implements McpTools {
             @ToolParam(description = "A string value representing the OTA package id.") @NotBlank String otaPackageId,
             @ToolParam(description = "File path to OTA binary on the MCP host.") @NotBlank String filePath,
             @ToolParam(required = false, description = "Checksum algorithm: MD5, SHA256, SHA384, SHA512. Default: SHA256.") String checksumAlgorithm,
-            @ToolParam(required = false, description = "Optional checksum (hex). Provide only if you already have an official hash; otherwise omit and let ThingsBoard compute it.") String checksum) throws Exception {
-        Path path = Paths.get(filePath);
+            @ToolParam(required = false, description = "Optional checksum (hex). If omitted, checksum is computed from file.") String checksum) throws Exception {
+        if (!StringUtils.isBlank(checksum)) {
+            return errorJson("Checksum input is not supported yet. Omit checksum to let ThingsBoard compute it.");
+        }
+        String normalizedPath = normalizePathForWindows(filePath);
+        Path path = Paths.get(normalizedPath);
         if (!Files.exists(path)) {
-            return errorJson("File not found: " + filePath);
+            return errorJson("File not found: " + normalizedPath);
         }
         byte[] bytes = Files.readAllBytes(path);
         String fileName = path.getFileName().toString();
@@ -106,7 +112,8 @@ public class OtaTools implements McpTools {
             err.put("message", "No data returned for OTA package download");
             return JacksonUtil.toString(err);
         }
-        Path target = Paths.get(destinationPath);
+        String normalizedPath = normalizePathForWindows(destinationPath);
+        Path target = Paths.get(normalizedPath);
         if (Files.exists(target) && Files.isDirectory(target)) {
             String name = resource.getFilename() != null ? resource.getFilename() : (otaPackageId + ".bin");
             target = target.resolve(name);
@@ -160,7 +167,14 @@ public class OtaTools implements McpTools {
         PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
         boolean hasDataValue = hasData == null || hasData;
         OtaPackageType type = OtaPackageType.valueOf(otaPackageType.trim().toUpperCase());
-        return JacksonUtil.toString(clientService.getClient().getOtaPackages(new DeviceProfileId(UUID.fromString(deviceProfileId)), type, hasDataValue, pageLink));
+        try {
+            return JacksonUtil.toString(clientService.getClient().getOtaPackages(new DeviceProfileId(UUID.fromString(deviceProfileId)), type, hasDataValue, pageLink));
+        } catch (HttpClientErrorException e) {
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                return errorJson("Endpoint not available on this ThingsBoard version. Use getOtaPackages and filter client-side.");
+            }
+            throw e;
+        }
     }
 
     @Tool(description = "Count devices in a profile that do not have assigned OTA package." + TENANT_AUTHORITY_PARAGRAPH)
@@ -240,10 +254,33 @@ public class OtaTools implements McpTools {
         return ChecksumAlgorithm.valueOf(checksumAlgorithm.trim().toUpperCase());
     }
 
+    private static String normalizePathForWindows(String path) {
+        if (path == null) {
+            return null;
+        }
+        if (!isWindows()) {
+            return path;
+        }
+        if (path.startsWith("/mnt/") && path.length() > 6) {
+            char drive = path.charAt(5);
+            if (path.charAt(6) == '/') {
+                String rest = path.substring(7).replace("/", "\\\\");
+                return Character.toUpperCase(drive) + ":\\" + rest;
+            }
+        }
+        return path;
+    }
+
+    private static boolean isWindows() {
+        String os = System.getProperty("os.name", "");
+        return os.toLowerCase().contains("win");
+    }
+
     private static String errorJson(String message) {
         Map<String, Object> err = new HashMap<>();
         err.put("status", "ERROR");
         err.put("message", message);
         return JacksonUtil.toString(err);
     }
+
 }
