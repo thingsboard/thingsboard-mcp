@@ -13,6 +13,7 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 import org.thingsboard.ai.mcp.server.annotation.CeOnly;
 import org.thingsboard.ai.mcp.server.annotation.PeOnly;
+import org.thingsboard.ai.mcp.server.annotation.ToolGroup;
 import org.thingsboard.ai.mcp.server.data.EditionChangedEvent;
 import org.thingsboard.ai.mcp.server.data.RemoveToolsEvent;
 import org.thingsboard.ai.mcp.server.data.ThingsBoardEdition;
@@ -23,7 +24,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -36,11 +40,76 @@ public class EditionAwareToolProvider implements ToolCallbackProvider {
 
     private volatile ThingsBoardEdition edition = ThingsBoardEdition.PE;
 
-    public EditionAwareToolProvider(List<McpTools> tools, ApplicationEventPublisher eventPublisher) {
-        this.delegate = MethodToolCallbackProvider.builder().toolObjects(tools.toArray()).build();
-        this.peOnlyToolNames = scanEditionToolName(tools, true);
-        this.ceOnlyToolNames = scanEditionToolName(tools, false);
+    public EditionAwareToolProvider(List<McpTools> tools, ApplicationEventPublisher eventPublisher,
+                                    ToolGroupsProperties toolGroupsProperties) {
+        // Filter out tools from disabled groups before building the delegate
+        List<McpTools> enabledTools = filterByGroups(tools, toolGroupsProperties);
+        this.delegate = MethodToolCallbackProvider.builder().toolObjects(enabledTools.toArray()).build();
+        this.peOnlyToolNames = scanEditionToolName(enabledTools, true);
+        this.ceOnlyToolNames = scanEditionToolName(enabledTools, false);
+        Set<String> disabledGroupToolNames = scanDisabledGroupToolNames(tools, toolGroupsProperties);
         this.eventPublisher = eventPublisher;
+
+        if (!disabledGroupToolNames.isEmpty()) {
+            Map<String, Long> groupCounts = tools.stream()
+                    .filter(tool -> {
+                        ToolGroup groupAnn = AnnotationUtils.findAnnotation(AopUtils.getTargetClass(tool), ToolGroup.class);
+                        return groupAnn != null && !toolGroupsProperties.isGroupEnabled(groupAnn.value());
+                    })
+                    .collect(Collectors.groupingBy(
+                            tool -> Objects.requireNonNull(AnnotationUtils.findAnnotation(AopUtils.getTargetClass(tool), ToolGroup.class)).value(),
+                            Collectors.counting()
+                    ));
+            log.info("Disabled tool groups: {}. Total tools disabled: {}", groupCounts, disabledGroupToolNames.size());
+        }
+        log.info("Total enabled tools: {}", enabledTools.stream()
+                .mapToLong(tool -> countToolMethods(AopUtils.getTargetClass(tool)))
+                .sum());
+    }
+
+    private List<McpTools> filterByGroups(List<McpTools> tools, ToolGroupsProperties properties) {
+        return tools.stream()
+                .filter(tool -> {
+                    Class<?> targetClass = AopUtils.getTargetClass(tool);
+                    ToolGroup groupAnn = AnnotationUtils.findAnnotation(targetClass, ToolGroup.class);
+                    if (groupAnn == null) {
+                        return true; // No group annotation = always enabled
+                    }
+                    boolean enabled = properties.isGroupEnabled(groupAnn.value());
+                    if (!enabled) {
+                        log.debug("Tool group '{}' is disabled, excluding: {}", groupAnn.value(), targetClass.getSimpleName());
+                    }
+                    return enabled;
+                })
+                .collect(Collectors.toList());
+    }
+
+    private Set<String> scanDisabledGroupToolNames(List<McpTools> allTools, ToolGroupsProperties properties) {
+        Set<String> names = new HashSet<>();
+        for (Object bean : allTools) {
+            Class<?> targetClass = AopUtils.getTargetClass(bean);
+            ToolGroup groupAnn = AnnotationUtils.findAnnotation(targetClass, ToolGroup.class);
+            if (groupAnn != null && !properties.isGroupEnabled(groupAnn.value())) {
+                for (var m : targetClass.getMethods()) {
+                    Tool toolAnn = AnnotationUtils.findAnnotation(m, Tool.class);
+                    if (toolAnn != null) {
+                        String name = StringUtils.hasText(toolAnn.name()) ? toolAnn.name() : m.getName();
+                        names.add(name);
+                    }
+                }
+            }
+        }
+        return Collections.unmodifiableSet(names);
+    }
+
+    private long countToolMethods(Class<?> targetClass) {
+        long count = 0;
+        for (var m : targetClass.getMethods()) {
+            if (AnnotationUtils.findAnnotation(m, Tool.class) != null) {
+                count++;
+            }
+        }
+        return count;
     }
 
     @NotNull

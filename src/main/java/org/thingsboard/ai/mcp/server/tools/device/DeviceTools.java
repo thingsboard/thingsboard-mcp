@@ -9,6 +9,7 @@ import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
 import org.thingsboard.ai.mcp.server.annotation.PeOnly;
+import org.thingsboard.ai.mcp.server.annotation.ToolGroup;
 import org.thingsboard.ai.mcp.server.data.ThingsBoardEdition;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.McpTools;
@@ -35,63 +36,34 @@ import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.DEVICE_
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ENTITY_GROUP_IDS_CREATE_PARAM_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ENTITY_GROUP_ID_CREATE_PARAM_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ENTITY_GROUP_ID_PARAM_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.PAGE_DATA_PARAMETERS;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.PAGE_NUMBER_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.PAGE_SIZE_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.PE_ONLY_AVAILABLE;
-import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.RBAC_GROUP_READ_CHECK;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.SORT_ORDER_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.SORT_PROPERTY_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.TENANT_AUTHORITY_PARAGRAPH;
-import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH;
 import static org.thingsboard.ai.mcp.server.util.ToolUtils.createPageLink;
 
 @Service
 @RequiredArgsConstructor
+@ToolGroup("device")
 public class DeviceTools implements McpTools {
 
-    private static final String DEVICE_JSON_EXAMPLE =
-            """
-                    ```json
-                    {
-                      "id": { "entityType": "DEVICE", "id": "d3cfc080-a295-11f0-848c-93db0ade7d93" },
-                      "tenantId": { "entityType": "TENANT", "id": "d3cfc080-a295-11f0-848c-93db0ade7d93" },
-                      "customerId": { "entityType": "CUSTOMER", "id": "d3cfc080-a295-11f0-848c-93db0ade7d93" },
-                      "name": "A4B72CCDFF233",
-                      "type": "default",
-                      "label": "Room 234 Sensor",
-                      "deviceProfileId": { "entityType": "DEVICE_PROFILE", "id": "716a92d0-9d36-11f0-a79c-e726b4e8048a" },
-                      "firmwareId": { "entityType": "OTA_PACKAGE", "id": "784f394c-42b6-435a-983c-b7beff2784f9" },
-                      "softwareId": { "entityType": "OTA_PACKAGE", "id": "784f394c-42b6-435a-983c-b7beff2784f9" },
-                      "deviceData": {
-                        "configuration": { "type": "DEFAULT" },
-                        "transportConfiguration": { "type": "DEFAULT" }
-                      }
-                    }
-                    ```""";
+    private static final String DEVICE_JSON_EXAMPLE = """
+            {
+              "name": "A4B72CCDFF233",
+              "type": "default",
+              "label": "Room 234 Sensor",
+              "deviceProfileId": {"entityType": "DEVICE_PROFILE", "id": "<profileId>"}
+            }""";
 
     private final RestClientService clientService;
 
-    @Tool(description =
-            "Create or update a Device. Remove 'id', 'tenantId' and optionally 'customerId' from the request body to create new Device entity. " +
-                    "If 'id' is provided, the existing Device is updated. Device names must be unique within a tenant \n" +
-
-                    "### Device Profile selection logic:\n" +
-                    "- You can define the device’s profile either by specifying **deviceProfileId** or by setting a **type**.\n" +
-                    "- If both `deviceProfileId` and `type` are provided, **deviceProfileId takes precedence** — the platform uses that profile.\n" +
-                    "- If only `type` is provided, the platform will find or create a profile with that type name.\n" +
-                    "- If neither is specified, the **default device profile** of the tenant is used.\n" +
-
-                    "### Credentials:\n" +
-                    "- Optionally, pass an `accessToken` to set initial credentials for the device.\n" +
-                    "- If omitted, the platform will generate default credentials automatically.\n" +
-
-                    "### Platform Edition:\n" +
-                    "- In ThingsBoard PE, you can also attach the device to an entity group using the `entityGroupId` parameter or to multiple groups" +
-                    "using `entityGroupIds` parameter.\n" +
-                    TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
+    @Tool(description = "Use this to save/update a device from raw JSON. Advanced tool: use 'createOrUpsertDevice' first for standard tasks. " +
+                    "Best for modifying 'deviceData', firmware/software IDs, or bulk updates with full JSON. " +
+                    "Omit 'id' to create; include 'id' to update. Profile: 'deviceProfileId' takes precedence over 'type'. " +
+                    "PE: use 'entityGroupId'/'entityGroupIds' for groups.")
     public String saveDevice(
-            @ToolParam(description = "A JSON string representing the Device entity. Omit 'id' to create a new device; include 'id' to update an existing one." + DEVICE_JSON_EXAMPLE)
+            @ToolParam(description = "JSON device object. Omit 'id' to create; include 'id' to update. " + DEVICE_JSON_EXAMPLE)
             @NotBlank @Valid String deviceJson,
             @ToolParam(required = false, description = "Optional access token to set initial credentials during device creation.")
             String accessToken,
@@ -109,8 +81,7 @@ public class DeviceTools implements McpTools {
         }
     }
 
-    @Tool(description = "Delete a device by id. Deletes the device, its credentials, and all relations. " +
-            "Referencing a non-existing device id will cause an error. " + TENANT_AUTHORITY_PARAGRAPH)
+    @Tool(description = "Use this to permanently delete a device, its credentials, and all relations by id.")
     public String deleteDevice(@ToolParam(description = DEVICE_ID_PARAM_DESCRIPTION) @NotBlank String deviceId) {
         try {
             DeviceId id = new DeviceId(UUID.fromString(deviceId));
@@ -126,21 +97,17 @@ public class DeviceTools implements McpTools {
         }
     }
 
-    @Tool(description = "Fetch the Device object based on the provided Device Id. " +
-            "If the user has the authority of 'TENANT_ADMIN', the server checks that the device is owned by the same tenant. " +
-            "If the user has the authority of 'CUSTOMER_USER', the server checks that the device is assigned to the same customer." +
-            TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
+    @Tool(description = "Use this to get a device by its id.")
     public String getDeviceById(@ToolParam(description = DEVICE_ID_PARAM_DESCRIPTION) @NotBlank String deviceId) {
         return JacksonUtil.toString(clientService.getClient().getDeviceById(new DeviceId(UUID.fromString(deviceId))));
     }
 
-    @Tool(description = "Get device credentials by device id. If during device creation there wasn't specified any credentials, platform generates random 'ACCESS_TOKEN' credentials. " +
-            TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
+    @Tool(description = "Use this to get device credentials (e.g., ACCESS_TOKEN) by device id.")
     public String getDeviceCredentialsByDeviceId(@ToolParam(description = DEVICE_ID_PARAM_DESCRIPTION) @NotBlank String deviceId) {
         return JacksonUtil.toString(clientService.getClient().getDeviceCredentialsByDeviceId(new DeviceId(UUID.fromString(deviceId))));
     }
 
-    @Tool(description = "Returns a page of devices owned by tenant. " + PAGE_DATA_PARAMETERS + TENANT_AUTHORITY_PARAGRAPH)
+    @Tool(description = "Use this to get a paginated list of devices owned by the tenant. Filter by type.")
     public String getTenantDevices(
             @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive String pageSize,
             @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero String page,
@@ -152,14 +119,12 @@ public class DeviceTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().getTenantDevices(type, pageLink));
     }
 
-    @Tool(description = "Requested device must be owned by tenant that the user belongs to. " +
-            "Device name is an unique property of device. So it can be used to identify the device." + TENANT_AUTHORITY_PARAGRAPH)
+    @Tool(description = "Use this to get a device by its unique name within the tenant.")
     public String getTenantDevice(@ToolParam(description = DEVICE_NAME_DESCRIPTION) @NotBlank String deviceName) {
         return JacksonUtil.toString(clientService.getClient().getTenantDevice(deviceName));
     }
 
-    @Tool(description = "Returns a page of devices objects assigned to customer. " +
-            PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
+    @Tool(description = "Use this to get a paginated list of devices assigned to a specific customer. Filter by type.")
     public String getCustomerDevices(
             @ToolParam(description = CUSTOMER_ID_PARAM_DESCRIPTION) @NotBlank String customerId,
             @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive String pageSize,
@@ -173,7 +138,7 @@ public class DeviceTools implements McpTools {
     }
 
     @PeOnly
-    @Tool(description = "Returns a page of device objects available for the current user. " + PE_ONLY_AVAILABLE + PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
+    @Tool(description = "Use this to get a paginated list of devices available to the current user. PE only.")
     public String getUserDevices(
             @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive String pageSize,
             @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero String page,
@@ -188,14 +153,14 @@ public class DeviceTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().getUserDevices(type, pageLink));
     }
 
-    @Tool(description = "Get Devices By Ids. Requested devices must be owned by tenant or assigned to customer which user is performing the request. " + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
+    @Tool(description = "Use this to get multiple devices by their ids (comma-separated).")
     public String getDevicesByIds(@ToolParam(description = "A string of devices ids, separated by comma ','") @NotBlank String devicesIds) {
         List<DeviceId> deviceIdList = Arrays.stream(devicesIds.split(",")).map(UUID::fromString).map(DeviceId::new).toList();
         return JacksonUtil.toString(clientService.getClient().getDevicesByIds(deviceIdList));
     }
 
     @PeOnly
-    @Tool(description = "Returns a page of device objects that belongs to specified Entity Group Id. " + PE_ONLY_AVAILABLE + PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH + RBAC_GROUP_READ_CHECK)
+    @Tool(description = "Use this to get a paginated list of devices in a specific entity group. PE only.")
     public String getDevicesByEntityGroupId(
             @ToolParam(description = ENTITY_GROUP_ID_PARAM_DESCRIPTION) @NotBlank String entityGroupId,
             @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive String pageSize,

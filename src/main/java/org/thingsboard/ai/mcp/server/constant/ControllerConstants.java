@@ -57,310 +57,78 @@ public class ControllerConstants {
     public static final String RELATION_TYPE_GROUP_PARAM_DESCRIPTION = "A string value representing relation type group. For example, 'COMMON'";
 
     public static final String SINGLE_ENTITY =
-            "A JSON value representation of Single Entity object, which allows to filter only one entity based on the id. For example, this entity filter selects certain device: \n" +
-                    MARKDOWN_CODE_BLOCK_START +
-                    "{\n" +
-                    "  \"type\": \"singleEntity\",\n" +
-                    "  \"singleEntity\": {\n" +
-                    "    \"id\": \"d521edb0-2a7a-11ec-94eb-213c95f54092\",\n" +
-                    "    \"entityType\": \"DEVICE\"\n" +
-                    "  }\n" +
-                    "}" +
-                    MARKDOWN_CODE_BLOCK_END;
+            "Filter by a single entity ID. JSON: {\"type\":\"singleEntity\",\"singleEntity\":{\"id\":\"<UUID>\",\"entityType\":\"DEVICE|ASSET|...\"}}";
 
     public static final String ENTITY_LIST =
-            "A JSON value representation of Entity List filter object, which allows to filter entities of the same type using their ids. For example, this entity filter selects two devices:\n\n" +
-                    MARKDOWN_CODE_BLOCK_START +
-                    "{\n" +
-                    "  \"type\": \"entityList\",\n" +
-                    "  \"entityType\": \"DEVICE\",\n" +
-                    "  \"entityList\": [\n" +
-                    "    \"e6501f30-2a7a-11ec-94eb-213c95f54092\",\n" +
-                    "    \"e6657bf0-2a7a-11ec-94eb-213c95f54092\"\n" +
-                    "  ]\n" +
-                    "}" +
-                    MARKDOWN_CODE_BLOCK_END;
+            "Filter by multiple entity IDs. JSON: {\"type\":\"entityList\",\"entityType\":\"DEVICE\",\"entityList\":[\"<UUID1>\",\"<UUID2>\"]}";
 
     public static final String ENTITY_NAME =
-            "A JSON value representation of entity name filter object, which allows to filter entities of the same type using the **'starts with'** expression over entity name. " +
-                    "For example, this entity filter selects all devices which name starts with 'Air Quality':\n\n" +
-                    MARKDOWN_CODE_BLOCK_START +
-                    "{\n" +
-                    "  \"type\": \"entityName\",\n" +
-                    "  \"entityType\": \"DEVICE\",\n" +
-                    "  \"entityNameFilter\": \"Air Quality\"\n" +
-                    "}" +
-                    MARKDOWN_CODE_BLOCK_END;
+            "Filter entities by name prefix ('starts with' match). JSON: {\"type\":\"entityName\",\"entityType\":\"DEVICE\",\"entityNameFilter\":\"<prefix>\"}";
 
     public static final String ENTITY_TYPE_FILTER =
-            "A JSON value representation of entity type filter object, which allows to filter entities based on their type (CUSTOMER, USER, DASHBOARD, ASSET, DEVICE, ENTITY_VIEW, EDGE, TENANT)\n" +
-                    "             for Professional Edition (DATA_CONVERTER, INTEGRATION, SCHEDULER_EVENT, BLOB_ENTITY, REPORT, REPORT_TEMPLATE)" +
-                    "For example, this entity filter selects all tenant customers:\n\n" +
-                    MARKDOWN_CODE_BLOCK_START +
-                    "{\n" +
-                    "  \"type\": \"entityType\",\n" +
-                    "  \"entityType\": \"CUSTOMER\"\n" +
-                    "}" +
-                    MARKDOWN_CODE_BLOCK_END;
+            "Filter all entities of a specific type. JSON: {\"type\":\"entityType\",\"entityType\":\"DEVICE|ASSET|CUSTOMER|USER|DASHBOARD|ENTITY_VIEW|EDGE|TENANT\"}";
 
     public static final String ASSET_TYPE =
-            "A JSON value representation of asset type filter object, Allows to filter assets based on their type and the **'starts with'** expression over their name. " +
-                    "For example, this entity filter selects all 'charging station' assets which name starts with 'Tesla':\n\n" +
-                    MARKDOWN_CODE_BLOCK_START +
-                    "{\n" +
-                    "  \"type\": \"assetType\",\n" +
-                    "  \"assetType\": \"charging station\",\n" +
-                    "  \"assetNameFilter\": \"Tesla\"\n" +
-                    "}" +
-                    MARKDOWN_CODE_BLOCK_END;
+            "Filter assets by profile/type and optional name prefix. JSON: {\"type\":\"assetType\",\"assetType\":\"<profile>\",\"assetNameFilter\":\"<prefix>\"}";
 
     public static final String DEVICE_TYPE =
-            "A JSON value representation of device type filter object, which allows to filter devices based on their type and the **'starts with'** expression over their name. " +
-                    "For example, this entity filter selects all 'Temperature Sensor' devices which name starts with 'ABC':\n\n" +
-                    MARKDOWN_CODE_BLOCK_START +
-                    "{\n" +
-                    "  \"type\": \"deviceType\",\n" +
-                    "  \"deviceType\": \"Temperature Sensor\",\n" +
-                    "  \"deviceNameFilter\": \"ABC\"\n" +
-                    "}" +
-                    MARKDOWN_CODE_BLOCK_END;
+            "Filter devices by profile/type and optional name prefix. JSON: {\"type\":\"deviceType\",\"deviceType\":\"<profile>\",\"deviceNameFilter\":\"<prefix>\"}";
 
     public static final String EDGE_TYPE =
-            "A JSON value representation of edge type filter object, which allows to filter edge instances based on their type and the **'starts with'** expression over their name. " +
-                    "For example, this entity filter selects all 'Factory' edge instances which name starts with 'Nevada':\n\n" +
-                    MARKDOWN_CODE_BLOCK_START +
-                    "{\n" +
-                    "  \"type\": \"edgeType\",\n" +
-                    "  \"edgeType\": \"Factory\",\n" +
-                    "  \"edgeNameFilter\": \"Nevada\"\n" +
-                    "}" +
-                    MARKDOWN_CODE_BLOCK_END;
+            "Filter edges by type and optional name prefix. JSON: {\"type\":\"edgeType\",\"edgeType\":\"<type>\",\"edgeNameFilter\":\"<prefix>\"}";
 
     public static final String ENTITY_VIEW_TYPE =
-            "A JSON value representation of entity view filter object, which allows to filter entity views based on their type and the **'starts with'** expression over their name. " +
-                    "For example, this entity filter selects all 'Concrete Mixer' entity views which name starts with 'CAT':\n\n" +
-                    MARKDOWN_CODE_BLOCK_START +
-                    "{\n" +
-                    "  \"type\": \"entityViewType\",\n" +
-                    "  \"entityViewType\": \"Concrete Mixer\",\n" +
-                    "  \"entityViewNameFilter\": \"CAT\"\n" +
-                    "}" +
-                    MARKDOWN_CODE_BLOCK_END;
+            "Filter entity views by type and optional name prefix. JSON: {\"type\":\"entityViewType\",\"entityViewType\":\"<type>\",\"entityViewNameFilter\":\"<prefix>\"}";
 
     public static final String API_USAGE =
-            "A JSON value representation of api usage filter object, which allows to query for Api Usage based on optional customer id. If the customer id is not set, returns current tenant API usage." +
-                    "For example, this entity filter selects the 'Api Usage' entity for customer with id 'e6501f30-2a7a-11ec-94eb-213c95f54092':\n\n" +
-                    MARKDOWN_CODE_BLOCK_START +
-                    "{\n" +
-                    "  \"type\": \"apiUsageState\",\n" +
-                    "  \"customerId\": {\n" +
-                    "    \"id\": \"d521edb0-2a7a-11ec-94eb-213c95f54092\",\n" +
-                    "    \"entityType\": \"CUSTOMER\"\n" +
-                    "  }\n" +
-                    "}" +
-                    MARKDOWN_CODE_BLOCK_END;
+            "Query API usage statistics. If customerId provided, returns customer's API usage; otherwise returns tenant API usage. " +
+                    "JSON: {\"type\":\"apiUsageState\",\"customerId\":{\"id\":\"<UUID>\",\"entityType\":\"CUSTOMER\"}} - customerId optional";
 
     public static final String MAX_LEVEL_DESCRIPTION = "Possible direction values are 'TO' and 'FROM'. The 'maxLevel' defines how many relation levels should the query search 'recursively'. ";
     public static final String FETCH_LAST_LEVEL_ONLY_DESCRIPTION = "Assuming the 'maxLevel' is > 1, the 'fetchLastLevelOnly' defines either to return all related entities or only entities that are on the last level of relations. ";
 
     public static final String RELATIONS_QUERY_FILTER =
-            "A JSON value representation of relations query filter object, which allows to filter entities that are related to the provided root entity. " +
-                    MAX_LEVEL_DESCRIPTION +
-                    FETCH_LAST_LEVEL_ONLY_DESCRIPTION +
-                    "The 'filter' object allows you to define the relation type and set of acceptable entity types to search for. " +
-                    "The relation query calculates all related entities, even if they are filtered using different relation types, and then extracts only those who match the 'filters'.\n\n" +
-                    "For example, this entity filter selects all devices and assets which are related to the asset with id 'e51de0c0-2a7a-11ec-94eb-213c95f54092':\n\n" +
-                    MARKDOWN_CODE_BLOCK_START +
-                    "{\n" +
-                    "  \"type\": \"relationsQuery\",\n" +
-                    "  \"rootEntity\": {\n" +
-                    "    \"entityType\": \"ASSET\",\n" +
-                    "    \"id\": \"e51de0c0-2a7a-11ec-94eb-213c95f54092\"\n" +
-                    "  },\n" +
-                    "  \"direction\": \"FROM\",\n" +
-                    "  \"maxLevel\": 1,\n" +
-                    "  \"fetchLastLevelOnly\": false,\n" +
-                    "  \"filters\": [\n" +
-                    "    {\n" +
-                    "      \"relationType\": \"Contains\",\n" +
-                    "      \"entityTypes\": [\n" +
-                    "        \"DEVICE\",\n" +
-                    "        \"ASSET\"\n" +
-                    "      ]\n" +
-                    "    }\n" +
-                    "  ]\n" +
-                    "}" +
-                    MARKDOWN_CODE_BLOCK_END;
+            "Query entities related to a root entity via relations. Direction: FROM=outgoing, TO=incoming relations. maxLevel: recursion depth (1=direct relations only). fetchLastLevelOnly: if true with maxLevel>1, returns only deepest level entities. " +
+                    "JSON: {\"type\":\"relationsQuery\",\"rootEntity\":{\"entityType\":\"ASSET\",\"id\":\"<UUID>\"},\"direction\":\"FROM|TO\",\"maxLevel\":1,\"fetchLastLevelOnly\":false,\"filters\":[{\"relationType\":\"Contains\",\"entityTypes\":[\"DEVICE\",\"ASSET\"]}]}";
 
-    public static final String ASSET_QUERY_FILTER = "\n\n## Asset Search Query\n\n" +
-            "A JSON value representation of asset search query object, which allows to filter assets that are related to the provided root entity. Filters related assets based on the relation type and set of asset types. " +
-            MAX_LEVEL_DESCRIPTION +
-            FETCH_LAST_LEVEL_ONLY_DESCRIPTION +
-            "The 'relationType' defines the type of the relation to search for. " +
-            "The 'assetTypes' defines the type of the asset to search for. " +
-            "The relation query calculates all related entities, even if they are filtered using different relation types, and then extracts only assets that match 'relationType' and 'assetTypes' conditions.\n\n" +
-            "For example, this entity filter selects 'charging station' assets which are related to the asset with id 'e51de0c0-2a7a-11ec-94eb-213c95f54092' using 'Contains' relation:\n\n" +
-            MARKDOWN_CODE_BLOCK_START +
-            "{\n" +
-            "  \"type\": \"assetSearchQuery\",\n" +
-            "  \"rootEntity\": {\n" +
-            "    \"entityType\": \"ASSET\",\n" +
-            "    \"id\": \"e51de0c0-2a7a-11ec-94eb-213c95f54092\"\n" +
-            "  },\n" +
-            "  \"direction\": \"FROM\",\n" +
-            "  \"maxLevel\": 1,\n" +
-            "  \"fetchLastLevelOnly\": false,\n" +
-            "  \"relationType\": \"Contains\",\n" +
-            "  \"assetTypes\": [\n" +
-            "    \"charging station\"\n" +
-            "  ]\n" +
-            "}" +
-            MARKDOWN_CODE_BLOCK_END;
+    public static final String ASSET_QUERY_FILTER =
+            "Find assets related to a root entity via specific relation type and asset profiles. " +
+                    "JSON: {\"type\":\"assetSearchQuery\",\"rootEntity\":{\"entityType\":\"ASSET\",\"id\":\"<UUID>\"},\"direction\":\"FROM|TO\",\"maxLevel\":1,\"fetchLastLevelOnly\":false,\"relationType\":\"Contains\",\"assetTypes\":[\"<profile>\"]}";
 
     public static final String DEVICE_QUERY_FILTER =
-            "A JSON value representation of device search query object, which allows to filter devices that are related to the provided root entity. Filters related devices based on the relation type and set of device types. " +
-                    MAX_LEVEL_DESCRIPTION +
-                    FETCH_LAST_LEVEL_ONLY_DESCRIPTION +
-                    "The 'relationType' defines the type of the relation to search for. " +
-                    "The 'deviceTypes' defines the type of the device to search for. " +
-                    "The relation query calculates all related entities, even if they are filtered using different relation types, and then extracts only devices that match 'relationType' and 'deviceTypes' conditions.\n\n" +
-                    "For example, this entity filter selects 'Charging port' and 'Air Quality Sensor' devices which are related to the asset with id 'e52b0020-2a7a-11ec-94eb-213c95f54092' using 'Contains' relation:\n\n" +
-                    MARKDOWN_CODE_BLOCK_START +
-                    "{\n" +
-                    "  \"type\": \"deviceSearchQuery\",\n" +
-                    "  \"rootEntity\": {\n" +
-                    "    \"entityType\": \"ASSET\",\n" +
-                    "    \"id\": \"e52b0020-2a7a-11ec-94eb-213c95f54092\"\n" +
-                    "  },\n" +
-                    "  \"direction\": \"FROM\",\n" +
-                    "  \"maxLevel\": 2,\n" +
-                    "  \"fetchLastLevelOnly\": true,\n" +
-                    "  \"relationType\": \"Contains\",\n" +
-                    "  \"deviceTypes\": [\n" +
-                    "    \"Air Quality Sensor\",\n" +
-                    "    \"Charging port\"\n" +
-                    "  ]\n" +
-                    "}" +
-                    MARKDOWN_CODE_BLOCK_END;
+            "Find devices related to a root entity via specific relation type and device profiles. " +
+                    "JSON: {\"type\":\"deviceSearchQuery\",\"rootEntity\":{\"entityType\":\"ASSET\",\"id\":\"<UUID>\"},\"direction\":\"FROM|TO\",\"maxLevel\":2,\"fetchLastLevelOnly\":true,\"relationType\":\"Contains\",\"deviceTypes\":[\"<profile>\"]}";
 
-    public static final String EV_QUERY_FILTER = "\n\n## Entity View Query\n\n" +
-            "A JSON value representation of entity view query object, which allows to filter entity views that are related to the provided root entity. Filters related entity views based on the relation type and set of entity view types. " +
-            MAX_LEVEL_DESCRIPTION +
-            FETCH_LAST_LEVEL_ONLY_DESCRIPTION +
-            "The 'relationType' defines the type of the relation to search for. " +
-            "The 'entityViewTypes' defines the type of the entity view to search for. " +
-            "The relation query calculates all related entities, even if they are filtered using different relation types, and then extracts only devices that match 'relationType' and 'deviceTypes' conditions.\n\n" +
-            "For example, this entity filter selects 'Concrete mixer' entity views which are related to the asset with id 'e52b0020-2a7a-11ec-94eb-213c95f54092' using 'Contains' relation:\n\n" +
-            MARKDOWN_CODE_BLOCK_START +
-            "{\n" +
-            "  \"type\": \"entityViewSearchQuery\",\n" +
-            "  \"rootEntity\": {\n" +
-            "    \"entityType\": \"ASSET\",\n" +
-            "    \"id\": \"e52b0020-2a7a-11ec-94eb-213c95f54092\"\n" +
-            "  },\n" +
-            "  \"direction\": \"FROM\",\n" +
-            "  \"maxLevel\": 1,\n" +
-            "  \"fetchLastLevelOnly\": false,\n" +
-            "  \"relationType\": \"Contains\",\n" +
-            "  \"entityViewTypes\": [\n" +
-            "    \"Concrete mixer\"\n" +
-            "  ]\n" +
-            "}" +
-            MARKDOWN_CODE_BLOCK_END;
 
-    public static final String EDGE_QUERY_FILTER = "\n\n## Edge Search Query\n\n" +
-            "A JSON value representation of edge search query object, which allows to filter edge instances that are related to the provided root entity. Filters related edge instances based on the relation type and set of edge types. " +
-            MAX_LEVEL_DESCRIPTION +
-            FETCH_LAST_LEVEL_ONLY_DESCRIPTION +
-            "The 'relationType' defines the type of the relation to search for. " +
-            "The 'deviceTypes' defines the type of the device to search for. " +
-            "The relation query calculates all related entities, even if they are filtered using different relation types, and then extracts only devices that match 'relationType' and 'deviceTypes' conditions.\n\n" +
-            "For example, this entity filter selects 'Factory' edge instances which are related to the asset with id 'e52b0020-2a7a-11ec-94eb-213c95f54092' using 'Contains' relation:\n\n" +
-            MARKDOWN_CODE_BLOCK_START +
-            "{\n" +
-            "  \"type\": \"edgeSearchQuery\",\n" +
-            "  \"rootEntity\": {\n" +
-            "    \"entityType\": \"ASSET\",\n" +
-            "    \"id\": \"e52b0020-2a7a-11ec-94eb-213c95f54092\"\n" +
-            "  },\n" +
-            "  \"direction\": \"FROM\",\n" +
-            "  \"maxLevel\": 2,\n" +
-            "  \"fetchLastLevelOnly\": true,\n" +
-            "  \"relationType\": \"Contains\",\n" +
-            "  \"edgeTypes\": [\n" +
-            "    \"Factory\"\n" +
-            "  ]\n" +
-            "}" +
-            MARKDOWN_CODE_BLOCK_END;
+    public static final String EV_QUERY_FILTER =
+            "Find entity views related to a root entity via specific relation type and entity view types. " +
+                    "JSON: {\"type\":\"entityViewSearchQuery\",\"rootEntity\":{\"entityType\":\"ASSET\",\"id\":\"<UUID>\"},\"direction\":\"FROM|TO\",\"maxLevel\":1,\"fetchLastLevelOnly\":false,\"relationType\":\"Contains\",\"entityViewTypes\":[\"<type>\"]}";
+
+
+    public static final String EDGE_QUERY_FILTER =
+            "Find edge instances related to a root entity via specific relation type and edge types. " +
+                    "JSON: {\"type\":\"edgeSearchQuery\",\"rootEntity\":{\"entityType\":\"ASSET\",\"id\":\"<UUID>\"},\"direction\":\"FROM|TO\",\"maxLevel\":2,\"fetchLastLevelOnly\":true,\"relationType\":\"Contains\",\"edgeTypes\":[\"<type>\"]}";
+
 
     public static final String ENTITY_GROUP_FILTER =
-            "A JSON value representation of group entities filter object, which allows to filter multiple entities of the same type using the entity group type and id. " +
-                    "For example, this entity filter selects all devices that " +
-                    "belong to the group 'e52b0020-2a7a-11ec-94eb-213c95f54092':\n\n" +
-                    MARKDOWN_CODE_BLOCK_START +
-                    "{\n" +
-                    "  \"type\": \"entityGroup\",\n" +
-                    "  \"groupType\": \"DEVICE\",\n" +
-                    "  \"entityGroup\": \"e52b0020-2a7a-11ec-94eb-213c95f54092\"\n" +
-                    "}" +
-                    MARKDOWN_CODE_BLOCK_END;
+            "Filter entities belonging to a specific entity group by group ID. " +
+                    "JSON: {\"type\":\"entityGroup\",\"groupType\":\"DEVICE|ASSET|...\",\"entityGroup\":\"<UUID>\"}";
 
     public static final String ENTITY_GROUP_LIST_FILTER =
-            "A JSON value representation of group list filter object, which return multiple groups of the same type using specified ids. " +
-                    "For example, this entity filter selects 2 device groups (if they are present in the system) " +
-                    "with ids 'e52b0020-2a7a-11ec-94eb-213c95f54092' and 'e52b0020-2a7a-11ec-94eb-213c95f54093':\n\n" +
-                    MARKDOWN_CODE_BLOCK_START +
-                    "{\n" +
-                    "  \"type\": \"entityGroupList\",\n" +
-                    "  \"groupType\": \"DEVICE\",\n" +
-                    "  \"entityGroupList\": [\"e52b0020-2a7a-11ec-94eb-213c95f54092\", \"e52b0020-2a7a-11ec-94eb-213c95f54093\"]\n" +
-                    "}" +
-                    MARKDOWN_CODE_BLOCK_END;
+            "Return multiple entity groups by their IDs. " +
+                    "JSON: {\"type\":\"entityGroupList\",\"groupType\":\"DEVICE|ASSET|...\",\"entityGroupList\":[\"<UUID1>\",\"<UUID2>\"]}";
 
     public static final String ENTITY_GROUP_NAME_FILTER =
-            "A JSON value representation of group name filter object, which allows to filter entity groups based on their type and the **'starts with'** expression over their name. " +
-                    "For example, this entity filter selects all devices which name starts with 'CAT':\n\n" +
-                    MARKDOWN_CODE_BLOCK_START +
-                    "{\n" +
-                    "  \"type\": \"entityGroupName\",\n" +
-                    "  \"groupType\": \"DEVICE\",\n" +
-                    "  \"entityGroupNameFilter\": \"CAT\"\n" +
-                    "}" +
-                    MARKDOWN_CODE_BLOCK_END;
+            "Filter entity groups by name prefix ('starts with' match). " +
+                    "JSON: {\"type\":\"entityGroupName\",\"groupType\":\"DEVICE|ASSET|...\",\"entityGroupNameFilter\":\"<prefix>\"}";
 
     public static final String ENTITIES_BY_GROUP_NAME_FILTER =
-            "A JSON value representation of entities by froup name filter object, which allows to filter entities that belong to group based on the entity type and the group name. " +
-                    "Optional parameter 'ownerId' allows you to specify the owner of the group (Tenant or Customer, current user owner by default)." +
-                    "For example, this entity filter selects all devices which belong to group 'Water Meters':\n\n" +
-                    MARKDOWN_CODE_BLOCK_START +
-                    "{\n" +
-                    "  \"type\": \"entitiesByGroupName\",\n" +
-                    "  \"groupType\": \"DEVICE\",\n" +
-                    "  \"entityGroupNameFilter\": \"Water Meters\"\n" +
-                    "}" +
-                    MARKDOWN_CODE_BLOCK_END +
-                    "\n\n Other example, this entity filter selects all devices which belong to group 'Water Meters' which in turn belongs to (sub-)Customer with id 'e52b0020-2a7a-11ec-94eb-213c95f54093': \n\n" +
-                    MARKDOWN_CODE_BLOCK_START +
-                    "{\n" +
-                    "  \"type\": \"entitiesByGroupName\",\n" +
-                    "  \"ownerId\": {\"entityType\": \"CUSTOMER\",\"id\":\"e52b0020-2a7a-11ec-94eb-213c95f54093\"},\n" +
-                    "  \"groupType\": \"DEVICE\",\n" +
-                    "  \"entityGroupNameFilter\": \"Water Meters\"\n" +
-                    "}" +
-                    MARKDOWN_CODE_BLOCK_END;
+            "Filter entities belonging to a group by group name. Optional ownerId to specify group owner (Tenant or Customer). " +
+                    "JSON: {\"type\":\"entitiesByGroupName\",\"groupType\":\"DEVICE|ASSET|...\",\"entityGroupNameFilter\":\"<name>\",\"ownerId\":{\"entityType\":\"CUSTOMER\",\"id\":\"<UUID>\"}}";
 
     public static final String ENTITY_OWNER_FILTER =
-            "A JSON value representation of entity owner filter, which allows to fetch owner (Tenant or Customer) of the specified entity. " +
-                    "For example, this entity filter selects owner of the device with id 'e52b0020-2a7a-11ec-94eb-213c95f54093':\n\n" +
-                    MARKDOWN_CODE_BLOCK_START +
-                    "{\n" +
-                    "  \"type\": \"stateEntityOwner\",\n" +
-                    "  \"singleEntity\": {\n" +
-                    "    \"id\": \"d521edb0-2a7a-11ec-94eb-213c95f54092\",\n" +
-                    "    \"entityType\": \"DEVICE\"\n" +
-                    "  }\n" +
-                    "}" +
-                    MARKDOWN_CODE_BLOCK_END;
+            "Fetch the owner (Tenant or Customer) of a specified entity. " +
+                    "JSON: {\"type\":\"stateEntityOwner\",\"singleEntity\":{\"id\":\"<UUID>\",\"entityType\":\"DEVICE|ASSET|...\"}}";
 
     public static final String ENTITY_FILTERS =
             "\n\n # Entity Filters" +
@@ -412,29 +180,56 @@ public class ControllerConstants {
                        • Complex: Use "type": "COMPLEX" with "operation": "AND"/"OR" and nested predicates array
                        • Dynamic: Replace defaultValue with dynamicValue: {"sourceType": "CURRENT_USER", "sourceAttribute": "threshold"}""";
 
+    public static final String KEY_FILTERS_JSON =
+            "Optional JSON array string for filtering entities. Pass as a JSON string (not an object). " +
+                    "Call getKeyFiltersGuide() for full structure details.\n\n" +
+                    "Each filter object requires: 'key', 'valueType', and 'predicate'.\n\n" +
+                    "**Quick Example** - Filter where temperature > 20:\n" +
+                    "\"[{\\\"key\\\":{\\\"type\\\":\\\"TIME_SERIES\\\",\\\"key\\\":\\\"temperature\\\"},\\\"valueType\\\":\\\"NUMERIC\\\",\\\"predicate\\\":{\\\"operation\\\":\\\"GREATER\\\",\\\"value\\\":{\\\"defaultValue\\\":20},\\\"type\\\":\\\"NUMERIC\\\"}}]\"\n\n" +
+                    "**Key types**: TIME_SERIES, ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, ENTITY_FIELD\n" +
+                    "**Value types**: NUMERIC, STRING, BOOLEAN, DATE_TIME\n" +
+                    "**Numeric operations**: EQUAL, NOT_EQUAL, GREATER, LESS, GREATER_OR_EQUAL, LESS_OR_EQUAL\n" +
+                    "**String operations**: EQUAL, NOT_EQUAL, STARTS_WITH, ENDS_WITH, CONTAINS, NOT_CONTAINS";
+
+    public static final String ENTITY_FIELDS_JSON =
+            "Optional JSON array string specifying which entity fields to return. Pass as a JSON string.\n\n" +
+                    "**Example**: \"[{\\\"type\\\":\\\"ENTITY_FIELD\\\",\\\"key\\\":\\\"name\\\"},{\\\"type\\\":\\\"ENTITY_FIELD\\\",\\\"key\\\":\\\"type\\\"}]\"\n\n" +
+                    "**Available ENTITY_FIELD keys**: name, type, label, createdTime, additionalInfo\n" +
+                    "**Type values**: ENTITY_FIELD (for entity properties), ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES";
+
+    public static final String LATEST_VALUES_JSON =
+            "Optional JSON array string specifying which attributes or telemetry latest values to return. Pass as a JSON string.\n\n" +
+                    "**Example for attributes**: \"[{\\\"type\\\":\\\"ATTRIBUTE\\\",\\\"key\\\":\\\"model\\\"},{\\\"type\\\":\\\"ATTRIBUTE\\\",\\\"key\\\":\\\"firmware\\\"}]\"\n\n" +
+                    "**Example for telemetry**: \"[{\\\"type\\\":\\\"TIME_SERIES\\\",\\\"key\\\":\\\"temperature\\\"},{\\\"type\\\":\\\"TIME_SERIES\\\",\\\"key\\\":\\\"humidity\\\"}]\"\n\n" +
+                    "**Type values**: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES";
+
     public static final String KEY_FILTERS =
-            "⚠️ COMPLEX STRUCTURE - Read carefully or call getKeyFiltersGuide() for full details!\n\n" +
+            "COMPLEX STRUCTURE - Read carefully or call getKeyFiltersGuide() for full details!\n\n" +
                     "KeyFilter allows complex logical expressions over entity fields, attributes, or time-series values.\n" +
                     "Each filter has 3 required parts: 'key', 'valueType', and 'predicate'.\n" +
                     "Multiple filters use logical AND.\n\n" +
                     "## Quick Example - Temperature > 20\n" +
-                    MARKDOWN_CODE_BLOCK_START +
+                    "```json\n" +
                     "[\n" +
                     "  {\n" +
                     "    \"key\": {\"type\": \"TIME_SERIES\", \"key\": \"temperature\"},\n" +
                     "    \"valueType\": \"NUMERIC\",\n" +
                     "    \"predicate\": {\n" +
                     "      \"operation\": \"GREATER\",\n" +
-                    "      \"value\": {\"defaultValue\": 20, \"dynamicValue\": null},\n" +
+                    "      \"value\": {\n" +
+                    "        \"defaultValue\": 20,\n" +
+                    "        \"dynamicValue\": {\n" +
+                    "          \"sourceType\": \"CURRENT_USER\",\n" +
+                    "          \"sourceAttribute\": \"tempThreshold\",\n" +
+                    "          \"inherit\": false\n" +
+                    "        }\n" +
+                    "      },\n" +
                     "      \"type\": \"NUMERIC\"\n" +
                     "    }\n" +
                     "  }\n" +
                     "]\n" +
-                    MARKDOWN_CODE_BLOCK_END +
-                    "\n## Structure Breakdown\n" +
-                    FILTER_KEY_SUMMARY + "\n" +
-                    FILTER_VALUE_TYPE_SUMMARY + "\n" +
-                    FILTER_PREDICATE_SUMMARY + "\n\n" +
+                    "```\n" +
+                    FILTER_KEY_SUMMARY + "\n" + FILTER_VALUE_TYPE_SUMMARY + "\n" + FILTER_PREDICATE_SUMMARY + "\n" +
                     "For complex predicates (OR/AND logic), nested conditions, and dynamic values → call getKeyFiltersGuide()";
 
     public static final String ENTITY_COUNT_QUERY_DESCRIPTION =

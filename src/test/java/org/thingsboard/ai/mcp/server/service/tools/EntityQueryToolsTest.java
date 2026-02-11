@@ -16,32 +16,32 @@ import org.thingsboard.ai.mcp.server.tools.query.EntityQueryTools;
 import org.thingsboard.common.util.JacksonUtil;
 import org.thingsboard.server.common.data.EntityType;
 import org.thingsboard.server.common.data.exception.ThingsboardException;
-import org.thingsboard.server.common.data.id.AssetId;
 import org.thingsboard.server.common.data.id.DeviceId;
 import org.thingsboard.server.common.data.page.PageData;
 import org.thingsboard.server.common.data.query.AssetTypeFilter;
-import org.thingsboard.server.common.data.query.BooleanFilterPredicate;
 import org.thingsboard.server.common.data.query.DeviceTypeFilter;
 import org.thingsboard.server.common.data.query.EdgeTypeFilter;
 import org.thingsboard.server.common.data.query.EntityCountQuery;
 import org.thingsboard.server.common.data.query.EntityData;
 import org.thingsboard.server.common.data.query.EntityDataQuery;
-import org.thingsboard.server.common.data.query.EntityKey;
 import org.thingsboard.server.common.data.query.EntityKeyType;
-import org.thingsboard.server.common.data.query.EntityKeyValueType;
+import org.thingsboard.server.common.data.query.ApiUsageStateFilter;
+import org.thingsboard.server.common.data.query.AssetSearchQueryFilter;
+import org.thingsboard.server.common.data.query.DeviceSearchQueryFilter;
+import org.thingsboard.server.common.data.query.EdgeSearchQueryFilter;
+import org.thingsboard.server.common.data.query.EntitiesByGroupNameFilter;
+import org.thingsboard.server.common.data.query.EntityGroupFilter;
+import org.thingsboard.server.common.data.query.EntityGroupListFilter;
+import org.thingsboard.server.common.data.query.EntityGroupNameFilter;
 import org.thingsboard.server.common.data.query.EntityListFilter;
 import org.thingsboard.server.common.data.query.EntityNameFilter;
 import org.thingsboard.server.common.data.query.EntityTypeFilter;
+import org.thingsboard.server.common.data.query.EntityViewSearchQueryFilter;
 import org.thingsboard.server.common.data.query.EntityViewTypeFilter;
-import org.thingsboard.server.common.data.query.FilterPredicateValue;
-import org.thingsboard.server.common.data.query.KeyFilter;
-import org.thingsboard.server.common.data.query.NumericFilterPredicate;
 import org.thingsboard.server.common.data.query.RelationsQueryFilter;
 import org.thingsboard.server.common.data.query.SingleEntityFilter;
+import org.thingsboard.server.common.data.query.StateEntityOwnerFilter;
 import org.thingsboard.server.common.data.query.TsValue;
-import org.thingsboard.server.common.data.relation.EntityRelationsQuery;
-import org.thingsboard.server.common.data.relation.EntitySearchDirection;
-import org.thingsboard.server.common.data.relation.RelationEntityTypeFilter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -85,18 +85,19 @@ public class EntityQueryToolsTest {
         @DisplayName("Should find entity data by single entity filter with all parameters")
         void testFindEntityDataBySingleEntityFilter_withAllParams() throws ThingsboardException {
             UUID deviceId = UUID.randomUUID();
-            SingleEntityFilter filter = new SingleEntityFilter();
-            filter.setSingleEntity(new DeviceId(deviceId));
+            String filterJson = String.format("""
+                    {"type":"singleEntity","singleEntity":{"entityType":"DEVICE","id":"%s"}}
+                    """, deviceId);
 
-            List<KeyFilter> keyFilters = List.of(createNumericTemperatureKeyTelemetryFilter(25.0));
-            List<EntityKey> entityFields = List.of(new EntityKey(EntityKeyType.ENTITY_FIELD, "name"));
-            List<EntityKey> latestValues = List.of(new EntityKey(EntityKeyType.TIME_SERIES, "temperature"));
+            String keyFiltersJson = "[{\"keyType\":\"TIME_SERIES\",\"key\":\"temperature\",\"valueType\":\"NUMERIC\",\"predicateType\":\"NUMERIC\",\"operation\":\"GREATER\",\"defaultValue\":25.0}]";
+            String entityFieldsJson = "[{\"type\":\"ENTITY_FIELD\",\"key\":\"name\"}]";
+            String latestValuesJson = "[{\"type\":\"TIME_SERIES\",\"key\":\"temperature\"}]";
 
             PageData<EntityData> pageData = createMockPageData();
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataBySingleEntityFilter(
-                    filter, keyFilters, entityFields, latestValues,
+                    filterJson, keyFiltersJson, entityFieldsJson, latestValuesJson,
                     "10", "0", "sensor", "name", "ENTITY_FIELD", "ASC"
             );
 
@@ -118,14 +119,15 @@ public class EntityQueryToolsTest {
         @DisplayName("Should find entity data with minimal parameters")
         void testFindEntityDataBySingleEntityFilter_minimalParams() throws ThingsboardException {
             UUID deviceId = UUID.randomUUID();
-            SingleEntityFilter filter = new SingleEntityFilter();
-            filter.setSingleEntity(new DeviceId(deviceId));
+            String filterJson = String.format("""
+                    {"type":"singleEntity","singleEntity":{"entityType":"DEVICE","id":"%s"}}
+                    """, deviceId);
 
             PageData<EntityData> pageData = createMockPageData();
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataBySingleEntityFilter(
-                    filter, null, null, null,
+                    filterJson, null, null, null,
                     "20", "0", null, null, null, null
             );
 
@@ -151,16 +153,13 @@ public class EntityQueryToolsTest {
             EntityTypeFilter filter = new EntityTypeFilter();
             filter.setEntityType(EntityType.DEVICE);
 
-            List<EntityKey> entityFields = List.of(
-                    new EntityKey(EntityKeyType.ENTITY_FIELD, "name"),
-                    new EntityKey(EntityKeyType.ENTITY_FIELD, "label")
-            );
+            String entityFieldsJson = "[{\"type\":\"ENTITY_FIELD\",\"key\":\"name\"},{\"type\":\"ENTITY_FIELD\",\"key\":\"label\"}]";
 
             PageData<EntityData> pageData = createMockPageDataWithFields(List.of("name", "label"));
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByEntityTypeFilter(
-                    filter, null, entityFields, null,
+                    JacksonUtil.toString(filter), null, entityFieldsJson, null,
                     "50", "0", null, null, null, null
             );
 
@@ -186,20 +185,14 @@ public class EntityQueryToolsTest {
             filter.setDeviceTypes(List.of("Temperature Sensor"));
             filter.setDeviceNameFilter("Room");
 
-            List<KeyFilter> keyFilters = List.of(
-                    createNumericTemperatureKeyTelemetryFilter(30.0)
-            );
-
-            List<EntityKey> latestValues = List.of(
-                    new EntityKey(EntityKeyType.TIME_SERIES, "temperature"),
-                    new EntityKey(EntityKeyType.TIME_SERIES, "humidity")
-            );
+            String keyFiltersJson = "[{\"keyType\":\"TIME_SERIES\",\"key\":\"temperature\",\"valueType\":\"NUMERIC\",\"predicateType\":\"NUMERIC\",\"operation\":\"GREATER\",\"defaultValue\":30.0}]";
+            String latestValuesJson = "[{\"type\":\"TIME_SERIES\",\"key\":\"temperature\"},{\"type\":\"TIME_SERIES\",\"key\":\"humidity\"}]";
 
             PageData<EntityData> pageData = createMockPageDataWithTelemetry(List.of("temperature", "humidity"));
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByDeviceTypeFilter(
-                    filter, keyFilters, null, latestValues,
+                    JacksonUtil.toString(filter), keyFiltersJson, null, latestValuesJson,
                     "25", "1", "Room", "temperature", "TIME_SERIES", "DESC"
             );
 
@@ -224,19 +217,15 @@ public class EntityQueryToolsTest {
         @DisplayName("Should find entities related to root entity")
         void testFindEntityDataByRelationsQueryFilter() throws ThingsboardException {
             UUID assetId = UUID.randomUUID();
-            RelationsQueryFilter filter = new RelationsQueryFilter();
-            filter.setRootEntity(new AssetId(assetId));
-            filter.setDirection(EntitySearchDirection.FROM);
-
-            EntityRelationsQuery relationsQuery = new EntityRelationsQuery();
-            relationsQuery.setFilters(List.of(new RelationEntityTypeFilter()));
-            filter.setFilters(relationsQuery.getFilters());
+            String filterJson = String.format("""
+                    {"type":"relationsQuery","rootEntity":{"entityType":"ASSET","id":"%s"},"direction":"FROM","maxLevel":1,"filters":[]}
+                    """, assetId);
 
             PageData<EntityData> pageData = createMockPageData();
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByRelationsQueryFilter(
-                    filter, null, List.of(new EntityKey(EntityKeyType.ENTITY_FIELD, "name")), null,
+                    filterJson, null, "[{\"type\":\"ENTITY_FIELD\",\"key\":\"name\"}]", null,
                     "100", "0", null, null, null, null
             );
 
@@ -264,7 +253,7 @@ public class EntityQueryToolsTest {
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByEntityNameFilter(
-                    filter, null, List.of(new EntityKey(EntityKeyType.ENTITY_FIELD, "name")), null,
+                    JacksonUtil.toString(filter), null, "[{\"type\":\"ENTITY_FIELD\",\"key\":\"name\"}]", null,
                     "30", "0", "Sensor", null, null, null
             );
 
@@ -293,7 +282,7 @@ public class EntityQueryToolsTest {
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByAssetTypeFilter(
-                    filter, null, List.of(new EntityKey(EntityKeyType.ENTITY_FIELD, "name")), null,
+                    JacksonUtil.toString(filter), null, "[{\"type\":\"ENTITY_FIELD\",\"key\":\"name\"}]", null,
                     "10", "0", null, null, null, null
             );
 
@@ -312,7 +301,7 @@ public class EntityQueryToolsTest {
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByEdgeTypeFilter(
-                    filter, null, null, null,
+                    JacksonUtil.toString(filter), null, null, null,
                     "15", "0", null, null, null, null
             );
 
@@ -331,7 +320,7 @@ public class EntityQueryToolsTest {
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByEntityViewTypeFilter(
-                    filter, null, null, null,
+                    JacksonUtil.toString(filter), null, null, null,
                     "20", "0", null, null, null, null
             );
 
@@ -350,12 +339,13 @@ public class EntityQueryToolsTest {
         @DisplayName("Should count single entity without filters")
         void testCountBySingleEntityFilter_noFilters() {
             UUID deviceId = UUID.randomUUID();
-            SingleEntityFilter filter = new SingleEntityFilter();
-            filter.setSingleEntity(new DeviceId(deviceId));
+            String filterJson = String.format("""
+                    {"type":"singleEntity","singleEntity":{"entityType":"DEVICE","id":"%s"}}
+                    """, deviceId);
 
             when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(1L);
 
-            String result = tools.countBySingleEntityFilter(filter, null);
+            String result = tools.countBySingleEntityFilter(filterJson, null);
 
             verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
             EntityCountQuery query = entityCountQueryCaptor.getValue();
@@ -369,16 +359,15 @@ public class EntityQueryToolsTest {
         @DisplayName("Should count single entity with key filters")
         void testCountBySingleEntityFilter_withFilters() {
             UUID deviceId = UUID.randomUUID();
-            SingleEntityFilter filter = new SingleEntityFilter();
-            filter.setSingleEntity(new DeviceId(deviceId));
+            String filterJson = String.format("""
+                    {"type":"singleEntity","singleEntity":{"entityType":"DEVICE","id":"%s"}}
+                    """, deviceId);
 
-            List<KeyFilter> keyFilters = List.of(
-                    createNumericTemperatureKeyTelemetryFilter(25.0)
-            );
+            String keyFiltersJson = "[{\"keyType\":\"TIME_SERIES\",\"key\":\"temperature\",\"valueType\":\"NUMERIC\",\"predicateType\":\"NUMERIC\",\"operation\":\"GREATER\",\"defaultValue\":25.0}]";
 
             when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(1L);
 
-            String result = tools.countBySingleEntityFilter(filter, keyFilters);
+            String result = tools.countBySingleEntityFilter(filterJson, keyFiltersJson);
 
             verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
             EntityCountQuery query = entityCountQueryCaptor.getValue();
@@ -401,7 +390,7 @@ public class EntityQueryToolsTest {
 
             when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(157L);
 
-            String result = tools.countByEntityTypeFilter(filter, null);
+            String result = tools.countByEntityTypeFilter(JacksonUtil.toString(filter), null);
 
             verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
             EntityCountQuery query = entityCountQueryCaptor.getValue();
@@ -416,13 +405,11 @@ public class EntityQueryToolsTest {
             EntityTypeFilter filter = new EntityTypeFilter();
             filter.setEntityType(EntityType.DEVICE);
 
-            List<KeyFilter> keyFilters = List.of(
-                    createNumericTemperatureKeyTelemetryFilter(30.0)
-            );
+            String keyFiltersJson = "[{\"keyType\":\"TIME_SERIES\",\"key\":\"temperature\",\"valueType\":\"NUMERIC\",\"predicateType\":\"NUMERIC\",\"operation\":\"GREATER\",\"defaultValue\":30.0}]";
 
             when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(23L);
 
-            String result = tools.countByEntityTypeFilter(filter, keyFilters);
+            String result = tools.countByEntityTypeFilter(JacksonUtil.toString(filter), keyFiltersJson);
 
             verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
             EntityCountQuery query = entityCountQueryCaptor.getValue();
@@ -445,7 +432,7 @@ public class EntityQueryToolsTest {
 
             when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(45L);
 
-            String result = tools.countByDeviceTypeFilter(filter, null);
+            String result = tools.countByDeviceTypeFilter(JacksonUtil.toString(filter), null);
 
             verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
             EntityCountQuery query = entityCountQueryCaptor.getValue();
@@ -460,14 +447,11 @@ public class EntityQueryToolsTest {
             DeviceTypeFilter filter = new DeviceTypeFilter();
             filter.setDeviceTypes(List.of("Temperature Sensor"));
 
-            List<KeyFilter> keyFilters = List.of(
-                    createNumericTemperatureKeyTelemetryFilter(30.0),
-                    createBooleanActiveKeyAttributeFilter()
-            );
+            String keyFiltersJson = "[{\"keyType\":\"TIME_SERIES\",\"key\":\"temperature\",\"valueType\":\"NUMERIC\",\"predicateType\":\"NUMERIC\",\"operation\":\"GREATER\",\"defaultValue\":30.0},{\"keyType\":\"ATTRIBUTE\",\"key\":\"active\",\"valueType\":\"BOOLEAN\",\"predicateType\":\"BOOLEAN\",\"operation\":\"EQUAL\",\"defaultValue\":true}]";
 
             when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(7L);
 
-            String result = tools.countByDeviceTypeFilter(filter, keyFilters);
+            String result = tools.countByDeviceTypeFilter(JacksonUtil.toString(filter), keyFiltersJson);
 
             verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
             EntityCountQuery query = entityCountQueryCaptor.getValue();
@@ -486,17 +470,13 @@ public class EntityQueryToolsTest {
         @DisplayName("Should count related entities")
         void testCountByRelationsQueryFilter() {
             UUID assetId = UUID.randomUUID();
-            RelationsQueryFilter filter = new RelationsQueryFilter();
-            filter.setRootEntity(new AssetId(assetId));
-            filter.setDirection(EntitySearchDirection.FROM);
-
-            EntityRelationsQuery relationsQuery = new EntityRelationsQuery();
-            relationsQuery.setFilters(List.of(new RelationEntityTypeFilter()));
-            filter.setFilters(relationsQuery.getFilters());
+            String filterJson = String.format("""
+                    {"type":"relationsQuery","rootEntity":{"entityType":"ASSET","id":"%s"},"direction":"FROM","maxLevel":1,"filters":[]}
+                    """, assetId);
 
             when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(12L);
 
-            String result = tools.countByRelationsQueryFilter(filter, null);
+            String result = tools.countByRelationsQueryFilter(filterJson, null);
 
             verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
             EntityCountQuery query = entityCountQueryCaptor.getValue();
@@ -519,7 +499,7 @@ public class EntityQueryToolsTest {
 
             when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(8L);
 
-            String result = tools.countByAssetTypeFilter(filter, null);
+            String result = tools.countByAssetTypeFilter(JacksonUtil.toString(filter), null);
 
             verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
             assertThat(entityCountQueryCaptor.getValue().getEntityFilter()).isInstanceOf(AssetTypeFilter.class);
@@ -534,7 +514,7 @@ public class EntityQueryToolsTest {
 
             when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(3L);
 
-            String result = tools.countByEdgeTypeFilter(filter, null);
+            String result = tools.countByEdgeTypeFilter(JacksonUtil.toString(filter), null);
 
             verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
             assertThat(entityCountQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EdgeTypeFilter.class);
@@ -549,7 +529,7 @@ public class EntityQueryToolsTest {
 
             when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(5L);
 
-            String result = tools.countByEntityViewTypeFilter(filter, null);
+            String result = tools.countByEntityViewTypeFilter(JacksonUtil.toString(filter), null);
 
             verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
             assertThat(entityCountQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EntityViewTypeFilter.class);
@@ -571,7 +551,7 @@ public class EntityQueryToolsTest {
 
             when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(34L);
 
-            String result = tools.countByEntityNameFilter(filter, null);
+            String result = tools.countByEntityNameFilter(JacksonUtil.toString(filter), null);
 
             verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
             EntityCountQuery query = entityCountQueryCaptor.getValue();
@@ -599,7 +579,7 @@ public class EntityQueryToolsTest {
 
             when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(2L);
 
-            String result = tools.countByEntityListFilter(filter, null);
+            String result = tools.countByEntityListFilter(JacksonUtil.toString(filter), null);
 
             verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
             EntityCountQuery query = entityCountQueryCaptor.getValue();
@@ -608,6 +588,485 @@ public class EntityQueryToolsTest {
             assertThat(result).contains("2");
         }
 
+    }
+
+    @Nested
+    @DisplayName("Entity Data Query - Entity Group Filter")
+    class EntityGroupFilterTests {
+
+        @Test
+        @DisplayName("Should find entity data by entity group filter")
+        void testFindEntityDataByEntityGroupFilter() throws ThingsboardException {
+            UUID groupId = UUID.randomUUID();
+            String filterJson = String.format("""
+                    {"type":"entityGroup","groupType":"DEVICE","entityGroup":"%s"}
+                    """, groupId);
+
+            PageData<EntityData> pageData = createMockPageData();
+            when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
+
+            String result = tools.findEntityDataByEntityGroupFilter(
+                    filterJson, null, null, null,
+                    "10", "0", null, null, null, null
+            );
+
+            verify(restClient).findEntityDataByQuery(entityDataQueryCaptor.capture());
+            assertThat(entityDataQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EntityGroupFilter.class);
+            assertThat(result).isNotNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("Entity Count Query - Entity Group Filter")
+    class CountByEntityGroupFilterTests {
+
+        @Test
+        @DisplayName("Should count entities by group filter")
+        void testCountByEntityGroupFilter() {
+            UUID groupId = UUID.randomUUID();
+            String filterJson = String.format("""
+                    {"type":"entityGroup","groupType":"DEVICE","entityGroup":"%s"}
+                    """, groupId);
+
+            when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(15L);
+
+            String result = tools.countByEntityGroupFilter(filterJson, null);
+
+            verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
+            assertThat(entityCountQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EntityGroupFilter.class);
+            assertThat(result).contains("15");
+        }
+    }
+
+    @Nested
+    @DisplayName("Entity Data Query - Entity List Filter")
+    class EntityListFilterTests {
+
+        @Test
+        @DisplayName("Should find entity data by entity list filter")
+        void testFindEntityDataByEntityListFilter() throws ThingsboardException {
+            EntityListFilter filter = new EntityListFilter();
+            filter.setEntityType(EntityType.DEVICE);
+            filter.setEntityList(List.of(UUID.randomUUID().toString(), UUID.randomUUID().toString()));
+
+            PageData<EntityData> pageData = createMockPageData();
+            when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
+
+            String result = tools.findEntityDataByEntityListFilter(
+                    JacksonUtil.toString(filter), null, null, null,
+                    "10", "0", null, null, null, null
+            );
+
+            verify(restClient).findEntityDataByQuery(entityDataQueryCaptor.capture());
+            assertThat(entityDataQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EntityListFilter.class);
+            assertThat(result).isNotNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("Entity Data Query - Entity Group List Filter")
+    class EntityGroupListFilterTests {
+
+        @Test
+        @DisplayName("Should find entity data by entity group list filter")
+        void testFindEntityDataByEntityGroupListFilter() throws ThingsboardException {
+            UUID group1 = UUID.randomUUID();
+            UUID group2 = UUID.randomUUID();
+            String filterJson = String.format("""
+                    {"type":"entityGroupList","groupType":"DEVICE","entityGroupList":["%s","%s"]}
+                    """, group1, group2);
+
+            PageData<EntityData> pageData = createMockPageData();
+            when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
+
+            String result = tools.findEntityDataByEntityGroupListFilter(
+                    filterJson, null, null, null,
+                    "10", "0", null, null, null, null
+            );
+
+            verify(restClient).findEntityDataByQuery(entityDataQueryCaptor.capture());
+            assertThat(entityDataQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EntityGroupListFilter.class);
+            assertThat(result).isNotNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("Entity Count Query - Entity Group List Filter")
+    class CountByEntityGroupListFilterTests {
+
+        @Test
+        @DisplayName("Should count entities by group list filter")
+        void testCountByEntityGroupListFilter() {
+            UUID group1 = UUID.randomUUID();
+            UUID group2 = UUID.randomUUID();
+            String filterJson = String.format("""
+                    {"type":"entityGroupList","groupType":"DEVICE","entityGroupList":["%s","%s"]}
+                    """, group1, group2);
+
+            when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(25L);
+
+            String result = tools.countByEntityGroupListFilter(filterJson, null);
+
+            verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
+            assertThat(entityCountQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EntityGroupListFilter.class);
+            assertThat(result).contains("25");
+        }
+    }
+
+    @Nested
+    @DisplayName("Entity Data Query - Entity Group Name Filter")
+    class EntityGroupNameFilterTests {
+
+        @Test
+        @DisplayName("Should find entity data by entity group name filter")
+        void testFindEntityDataByEntityGroupNameFilter() throws ThingsboardException {
+            String filterJson = """
+                    {"type":"entityGroupName","groupType":"DEVICE","entityGroupNameFilter":"Sensors"}
+                    """;
+
+            PageData<EntityData> pageData = createMockPageData();
+            when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
+
+            String result = tools.findEntityDataByEntityGroupNameFilter(
+                    filterJson, null, null, null,
+                    "10", "0", null, null, null, null
+            );
+
+            verify(restClient).findEntityDataByQuery(entityDataQueryCaptor.capture());
+            assertThat(entityDataQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EntityGroupNameFilter.class);
+            assertThat(result).isNotNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("Entity Count Query - Entity Group Name Filter")
+    class CountByEntityGroupNameFilterTests {
+
+        @Test
+        @DisplayName("Should count entities by group name filter")
+        void testCountByEntityGroupNameFilter() {
+            String filterJson = """
+                    {"type":"entityGroupName","groupType":"DEVICE","entityGroupNameFilter":"Sensors"}
+                    """;
+
+            when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(18L);
+
+            String result = tools.countByEntityGroupNameFilter(filterJson, null);
+
+            verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
+            assertThat(entityCountQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EntityGroupNameFilter.class);
+            assertThat(result).contains("18");
+        }
+    }
+
+    @Nested
+    @DisplayName("Entity Data Query - Entities By Group Name Filter")
+    class EntitiesByGroupNameFilterTests {
+
+        @Test
+        @DisplayName("Should find entity data by entities group name filter")
+        void testFindEntityDataByEntitiesGroupNameFilter() throws ThingsboardException {
+            String filterJson = """
+                    {"type":"entitiesByGroupName","groupType":"DEVICE","entityGroupNameFilter":"Water Meters"}
+                    """;
+
+            PageData<EntityData> pageData = createMockPageData();
+            when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
+
+            String result = tools.findEntityDataByEntitiesGroupNameFilter(
+                    filterJson, null, null, null,
+                    "10", "0", null, null, null, null
+            );
+
+            verify(restClient).findEntityDataByQuery(entityDataQueryCaptor.capture());
+            assertThat(entityDataQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EntitiesByGroupNameFilter.class);
+            assertThat(result).isNotNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("Entity Count Query - Entities By Group Name Filter")
+    class CountByEntitiesGroupNameFilterTests {
+
+        @Test
+        @DisplayName("Should count entities by entities group name filter")
+        void testCountByEntitiesGroupNameFilter() {
+            String filterJson = """
+                    {"type":"entitiesByGroupName","groupType":"DEVICE","entityGroupNameFilter":"Water Meters"}
+                    """;
+
+            when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(42L);
+
+            String result = tools.countByEntitiesGroupNameFilter(filterJson, null);
+
+            verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
+            assertThat(entityCountQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EntitiesByGroupNameFilter.class);
+            assertThat(result).contains("42");
+        }
+    }
+
+    @Nested
+    @DisplayName("Entity Data Query - State Entity Owner Filter")
+    class StateEntityOwnerFilterTests {
+
+        @Test
+        @DisplayName("Should find entity data by state entity owner filter")
+        void testFindEntityDataByStateEntityOwnerFilter() throws ThingsboardException {
+            UUID deviceId = UUID.randomUUID();
+            String filterJson = String.format("""
+                    {"type":"stateEntityOwner","singleEntity":{"id":"%s","entityType":"DEVICE"}}
+                    """, deviceId);
+
+            PageData<EntityData> pageData = createMockPageData();
+            when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
+
+            String result = tools.findEntityDataByStateEntityOwnerFilter(
+                    filterJson, null, null, null,
+                    "10", "0", null, null, null, null
+            );
+
+            verify(restClient).findEntityDataByQuery(entityDataQueryCaptor.capture());
+            assertThat(entityDataQueryCaptor.getValue().getEntityFilter()).isInstanceOf(StateEntityOwnerFilter.class);
+            assertThat(result).isNotNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("Entity Data Query - API Usage State Filter")
+    class ApiUsageStateFilterTests {
+
+        @Test
+        @DisplayName("Should find entity data by API usage state filter")
+        void testFindEntityDataByApiUsageStateFilter() throws ThingsboardException {
+            String filterJson = """
+                    {"type":"apiUsageState"}
+                    """;
+
+            PageData<EntityData> pageData = createMockPageData();
+            when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
+
+            String result = tools.findEntityDataByApiUsageStateFilter(
+                    filterJson, null, null, null,
+                    "10", "0", null, null, null, null
+            );
+
+            verify(restClient).findEntityDataByQuery(entityDataQueryCaptor.capture());
+            assertThat(entityDataQueryCaptor.getValue().getEntityFilter()).isInstanceOf(ApiUsageStateFilter.class);
+            assertThat(result).isNotNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("Entity Count Query - API Usage State Filter")
+    class CountByApiUsageStateFilterTests {
+
+        @Test
+        @DisplayName("Should count by API usage state filter")
+        void testCountByApiUsageStateFilter() {
+            String filterJson = """
+                    {"type":"apiUsageState"}
+                    """;
+
+            when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(1L);
+
+            String result = tools.countByApiUsageStateFilter(filterJson, null);
+
+            verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
+            assertThat(entityCountQueryCaptor.getValue().getEntityFilter()).isInstanceOf(ApiUsageStateFilter.class);
+            assertThat(result).contains("1");
+        }
+    }
+
+    @Nested
+    @DisplayName("Entity Data Query - Asset Search Query Filter")
+    class AssetSearchQueryFilterTests {
+
+        @Test
+        @DisplayName("Should find entity data by asset search query filter")
+        void testFindEntityDataByAssetSearchQueryFilter() throws ThingsboardException {
+            UUID assetId = UUID.randomUUID();
+            String filterJson = String.format("""
+                    {"type":"assetSearchQuery","rootEntity":{"entityType":"ASSET","id":"%s"},"direction":"FROM","maxLevel":1,"relationType":"Contains","assetTypes":["Building"]}
+                    """, assetId);
+
+            PageData<EntityData> pageData = createMockPageData();
+            when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
+
+            String result = tools.findEntityDataByAssetSearchQueryFilter(
+                    filterJson, null, null, null,
+                    "10", "0", null, null, null, null
+            );
+
+            verify(restClient).findEntityDataByQuery(entityDataQueryCaptor.capture());
+            assertThat(entityDataQueryCaptor.getValue().getEntityFilter()).isInstanceOf(AssetSearchQueryFilter.class);
+            assertThat(result).isNotNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("Entity Count Query - Asset Search Query Filter")
+    class CountByAssetSearchQueryFilterTests {
+
+        @Test
+        @DisplayName("Should count by asset search query filter")
+        void testCountByAssetSearchQueryFilter() {
+            UUID assetId = UUID.randomUUID();
+            String filterJson = String.format("""
+                    {"type":"assetSearchQuery","rootEntity":{"entityType":"ASSET","id":"%s"},"direction":"FROM","maxLevel":1,"relationType":"Contains","assetTypes":["Building"]}
+                    """, assetId);
+
+            when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(6L);
+
+            String result = tools.countByAssetSearchQueryFilter(filterJson, null);
+
+            verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
+            assertThat(entityCountQueryCaptor.getValue().getEntityFilter()).isInstanceOf(AssetSearchQueryFilter.class);
+            assertThat(result).contains("6");
+        }
+    }
+
+    @Nested
+    @DisplayName("Entity Data Query - Device Search Query Filter")
+    class DeviceSearchQueryFilterTests {
+
+        @Test
+        @DisplayName("Should find entity data by device search query filter")
+        void testFindEntityDataByDeviceSearchQueryFilter() throws ThingsboardException {
+            UUID assetId = UUID.randomUUID();
+            String filterJson = String.format("""
+                    {"type":"deviceSearchQuery","rootEntity":{"entityType":"ASSET","id":"%s"},"direction":"FROM","maxLevel":2,"relationType":"Contains","deviceTypes":["Sensor"]}
+                    """, assetId);
+
+            PageData<EntityData> pageData = createMockPageData();
+            when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
+
+            String result = tools.findEntityDataByDeviceSearchQueryFilter(
+                    filterJson, null, null, null,
+                    "10", "0", null, null, null, null
+            );
+
+            verify(restClient).findEntityDataByQuery(entityDataQueryCaptor.capture());
+            assertThat(entityDataQueryCaptor.getValue().getEntityFilter()).isInstanceOf(DeviceSearchQueryFilter.class);
+            assertThat(result).isNotNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("Entity Count Query - Device Search Query Filter")
+    class CountByDeviceSearchQueryFilterTests {
+
+        @Test
+        @DisplayName("Should count by device search query filter")
+        void testCountByDeviceSearchQueryFilter() {
+            UUID assetId = UUID.randomUUID();
+            String filterJson = String.format("""
+                    {"type":"deviceSearchQuery","rootEntity":{"entityType":"ASSET","id":"%s"},"direction":"FROM","maxLevel":2,"relationType":"Contains","deviceTypes":["Sensor"]}
+                    """, assetId);
+
+            when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(14L);
+
+            String result = tools.countByDeviceSearchQueryFilter(filterJson, null);
+
+            verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
+            assertThat(entityCountQueryCaptor.getValue().getEntityFilter()).isInstanceOf(DeviceSearchQueryFilter.class);
+            assertThat(result).contains("14");
+        }
+    }
+
+    @Nested
+    @DisplayName("Entity Data Query - Entity View Search Query Filter")
+    class EntityViewSearchQueryFilterTests {
+
+        @Test
+        @DisplayName("Should find entity data by entity view search query filter")
+        void testFindEntityDataByEntityViewSearchQueryFilter() throws ThingsboardException {
+            UUID assetId = UUID.randomUUID();
+            String filterJson = String.format("""
+                    {"type":"entityViewSearchQuery","rootEntity":{"entityType":"ASSET","id":"%s"},"direction":"FROM","maxLevel":1,"relationType":"Contains","entityViewTypes":["Monitor"]}
+                    """, assetId);
+
+            PageData<EntityData> pageData = createMockPageData();
+            when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
+
+            String result = tools.findEntityDataByEntityViewSearchQueryFilter(
+                    filterJson, null, null, null,
+                    "10", "0", null, null, null, null
+            );
+
+            verify(restClient).findEntityDataByQuery(entityDataQueryCaptor.capture());
+            assertThat(entityDataQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EntityViewSearchQueryFilter.class);
+            assertThat(result).isNotNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("Entity Count Query - Entity View Search Query Filter")
+    class CountByEntityViewSearchQueryFilterTests {
+
+        @Test
+        @DisplayName("Should count by entity view search query filter")
+        void testCountByEntityViewSearchQueryFilter() {
+            UUID assetId = UUID.randomUUID();
+            String filterJson = String.format("""
+                    {"type":"entityViewSearchQuery","rootEntity":{"entityType":"ASSET","id":"%s"},"direction":"FROM","maxLevel":1,"relationType":"Contains","entityViewTypes":["Monitor"]}
+                    """, assetId);
+
+            when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(4L);
+
+            String result = tools.countByEntityViewSearchQueryFilter(filterJson, null);
+
+            verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
+            assertThat(entityCountQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EntityViewSearchQueryFilter.class);
+            assertThat(result).contains("4");
+        }
+    }
+
+    @Nested
+    @DisplayName("Entity Data Query - Edge Search Query Filter")
+    class EdgeSearchQueryFilterTests {
+
+        @Test
+        @DisplayName("Should find entity data by edge search query filter")
+        void testFindEntityDataByEdgeQueryFilter() throws ThingsboardException {
+            UUID assetId = UUID.randomUUID();
+            String filterJson = String.format("""
+                    {"type":"edgeSearchQuery","rootEntity":{"entityType":"ASSET","id":"%s"},"direction":"FROM","maxLevel":2,"relationType":"Contains","edgeTypes":["Gateway"]}
+                    """, assetId);
+
+            PageData<EntityData> pageData = createMockPageData();
+            when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
+
+            String result = tools.findEntityDataByEdgeQueryFilter(
+                    filterJson, null, null, null,
+                    "10", "0", null, null, null, null
+            );
+
+            verify(restClient).findEntityDataByQuery(entityDataQueryCaptor.capture());
+            assertThat(entityDataQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EdgeSearchQueryFilter.class);
+            assertThat(result).isNotNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("Entity Count Query - Edge Search Query Filter")
+    class CountByEdgeSearchQueryFilterTests {
+
+        @Test
+        @DisplayName("Should count by edge search query filter")
+        void testCountByEdgeQueryFilter() {
+            UUID assetId = UUID.randomUUID();
+            String filterJson = String.format("""
+                    {"type":"edgeSearchQuery","rootEntity":{"entityType":"ASSET","id":"%s"},"direction":"FROM","maxLevel":2,"relationType":"Contains","edgeTypes":["Gateway"]}
+                    """, assetId);
+
+            when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(2L);
+
+            String result = tools.countByEdgeQueryFilter(filterJson, null);
+
+            verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
+            assertThat(entityCountQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EdgeSearchQueryFilter.class);
+            assertThat(result).contains("2");
+        }
     }
 
     private PageData<EntityData> createMockPageData() {
@@ -662,36 +1121,6 @@ public class EntityQueryToolsTest {
             data.add(ed);
         }
         return new PageData<>(data, 1, 3, false);
-    }
-
-    private KeyFilter createNumericTemperatureKeyTelemetryFilter(double threshold) {
-        KeyFilter filter = new KeyFilter();
-        filter.setKey(new EntityKey(EntityKeyType.TIME_SERIES, "temperature"));
-        filter.setValueType(EntityKeyValueType.NUMERIC);
-
-        NumericFilterPredicate predicate = new NumericFilterPredicate();
-        predicate.setOperation(NumericFilterPredicate.NumericOperation.GREATER);
-
-        FilterPredicateValue<Double> value = new FilterPredicateValue<>(threshold);
-        predicate.setValue(value);
-
-        filter.setPredicate(predicate);
-        return filter;
-    }
-
-    private KeyFilter createBooleanActiveKeyAttributeFilter() {
-        KeyFilter filter = new KeyFilter();
-        filter.setKey(new EntityKey(EntityKeyType.ATTRIBUTE, "active"));
-        filter.setValueType(EntityKeyValueType.BOOLEAN);
-
-        BooleanFilterPredicate predicate = new BooleanFilterPredicate();
-        predicate.setOperation(BooleanFilterPredicate.BooleanOperation.EQUAL);
-
-        FilterPredicateValue<Boolean> predicateValue = new FilterPredicateValue<>(true);
-        predicate.setValue(predicateValue);
-
-        filter.setPredicate(predicate);
-        return filter;
     }
 
 }

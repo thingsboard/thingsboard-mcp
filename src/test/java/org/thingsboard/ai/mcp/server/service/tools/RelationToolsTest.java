@@ -90,31 +90,6 @@ public class RelationToolsTest {
     }
 
     @Test
-    void testFindByFrom_common() {
-        when(clientService.getClient()).thenReturn(restClient);
-
-        UUID fromUuid = UUID.randomUUID();
-
-        List<EntityRelation> relations = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            relations.add(new EntityRelation());
-        }
-        when(restClient.findByFrom(any(EntityId.class), eq(RelationTypeGroup.COMMON))).thenReturn(relations);
-
-        String result = tools.findByFrom(fromUuid.toString(), "ASSET", null);
-
-        ArgumentCaptor<EntityId> entityCap = ArgumentCaptor.forClass(EntityId.class);
-        ArgumentCaptor<RelationTypeGroup> groupCap = ArgumentCaptor.forClass(RelationTypeGroup.class);
-        verify(restClient).findByFrom(entityCap.capture(), groupCap.capture());
-
-        assertThat(entityCap.getValue().getEntityType().name()).isEqualTo("ASSET");
-        assertThat(entityCap.getValue().getId()).isEqualTo(fromUuid);
-        assertThat(groupCap.getValue()).isEqualTo(RelationTypeGroup.COMMON);
-
-        assertThat(result).isEqualTo(JacksonUtil.toString(relations));
-    }
-
-    @Test
     void testFindInfoByFrom_alarmGroup() {
         when(clientService.getClient()).thenReturn(restClient);
 
@@ -161,31 +136,6 @@ public class RelationToolsTest {
         assertThat(entityCap.getValue().getEntityType().name()).isEqualTo("TENANT");
         assertThat(entityCap.getValue().getId()).isEqualTo(fromUuid);
         assertThat(typeCap.getValue()).isEqualTo("Owns");
-        assertThat(groupCap.getValue()).isEqualTo(RelationTypeGroup.COMMON);
-
-        assertThat(result).isEqualTo(JacksonUtil.toString(relations));
-    }
-
-    @Test
-    void testFindByTo_common() {
-        when(clientService.getClient()).thenReturn(restClient);
-
-        UUID toUuid = UUID.randomUUID();
-
-        List<EntityRelation> relations = new ArrayList<>();
-        for (int i = 0; i < 4; i++) {
-            relations.add(new EntityRelation());
-        }
-        when(restClient.findByTo(any(EntityId.class), eq(RelationTypeGroup.COMMON))).thenReturn(relations);
-
-        String result = tools.findByTo(toUuid.toString(), "CUSTOMER", null);
-
-        ArgumentCaptor<EntityId> entityCap = ArgumentCaptor.forClass(EntityId.class);
-        ArgumentCaptor<RelationTypeGroup> groupCap = ArgumentCaptor.forClass(RelationTypeGroup.class);
-        verify(restClient).findByTo(entityCap.capture(), groupCap.capture());
-
-        assertThat(entityCap.getValue().getEntityType().name()).isEqualTo("CUSTOMER");
-        assertThat(entityCap.getValue().getId()).isEqualTo(toUuid);
         assertThat(groupCap.getValue()).isEqualTo(RelationTypeGroup.COMMON);
 
         assertThat(result).isEqualTo(JacksonUtil.toString(relations));

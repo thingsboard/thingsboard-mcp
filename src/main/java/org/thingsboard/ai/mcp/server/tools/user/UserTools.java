@@ -9,6 +9,7 @@ import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
 import org.thingsboard.ai.mcp.server.annotation.PeOnly;
+import org.thingsboard.ai.mcp.server.annotation.ToolGroup;
 import org.thingsboard.ai.mcp.server.data.ThingsBoardEdition;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.McpTools;
@@ -33,54 +34,33 @@ import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.CUSTOME
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ENTITY_GROUP_IDS_CREATE_PARAM_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ENTITY_GROUP_ID_CREATE_PARAM_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ENTITY_GROUP_ID_PARAM_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.PAGE_DATA_PARAMETERS;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.PAGE_NUMBER_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.PAGE_SIZE_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.PE_ONLY_AVAILABLE;
-import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.RBAC_GROUP_READ_CHECK;
-import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.RBAC_READ_CHECK;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.SORT_ORDER_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.SORT_PROPERTY_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.TENANT_AUTHORITY_PARAGRAPH;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.TENANT_ID_PARAM_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.USER_ID_PARAM_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.util.ToolUtils.createPageLink;
 
 @Service
 @RequiredArgsConstructor
+@ToolGroup("user")
 public class UserTools implements McpTools {
 
-    private static final String USER_JSON_EXAMPLE =
-            """
-                    ```json
-                    {
-                      "id": { "entityType": "USER", "id": "784f394c-42b6-435a-983c-b7beff2784f9" },
-                      "email": "user@example.com",
-                      "authority": "TENANT_ADMIN",
-                      "firstName": "John",
-                      "lastName": "Doe",
-                      "phone": "38012345123",
-                      "customMenuId": { "id": "784f394c-42b6-435a-983c-b7beff2784f9" },
-                      "additionalInfo": {}
-                    }
-                    ```""";
+    private static final String USER_JSON_EXAMPLE = """
+            {
+              "email": "user@example.com",
+              "authority": "TENANT_ADMIN",
+              "firstName": "John",
+              "lastName": "Doe"
+            }""";
 
     private final RestClientService clientService;
 
-    @Tool(description =
-            "Create or update a User. Remove 'id', 'tenantId' and 'customerId' from the request body to create a new User. " +
-                    "If 'id' is provided, the existing User is updated. \n" +
-
-                    "### Required fields:\n" +
-                    "- **email** (unique per tenant)\n" +
-                    "- **authority**: one of SYS_ADMIN, TENANT_ADMIN, CUSTOMER_USER\n\n" +
-
-                    "### Platform Edition:\n" +
-                    "- In ThingsBoard PE, you can also attach the User to an entity group using the `entityGroupId` parameter or to multiple groups using `entityGroupIds`.\n" +
-                    TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
+    @Tool(description = "Use this to create or update a user. Omit 'id' to create; include 'id' to update. Required: 'email' (unique per tenant), 'authority' (SYS_ADMIN|TENANT_ADMIN|CUSTOMER_USER). PE: use 'entityGroupId'/'entityGroupIds' for groups.")
     public String saveUser(
-            @ToolParam(description = "A JSON string representing the User entity. Omit 'id' to create a new User; include 'id' to update an existing one. " + USER_JSON_EXAMPLE)
+            @ToolParam(description = "JSON user object. Omit 'id' to create; include 'id' to update. " + USER_JSON_EXAMPLE)
             @NotBlank @Valid String userJson,
             @ToolParam(required = false, description = "Send activation email (or use activation link)")
             Boolean sendActivationEmail,
@@ -99,7 +79,7 @@ public class UserTools implements McpTools {
         }
     }
 
-    @Tool(description = "Delete the user. Referencing non-existing User Id will cause an error. " + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
+    @Tool(description = "Use this to permanently delete a user by id.")
     public String deleteUser(@ToolParam(description = USER_ID_PARAM_DESCRIPTION) @NotBlank @Valid String userIdStr) {
         try {
             UserId userId = new UserId(UUID.fromString(userIdStr));
@@ -114,15 +94,12 @@ public class UserTools implements McpTools {
         }
     }
 
-    @Tool(description = "Fetch the User object based on the provided User Id. " +
-            "If the user has the authority of 'SYS_ADMIN', the server does not perform additional checks. " +
-            "If the user has the authority of 'TENANT_ADMIN', the server checks that the requested user is owned by the same tenant. " +
-            "If the user has the authority of 'CUSTOMER_USER', the server checks that the requested user is owned by the same customer. ")
+    @Tool(description = "Use this to get a user by id.")
     public String getUserById(@ToolParam(description = USER_ID_PARAM_DESCRIPTION) String userId) {
         return JacksonUtil.toString(clientService.getClient().getUserById(new UserId(UUID.fromString(userId))));
     }
 
-    @Tool(description = "Returns a page of users owned by tenant or customer. The scope depends on authority of the user that performs the request. " + PAGE_DATA_PARAMETERS + TENANT_AUTHORITY_PARAGRAPH)
+    @Tool(description = "Use this to get a paginated list of users. Scope depends on caller's authority.")
     public String getUsers(
             @ToolParam(required = false, description = PAGE_SIZE_DESCRIPTION) @Positive String pageSize,
             @ToolParam(required = false, description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero String page,
@@ -133,7 +110,7 @@ public class UserTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().getUsers(pageLink));
     }
 
-    @Tool(description = "Returns a page of tenant administrator users assigned to the specified tenant. " + PAGE_DATA_PARAMETERS + TENANT_AUTHORITY_PARAGRAPH)
+    @Tool(description = "Use this to get a paginated list of tenant administrator users for a specified tenant.")
     public String getTenantAdmins(
             @ToolParam(description = TENANT_ID_PARAM_DESCRIPTION) @NotBlank String tenantId,
             @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive String pageSize,
@@ -145,8 +122,7 @@ public class UserTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().getTenantAdmins(TenantId.fromUUID(UUID.fromString(tenantId)), pageLink));
     }
 
-    @Tool(description = "Returns a page of users assigned to the specified customer. " +
-            PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
+    @Tool(description = "Use this to get a paginated list of users assigned to a specific customer.")
     public String getCustomerUsers(
             @ToolParam(description = CUSTOMER_ID_PARAM_DESCRIPTION) @NotBlank String customerId,
             @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive String pageSize,
@@ -159,8 +135,7 @@ public class UserTools implements McpTools {
     }
 
     @PeOnly
-    @Tool(description = "Returns a page of users for the current tenant with authority 'CUSTOMER_USER'. " + PE_ONLY_AVAILABLE +
-            PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH + RBAC_READ_CHECK)
+    @Tool(description = "Use this to get a paginated list of all customer users for the current tenant. PE only.")
     public String getAllCustomerUsers(
             @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive String pageSize,
             @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero String page,
@@ -174,8 +149,7 @@ public class UserTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().getAllCustomerUsers(pageLink));
     }
 
-    @Tool(description = "Returns page of user data objects that can be assigned to provided alarmId. Search is been executed by email, firstName and lastName fields. " +
-            PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
+    @Tool(description = "Use this to get users that can be assigned to a specific alarm. Searches by email, firstName, lastName.")
     public String getUsersForAssign(
             @ToolParam(description = ALARM_ID_PARAM_DESCRIPTION) @NotBlank String alarmId,
             @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive String pageSize,
@@ -188,7 +162,7 @@ public class UserTools implements McpTools {
     }
 
     @PeOnly
-    @Tool(description = "Returns a page of user objects that belongs to specified Entity Group Id. " + PE_ONLY_AVAILABLE + PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH + RBAC_GROUP_READ_CHECK)
+    @Tool(description = "Use this to get a paginated list of users in a specific entity group. PE only.")
     public String getUsersByEntityGroupId(
             @ToolParam(description = ENTITY_GROUP_ID_PARAM_DESCRIPTION) @NotBlank String entityGroupId,
             @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive String pageSize,

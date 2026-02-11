@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
   <springProperty scope="context" name="CONSOLE_LOG_PATTERN" source="logging.pattern.console"
-                  defaultValue="%d{yyyy-MM-dd HH:mm:ss} | %-5level | %logger{1.} | %msg%n"/>
+                  defaultValue="%d{yyyy-MM-dd HH:mm:ss} | %-5level | %logger{1} | %msg%n"/>
   <springProperty scope="context" name="ROOT_LOG_LEVEL" source="logging.level.root" defaultValue="INFO"/>
 
   <property name="CONSOLE_TARGET" value="${LOGGING_CONSOLE_TARGET:-System.err}"/>

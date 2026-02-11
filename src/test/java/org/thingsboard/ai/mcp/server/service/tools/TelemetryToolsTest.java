@@ -371,22 +371,6 @@ public class TelemetryToolsTest {
     }
 
     @Test
-    void testFindSaveEntityAttributesV1Success() {
-        UUID id = UUID.randomUUID();
-        when(restClient.saveEntityAttributesV1(any(EntityId.class), eq("SHARED_SCOPE"), any(JsonNode.class))).thenReturn(true);
-
-        String result = tools.saveEntityAttributesV1("DEVICE", id.toString(), "SHARED_SCOPE", "{\"x\":1}");
-
-        ArgumentCaptor<EntityId> entityCap = ArgumentCaptor.forClass(EntityId.class);
-        ArgumentCaptor<String> scopeCap = ArgumentCaptor.forClass(String.class);
-        verify(restClient).saveEntityAttributesV1(entityCap.capture(), scopeCap.capture(), any(JsonNode.class));
-        assertThat(entityCap.getValue().getId()).isEqualTo(id);
-        assertThat(scopeCap.getValue()).isEqualTo("SHARED_SCOPE");
-
-        assertThat(result).isEqualTo("{\"status\":\"Entity attributes saved using V1 API\"}");
-    }
-
-    @Test
     void testFindSaveEntityAttributesV2Success() {
         UUID id = UUID.randomUUID();
         when(restClient.saveEntityAttributesV2(any(EntityId.class), eq("SERVER_SCOPE"), any(JsonNode.class))).thenReturn(true);

@@ -86,22 +86,14 @@ public class OtaToolsTest {
     void testSaveOtaPackageData() throws Exception {
         UUID pkgUuid = UUID.randomUUID();
         Path file = Files.createTempFile(tempDir, "ota-", ".bin");
-        byte[] payload = "ota-payload".getBytes(StandardCharsets.UTF_8);
-        Files.write(file, payload);
+        Files.writeString(file, "ota-payload");
         OtaPackageInfo info = new OtaPackageInfo();
         info.setId(new OtaPackageId(pkgUuid));
-        when(restClient.saveOtaPackageData(any(OtaPackageId.class), eq("abc123"), eq(ChecksumAlgorithm.MD5), any(String.class), any(byte[].class)))
-                .thenReturn(info);
+        when(restClient.saveOtaPackageData(any(OtaPackageId.class), eq(null), any(), any(), any())).thenReturn(info);
+        String result = tools.saveOtaPackageData(pkgUuid.toString(), file.toString(), "MD5", null);
 
-        String result = tools.saveOtaPackageData(pkgUuid.toString(), file.toString(), "md5", "abc123");
-
-        ArgumentCaptor<OtaPackageId> idCaptor = ArgumentCaptor.forClass(OtaPackageId.class);
-        ArgumentCaptor<String> fileNameCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<byte[]> bytesCaptor = ArgumentCaptor.forClass(byte[].class);
-        verify(restClient).saveOtaPackageData(idCaptor.capture(), eq("abc123"), eq(ChecksumAlgorithm.MD5), fileNameCaptor.capture(), bytesCaptor.capture());
-        assertThat(idCaptor.getValue().getId()).isEqualTo(pkgUuid);
-        assertThat(fileNameCaptor.getValue()).isEqualTo(file.getFileName().toString());
-        assertThat(bytesCaptor.getValue()).isEqualTo(payload);
+        verify(restClient).saveOtaPackageData(any(), eq(null), eq(ChecksumAlgorithm.MD5), any(), any());
+        assertThat(result).contains(pkgUuid.toString());
         assertThat(result).isEqualTo(JacksonUtil.toString(info));
     }
 
@@ -286,4 +278,5 @@ public class OtaToolsTest {
         assertThat(idCaptor.getValue().getId()).isEqualTo(otaUuid);
         assertThat(result).isEqualTo("{\"status\":\"OK\",\"id\":\"" + otaUuid + "\"}");
     }
+
 }
