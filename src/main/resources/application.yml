@@ -51,12 +51,13 @@ logging:
     io.modelcontextprotocol.server.McpAsyncServer: "${LOG_LEVEL_MCP_ASYNC:error}"
     io.modelcontextprotocol.server.McpSyncServer: "${LOG_LEVEL_MCP_SYNC:info}"
     io.modelcontextprotocol.spec: "${LOG_LEVEL_MCP_SPEC:info}"
+    io.modelcontextprotocol.util.KeepAliveScheduler: "${LOG_LEVEL_KEEP_ALIVE:error}"
     org.springframework.ai.mcp: "${LOG_LEVEL_SPRING_AI_MCP:info}"
     org.thingsboard.ai.mcp.server: "${LOG_LEVEL_APP:info}"
     org.thingsboard.ai.mcp.server.tools: "${LOG_LEVEL_TOOLS:info}"
     org.thingsboard.ai.mcp.server.util.ToolResponse: "${LOG_LEVEL_TOOL_RESPONSE:info}"
   pattern:
-    console: "${LOGGING_PATTERN_CONSOLE:%d{yyyy-MM-dd HH:mm:ss} | %-5level | %logger{1} | %msg%n}"
+    console: "${LOGGING_PATTERN_CONSOLE:%d{yyyy-MM-dd HH:mm:ss} | %-5level | %logger{1} | %msg%n}" # Do NOT set to empty string — Logback will fail. Use LOG_LEVEL_APP=error to suppress logs in STDIO mode.
 
 # ThingsBoard auth parameters
 thingsboard:

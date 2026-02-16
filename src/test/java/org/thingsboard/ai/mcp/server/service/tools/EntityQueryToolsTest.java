@@ -18,21 +18,21 @@ import org.thingsboard.server.common.data.EntityType;
 import org.thingsboard.server.common.data.exception.ThingsboardException;
 import org.thingsboard.server.common.data.id.DeviceId;
 import org.thingsboard.server.common.data.page.PageData;
+import org.thingsboard.server.common.data.query.ApiUsageStateFilter;
+import org.thingsboard.server.common.data.query.AssetSearchQueryFilter;
 import org.thingsboard.server.common.data.query.AssetTypeFilter;
+import org.thingsboard.server.common.data.query.DeviceSearchQueryFilter;
 import org.thingsboard.server.common.data.query.DeviceTypeFilter;
+import org.thingsboard.server.common.data.query.EdgeSearchQueryFilter;
 import org.thingsboard.server.common.data.query.EdgeTypeFilter;
+import org.thingsboard.server.common.data.query.EntitiesByGroupNameFilter;
 import org.thingsboard.server.common.data.query.EntityCountQuery;
 import org.thingsboard.server.common.data.query.EntityData;
 import org.thingsboard.server.common.data.query.EntityDataQuery;
-import org.thingsboard.server.common.data.query.EntityKeyType;
-import org.thingsboard.server.common.data.query.ApiUsageStateFilter;
-import org.thingsboard.server.common.data.query.AssetSearchQueryFilter;
-import org.thingsboard.server.common.data.query.DeviceSearchQueryFilter;
-import org.thingsboard.server.common.data.query.EdgeSearchQueryFilter;
-import org.thingsboard.server.common.data.query.EntitiesByGroupNameFilter;
 import org.thingsboard.server.common.data.query.EntityGroupFilter;
 import org.thingsboard.server.common.data.query.EntityGroupListFilter;
 import org.thingsboard.server.common.data.query.EntityGroupNameFilter;
+import org.thingsboard.server.common.data.query.EntityKeyType;
 import org.thingsboard.server.common.data.query.EntityListFilter;
 import org.thingsboard.server.common.data.query.EntityNameFilter;
 import org.thingsboard.server.common.data.query.EntityTypeFilter;
@@ -614,6 +614,7 @@ public class EntityQueryToolsTest {
             assertThat(entityDataQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EntityGroupFilter.class);
             assertThat(result).isNotNull();
         }
+
     }
 
     @Nested
@@ -636,6 +637,7 @@ public class EntityQueryToolsTest {
             assertThat(entityCountQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EntityGroupFilter.class);
             assertThat(result).contains("15");
         }
+
     }
 
     @Nested
@@ -661,6 +663,7 @@ public class EntityQueryToolsTest {
             assertThat(entityDataQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EntityListFilter.class);
             assertThat(result).isNotNull();
         }
+
     }
 
     @Nested
@@ -688,6 +691,7 @@ public class EntityQueryToolsTest {
             assertThat(entityDataQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EntityGroupListFilter.class);
             assertThat(result).isNotNull();
         }
+
     }
 
     @Nested
@@ -711,6 +715,7 @@ public class EntityQueryToolsTest {
             assertThat(entityCountQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EntityGroupListFilter.class);
             assertThat(result).contains("25");
         }
+
     }
 
     @Nested
@@ -736,6 +741,7 @@ public class EntityQueryToolsTest {
             assertThat(entityDataQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EntityGroupNameFilter.class);
             assertThat(result).isNotNull();
         }
+
     }
 
     @Nested
@@ -757,6 +763,7 @@ public class EntityQueryToolsTest {
             assertThat(entityCountQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EntityGroupNameFilter.class);
             assertThat(result).contains("18");
         }
+
     }
 
     @Nested
@@ -782,6 +789,7 @@ public class EntityQueryToolsTest {
             assertThat(entityDataQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EntitiesByGroupNameFilter.class);
             assertThat(result).isNotNull();
         }
+
     }
 
     @Nested
@@ -803,6 +811,7 @@ public class EntityQueryToolsTest {
             assertThat(entityCountQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EntitiesByGroupNameFilter.class);
             assertThat(result).contains("42");
         }
+
     }
 
     @Nested
@@ -829,6 +838,7 @@ public class EntityQueryToolsTest {
             assertThat(entityDataQueryCaptor.getValue().getEntityFilter()).isInstanceOf(StateEntityOwnerFilter.class);
             assertThat(result).isNotNull();
         }
+
     }
 
     @Nested
@@ -854,6 +864,7 @@ public class EntityQueryToolsTest {
             assertThat(entityDataQueryCaptor.getValue().getEntityFilter()).isInstanceOf(ApiUsageStateFilter.class);
             assertThat(result).isNotNull();
         }
+
     }
 
     @Nested
@@ -875,6 +886,7 @@ public class EntityQueryToolsTest {
             assertThat(entityCountQueryCaptor.getValue().getEntityFilter()).isInstanceOf(ApiUsageStateFilter.class);
             assertThat(result).contains("1");
         }
+
     }
 
     @Nested
@@ -901,6 +913,7 @@ public class EntityQueryToolsTest {
             assertThat(entityDataQueryCaptor.getValue().getEntityFilter()).isInstanceOf(AssetSearchQueryFilter.class);
             assertThat(result).isNotNull();
         }
+
     }
 
     @Nested
@@ -923,6 +936,7 @@ public class EntityQueryToolsTest {
             assertThat(entityCountQueryCaptor.getValue().getEntityFilter()).isInstanceOf(AssetSearchQueryFilter.class);
             assertThat(result).contains("6");
         }
+
     }
 
     @Nested
@@ -949,6 +963,7 @@ public class EntityQueryToolsTest {
             assertThat(entityDataQueryCaptor.getValue().getEntityFilter()).isInstanceOf(DeviceSearchQueryFilter.class);
             assertThat(result).isNotNull();
         }
+
     }
 
     @Nested
@@ -971,6 +986,7 @@ public class EntityQueryToolsTest {
             assertThat(entityCountQueryCaptor.getValue().getEntityFilter()).isInstanceOf(DeviceSearchQueryFilter.class);
             assertThat(result).contains("14");
         }
+
     }
 
     @Nested
@@ -997,6 +1013,7 @@ public class EntityQueryToolsTest {
             assertThat(entityDataQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EntityViewSearchQueryFilter.class);
             assertThat(result).isNotNull();
         }
+
     }
 
     @Nested
@@ -1019,6 +1036,7 @@ public class EntityQueryToolsTest {
             assertThat(entityCountQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EntityViewSearchQueryFilter.class);
             assertThat(result).contains("4");
         }
+
     }
 
     @Nested
@@ -1045,6 +1063,7 @@ public class EntityQueryToolsTest {
             assertThat(entityDataQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EdgeSearchQueryFilter.class);
             assertThat(result).isNotNull();
         }
+
     }
 
     @Nested
@@ -1067,6 +1086,7 @@ public class EntityQueryToolsTest {
             assertThat(entityCountQueryCaptor.getValue().getEntityFilter()).isInstanceOf(EdgeSearchQueryFilter.class);
             assertThat(result).contains("2");
         }
+
     }
 
     private PageData<EntityData> createMockPageData() {
@@ -1099,6 +1119,117 @@ public class EntityQueryToolsTest {
             data.add(ed);
         }
         return new PageData<>(data, 1, 3, false);
+    }
+
+    @Nested
+    @DisplayName("Canonical (nested) KeyFilter format support")
+    class CanonicalKeyFilterFormatTests {
+
+        @Test
+        @DisplayName("Should accept canonical nested key filter format")
+        void testCanonicalNestedFormat() throws ThingsboardException {
+            UUID deviceId = UUID.randomUUID();
+            String filterJson = String.format("""
+                    {"type":"singleEntity","singleEntity":{"entityType":"DEVICE","id":"%s"}}
+                    """, deviceId);
+
+            String keyFiltersJson = """
+                    [{"key":{"type":"TIME_SERIES","key":"temperature"},"valueType":"NUMERIC","predicate":{"operation":"GREATER","value":{"defaultValue":25.0},"type":"NUMERIC"}}]
+                    """;
+
+            PageData<EntityData> pageData = createMockPageData();
+            when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
+
+            String result = tools.findEntityDataBySingleEntityFilter(
+                    filterJson, keyFiltersJson, null, null,
+                    "10", "0", null, null, null, null
+            );
+
+            verify(restClient).findEntityDataByQuery(entityDataQueryCaptor.capture());
+            EntityDataQuery query = entityDataQueryCaptor.getValue();
+
+            assertThat(query.getKeyFilters()).hasSize(1);
+            assertThat(query.getKeyFilters().get(0).getKey().getType()).isEqualTo(EntityKeyType.TIME_SERIES);
+            assertThat(query.getKeyFilters().get(0).getKey().getKey()).isEqualTo("temperature");
+            assertThat(result).isNotNull();
+        }
+
+        @Test
+        @DisplayName("Should accept canonical format with complex predicate")
+        void testCanonicalComplexPredicate() throws ThingsboardException {
+            UUID deviceId = UUID.randomUUID();
+            String filterJson = String.format("""
+                    {"type":"singleEntity","singleEntity":{"entityType":"DEVICE","id":"%s"}}
+                    """, deviceId);
+
+            String keyFiltersJson = """
+                    [{"key":{"type":"TIME_SERIES","key":"temperature"},"valueType":"NUMERIC","predicate":{"type":"COMPLEX","operation":"OR","predicates":[{"operation":"LESS","value":{"defaultValue":10},"type":"NUMERIC"},{"operation":"GREATER","value":{"defaultValue":30},"type":"NUMERIC"}]}}]
+                    """;
+
+            PageData<EntityData> pageData = createMockPageData();
+            when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
+
+            String result = tools.findEntityDataBySingleEntityFilter(
+                    filterJson, keyFiltersJson, null, null,
+                    "10", "0", null, null, null, null
+            );
+
+            verify(restClient).findEntityDataByQuery(entityDataQueryCaptor.capture());
+            EntityDataQuery query = entityDataQueryCaptor.getValue();
+
+            assertThat(query.getKeyFilters()).hasSize(1);
+            assertThat(query.getKeyFilters().get(0).getKey().getKey()).isEqualTo("temperature");
+            assertThat(result).isNotNull();
+        }
+
+        @Test
+        @DisplayName("Should accept canonical format with multiple filters")
+        void testCanonicalMultipleFilters() {
+            DeviceTypeFilter filter = new DeviceTypeFilter();
+            filter.setDeviceTypes(List.of("Temperature Sensor"));
+
+            String keyFiltersJson = """
+                    [{"key":{"type":"TIME_SERIES","key":"temperature"},"valueType":"NUMERIC","predicate":{"operation":"GREATER","value":{"defaultValue":30.0},"type":"NUMERIC"}},{"key":{"type":"ATTRIBUTE","key":"active"},"valueType":"BOOLEAN","predicate":{"operation":"EQUAL","value":{"defaultValue":true},"type":"BOOLEAN"}}]
+                    """;
+
+            when(restClient.countEntitiesByQuery(any(EntityCountQuery.class))).thenReturn(7L);
+
+            String result = tools.countByDeviceTypeFilter(JacksonUtil.toString(filter), keyFiltersJson);
+
+            verify(restClient).countEntitiesByQuery(entityCountQueryCaptor.capture());
+            EntityCountQuery query = entityCountQueryCaptor.getValue();
+
+            assertThat(query.getKeyFilters()).hasSize(2);
+            assertThat(result).contains("7");
+        }
+
+        @Test
+        @DisplayName("Should accept canonical format with dynamic values")
+        void testCanonicalDynamicValues() throws ThingsboardException {
+            UUID deviceId = UUID.randomUUID();
+            String filterJson = String.format("""
+                    {"type":"singleEntity","singleEntity":{"entityType":"DEVICE","id":"%s"}}
+                    """, deviceId);
+
+            String keyFiltersJson = """
+                    [{"key":{"type":"TIME_SERIES","key":"temperature"},"valueType":"NUMERIC","predicate":{"operation":"GREATER","value":{"defaultValue":20,"dynamicValue":{"sourceType":"CURRENT_TENANT","sourceAttribute":"tempThreshold","inherit":false}},"type":"NUMERIC"}}]
+                    """;
+
+            PageData<EntityData> pageData = createMockPageData();
+            when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
+
+            String result = tools.findEntityDataBySingleEntityFilter(
+                    filterJson, keyFiltersJson, null, null,
+                    "10", "0", null, null, null, null
+            );
+
+            verify(restClient).findEntityDataByQuery(entityDataQueryCaptor.capture());
+            EntityDataQuery query = entityDataQueryCaptor.getValue();
+
+            assertThat(query.getKeyFilters()).hasSize(1);
+            assertThat(result).isNotNull();
+        }
+
     }
 
     private PageData<EntityData> createMockPageDataWithTelemetry(List<String> telemetryKeys) {

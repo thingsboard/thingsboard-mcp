@@ -1,6 +1,10 @@
 package org.thingsboard.ai.mcp.server.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.thingsboard.ai.mcp.server.data.KeyFilterInput;
 import org.thingsboard.common.util.JacksonUtil;
 import org.thingsboard.common.util.RegexUtils;
@@ -158,11 +162,104 @@ public class ToolUtils {
         if (isNullOrBlank(keyFiltersJson)) {
             return null;
         }
-        List<KeyFilterInput> inputs = JacksonUtil.fromString(keyFiltersJson, new TypeReference<>() {});
+        String normalizedJson = normalizeKeyFiltersFormat(keyFiltersJson);
+        List<KeyFilterInput> inputs = JacksonUtil.fromString(normalizedJson, new TypeReference<>() {});
         if (inputs == null || inputs.isEmpty()) {
             return null;
         }
         return inputs.stream().map(KeyFilterInput::toKeyFilter).toList();
+    }
+
+    private static String normalizeKeyFiltersFormat(String json) {
+        try {
+            JsonNode arrayNode = JacksonUtil.toJsonNode(json);
+            if (arrayNode == null || !arrayNode.isArray() || arrayNode.isEmpty()) {
+                return json;
+            }
+            JsonNode first = arrayNode.get(0);
+            if (!first.has("key") || !first.get("key").isObject()) {
+                return json;
+            }
+            ObjectMapper mapper = new ObjectMapper();
+            ArrayNode result = mapper.createArrayNode();
+            for (JsonNode node : arrayNode) {
+                result.add(convertCanonicalFilter(node, mapper));
+            }
+            return result.toString();
+        } catch (Exception e) {
+            return json;
+        }
+    }
+
+    private static ObjectNode convertCanonicalFilter(JsonNode node, ObjectMapper mapper) {
+        ObjectNode flat = mapper.createObjectNode();
+
+        JsonNode keyNode = node.get("key");
+        if (keyNode != null && keyNode.isObject()) {
+            flat.put("keyType", keyNode.path("type").asText());
+            flat.put("key", keyNode.path("key").asText());
+        }
+
+        if (node.has("valueType")) {
+            flat.put("valueType", node.get("valueType").asText());
+        }
+
+        JsonNode predicate = node.get("predicate");
+        if (predicate != null) {
+            convertPredicate(predicate, flat, mapper);
+        }
+
+        return flat;
+    }
+
+    private static void convertPredicate(JsonNode predicate, ObjectNode flat, ObjectMapper mapper) {
+        String predicateType = predicate.path("type").asText(null);
+        if (predicateType != null) {
+            flat.put("predicateType", predicateType);
+        }
+
+        if ("COMPLEX".equals(predicateType)) {
+            if (predicate.has("operation")) {
+                flat.put("complexOperation", predicate.get("operation").asText());
+            }
+            if (predicate.has("predicates") && predicate.get("predicates").isArray()) {
+                ArrayNode nestedArray = mapper.createArrayNode();
+                for (JsonNode nestedPred : predicate.get("predicates")) {
+                    ObjectNode nestedFlat = mapper.createObjectNode();
+                    convertPredicate(nestedPred, nestedFlat, mapper);
+                    nestedArray.add(nestedFlat);
+                }
+                flat.set("nestedPredicates", nestedArray);
+            }
+        } else {
+            if (predicate.has("operation")) {
+                flat.put("operation", predicate.get("operation").asText());
+            }
+            JsonNode value = predicate.get("value");
+            if (value != null) {
+                if (value.has("defaultValue") && !value.get("defaultValue").isNull()) {
+                    flat.set("defaultValue", value.get("defaultValue"));
+                }
+                if (value.has("userValue") && !value.get("userValue").isNull()) {
+                    flat.set("userValue", value.get("userValue"));
+                }
+                JsonNode dynVal = value.get("dynamicValue");
+                if (dynVal != null && !dynVal.isNull()) {
+                    if (dynVal.has("sourceType")) {
+                        flat.put("dynamicValueSourceType", dynVal.get("sourceType").asText());
+                    }
+                    if (dynVal.has("sourceAttribute")) {
+                        flat.put("dynamicValueSourceAttribute", dynVal.get("sourceAttribute").asText());
+                    }
+                    if (dynVal.has("inherit")) {
+                        flat.put("dynamicValueInherit", dynVal.get("inherit").asBoolean());
+                    }
+                }
+            }
+            if (predicate.has("ignoreCase")) {
+                flat.put("ignoreCase", predicate.get("ignoreCase").asBoolean());
+            }
+        }
     }
 
     public static List<EntityKey> parseEntityKeys(String entityKeysJson) {
