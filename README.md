@@ -274,6 +274,7 @@ The MCP server requires the following environment variables to connect to your T
 | `SPRING_AI_MCP_SERVER_SSE_ENDPOINT`         | Server-Sent Events (SSE) endpoint URL             | /sse         |
 | `SPRING_AI_MCP_SERVER_SSE_MESSAGE_ENDPOINT` | Server-Sent Events message endpoint URL           | /mcp/message |
 | `LOGGING_PATTERN_CONSOLE`                   | Logback console log pattern (must not be empty)   | `%d{yyyy-MM-dd HH:mm:ss} \| %-5level \| %logger{1} \| %msg%n` |
+| `LOGGING_CONSOLE_TARGET`                    | Log output target (`System.err` or `System.out`)  | System.err   |
 | `HTTP_BIND_PORT`                            | HTTP server port number                           | 8000         |
 
 **Authentication**: Since ThingsBoard 4.3, we recommend using API keys instead of username/password. Create an API key in ThingsBoard UI under your user profile.
