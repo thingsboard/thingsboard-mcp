@@ -5,17 +5,19 @@
 
     <groupId>org.thingsboard</groupId>
     <artifactId>thingsboard-mcp-server</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
     <name>ThingsBoard MCP server</name>
     <description>MCP server for ThingsBoard platform</description>
 
     <properties>
-        <spring-boot.version>3.4.8</spring-boot.version>
-        <spring.ai.version>1.0.1</spring.ai.version>
-        <thingsboard.version>4.0.0PE</thingsboard.version>
+        <spring-boot.version>3.4.10</spring-boot.version>
+        <spring.ai.version>1.1.2</spring.ai.version>
+        <thingsboard.version>4.3.0PE</thingsboard.version>
         <lombok.version>1.18.32</lombok.version>
         <auth0-jwt.version>4.4.0</auth0-jwt.version>
         <surefire.version>3.2.5</surefire.version>
+        <json-schema-validator.version>2.0.0</json-schema-validator.version>
+        <commons-lang3.version>3.18.0</commons-lang3.version> <!-- to fix CVE-2025-48924. TODO: remove when fixed in spring-boot-dependencies -->
     </properties>
 
     <dependencyManagement>
@@ -43,6 +45,12 @@
                 <groupId>org.thingsboard.common</groupId>
                 <artifactId>util</artifactId>
                 <version>${thingsboard.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.networknt</groupId>
+                        <artifactId>json-schema-validator</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>
@@ -53,6 +61,16 @@
                 <groupId>com.auth0</groupId>
                 <artifactId>java-jwt</artifactId>
                 <version>${auth0-jwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.networknt</groupId>
+                <artifactId>json-schema-validator</artifactId>
+                <version>${json-schema-validator.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>

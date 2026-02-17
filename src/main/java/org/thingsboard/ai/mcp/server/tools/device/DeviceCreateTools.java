@@ -5,20 +5,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
+import org.thingsboard.ai.mcp.server.annotation.ToolGroup;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.McpTools;
 import org.thingsboard.common.util.JacksonUtil;
 import org.thingsboard.server.common.data.Customer;
 import org.thingsboard.server.common.data.Device;
-import org.thingsboard.server.common.data.id.DeviceProfileId;
-import org.thingsboard.server.common.data.id.CustomerId;
-import org.thingsboard.server.common.data.id.DeviceId;
-import org.thingsboard.server.common.data.id.EntityGroupId;
-import org.thingsboard.server.common.data.id.EntityId;
 import org.thingsboard.server.common.data.EntityType;
-import org.thingsboard.server.common.data.page.PageLink;
 import org.thingsboard.server.common.data.group.EntityGroupInfo;
-import org.thingsboard.server.common.data.id.TenantId;
+import org.thingsboard.server.common.data.id.CustomerId;
+import org.thingsboard.server.common.data.id.DeviceProfileId;
+import org.thingsboard.server.common.data.id.EntityGroupId;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,24 +23,15 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@ToolGroup("device")
 public class DeviceCreateTools implements McpTools {
 
     private final RestClientService clientService;
 
-    /**
-     * Create (or upsert) a device and optionally:
-     *  - assign to customer (by ID or title),
-     *  - attach to a device group (entity group) by ID or name.
-     *
-     * Notes:
-     *  - Idempotent by device 'name': if the device exists, we return that device without error.
-     *  - If both groupId and groupName are provided, groupId wins.
-     *  - If both customerId and customerTitle are provided, customerId wins.
-     */
-    @Tool(description = "Create a device if it doesn't exist, optionally assign to a customer and add to a DEVICE group. " +
-            "Params: name (required), type (optional), label (optional), deviceProfileId (optional UUID), " +
-            "customerId or customerTitle (optional), groupId or groupName (optional, DEVICE group). " +
-            "Returns a JSON summary with created/existed flag and IDs.")
+    @Tool(description = "Use this to create or update a device by name. Primary tool for 90% of device tasks. " +
+            "Handles name-to-ID lookups for customers and groups automatically. " +
+            "Best for: creating devices, assigning to customers by title, adding to groups by name, updating label/type. " +
+            "For nested 'deviceData', firmware, or transport settings, use 'saveDevice' instead.")
     public String createOrUpsertDevice(
             @ToolParam(description = "Device name (unique per tenant).") @NotBlank String name,
             @ToolParam(required = false, description = "Device type (string).") String type,
@@ -57,7 +45,7 @@ public class DeviceCreateTools implements McpTools {
         var client = clientService.getClient();
 
         try {
-            Optional<Device> existingOpt = client.getTenantDevice(name);  
+            Optional<Device> existingOpt = client.getTenantDevice(name);
             Device device;
             boolean created;
 
@@ -78,12 +66,11 @@ public class DeviceCreateTools implements McpTools {
                 if (customerId != null && !customerId.isBlank()) {
                     device.setCustomerId(new CustomerId(UUID.fromString(customerId)));
                 } else if (customerTitle != null && !customerTitle.isBlank()) {
-
                     var cust = client.getTenantCustomer(customerTitle).orElseGet(() -> {
                         Customer c = new Customer();
                         c.setTitle(customerTitle);
                         return client.saveCustomer(c);
-                    }); 
+                    });
                     device.setCustomerId(cust.getId());
                 }
 
@@ -94,7 +81,7 @@ public class DeviceCreateTools implements McpTools {
             if ((groupId != null && !groupId.isBlank()) || (groupName != null && !groupName.isBlank())) {
                 EntityGroupId egId = resolveDeviceGroupId(groupId, groupName);
                 if (egId != null) {
-                    client.addEntitiesToEntityGroup(egId, List.of(device.getId())); 
+                    client.addEntitiesToEntityGroup(egId, List.of(device.getId()));
                 }
             }
 
@@ -124,17 +111,14 @@ public class DeviceCreateTools implements McpTools {
                 return new EntityGroupId(UUID.fromString(groupId));
             }
             if (groupName != null && !groupName.isBlank()) {
-
-                var groups = client.getEntityGroupsByType(EntityType.DEVICE);  
-                if (groups != null) {
-                    for (EntityGroupInfo info : groups) {
-                        if (groupName.equals(info.getName())) {
-                            return info.getId();
-                        }
-                    }
-                }
+                return client.getEntityGroupsByType(EntityType.DEVICE).stream()
+                        .filter(g -> groupName.equalsIgnoreCase(g.getName()))
+                        .map(EntityGroupInfo::getId)
+                        .findFirst()
+                        .orElse(null);
             }
         } catch (Exception ignored) {}
         return null;
     }
+
 }

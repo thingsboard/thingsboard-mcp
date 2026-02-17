@@ -61,21 +61,6 @@ public class AlarmToolsTest {
     }
 
     @Test
-    void testFindAlarmById() {
-        UUID alarmId = UUID.randomUUID();
-        Alarm alarm = createAlarm(alarmId, new DeviceId(UUID.randomUUID()));
-        when(restClient.getAlarmById(any(AlarmId.class))).thenReturn(Optional.of(alarm));
-
-        String result = tools.getAlarmById(alarmId.toString());
-
-        ArgumentCaptor<AlarmId> idCap = ArgumentCaptor.forClass(AlarmId.class);
-        verify(restClient).getAlarmById(idCap.capture());
-        assertThat(idCap.getValue().getId()).isEqualTo(alarmId);
-
-        assertThat(result).isEqualTo(JacksonUtil.toString(alarm));
-    }
-
-    @Test
     void testFindInfoAlarmById() {
         UUID alarmId = UUID.randomUUID();
         AlarmInfo alarmInfo = createAlarmInfo(alarmId, new DeviceId(UUID.randomUUID()));

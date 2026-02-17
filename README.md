@@ -21,6 +21,7 @@
     - [Binary Configuration](#binary-configuration)
     - [Docker Configuration](#docker-configuration)
 - [Environment Variables](#environment-variables)
+- [Tool Groups Configuration](#tool-groups-configuration)
 - [Available Tools](#available-tools)
     - [Device Tools](#device-tools)
     - [Asset Tools](#asset-tools)
@@ -75,7 +76,7 @@ Before you begin, ensure you have the following:
     - **ThingsBoard Cloud**: Fully managed cloud service at [thingsboard.cloud](https://thingsboard.cloud), or
     - **EU ThingsBoard Cloud**: Fully managed cloud service at [eu.thingsboard.cloud](https://eu.thingsboard.cloud), or
     - **ThingsBoard Edge instance** [up and running](https://thingsboard.io/docs/user-guide/install/edge/installation-options/)
-- **Authentication credentials** - Valid username and password with appropriate permissions on the ThingsBoard instance
+- **Authentication credentials** - An API key (recommended for ThingsBoard 4.3+) or username/password with appropriate permissions
 
 ## Quick Start Guide
 
@@ -112,7 +113,8 @@ Create, upload, list, download, and delete OTA packages for device firmware/soft
 
 ### Entity Data Query
 
-Run complex queries over platform entities (devices, assets, customers, etc.) and retrieve their data (fields, attributes, telemetry) in a structured, paginated format.
+Run complex queries over platform entities (devices, assets, customers, etc.) and retrieve their data (fields, attributes, telemetry) in a structured,
+paginated format.
 
 ## Installation
 
@@ -125,7 +127,7 @@ Before installing the MCP server, ensure you have:
 
 1. Access to a ThingsBoard or Edge instance
 2. A user account with sufficient permissions
-3. The username and password for this account
+3. An API key (ThingsBoard 4.3+) or the username and password for this account
 
 ### Docker Image
 
@@ -144,7 +146,7 @@ For STDIO Mode, you must include the `-i` flag to keep stdin open:
 
 ```bash
 docker pull thingsboard/mcp
-docker run --rm -i -e THINGSBOARD_URL=<your_thingsboard_url> -e THINGSBOARD_USERNAME=<your_username> -e THINGSBOARD_PASSWORD=<your_password> thingsboard/mcp
+docker run --rm -i -e THINGSBOARD_URL=<your_thingsboard_url> -e THINGSBOARD_API_KEY=<your_api_key> thingsboard/mcp
 ```
 
 #### Running in SSE Mode
@@ -153,7 +155,7 @@ In SSE Mode, you must expose port 8000 using the `-p` flag and explicitly overri
 
 ```bash
 docker pull thingsboard/mcp
-docker run --rm -p 8000:8000 -e THINGSBOARD_URL=<your_thingsboard_url> -e THINGSBOARD_USERNAME=<your_username> -e THINGSBOARD_PASSWORD=<your_password> -e SPRING_AI_MCP_SERVER_STDIO=false -e SPRING_WEB_APPLICATION_TYPE=servlet thingsboard/mcp
+docker run --rm -p 8000:8000 -e THINGSBOARD_URL=<your_thingsboard_url> -e THINGSBOARD_API_KEY=<your_api_key> -e SPRING_AI_MCP_SERVER_STDIO=false -e SPRING_WEB_APPLICATION_TYPE=servlet thingsboard/mcp
 ```
 
 ### Download release binary
@@ -162,7 +164,7 @@ Alternatively, you can download the release binary (JAR file) and use it with th
 Run the following command to download the binary to your PC:
 
 ```bash
-wget https://github.com/thingsboard/thingsboard-mcp/releases/download/v2.0.0/thingsboard-mcp-server-2.0.0.jar
+wget https://github.com/thingsboard/thingsboard-mcp/releases/download/v2.1.0/thingsboard-mcp-server-2.1.0.jar
 ```
 
 ### Build from Sources
@@ -186,24 +188,25 @@ mvn clean install -DskipTests
 3. The JAR file will be available in the target folder:
 
 ```bash
-./target/thingsboard-mcp-server-2.0.0.jar
+./target/thingsboard-mcp-server-2.1.0.jar
 ```
 
 4. Run the server using the JAR file:
 
 ```bash
 # For STDIO Mode
-java -jar ./target/thingsboard-mcp-server-2.0.0.jar
+java -jar ./target/thingsboard-mcp-server-2.1.0.jar
 ```
 
 ```bash
 # For SSE Mode
-java -Dspring.ai.mcp.server.stdio=false Dspring.main.web-application-type=servlet -jar ./target/thingsboard-mcp-server-2.0.0.jar
+java -Dspring.ai.mcp.server.stdio=false -Dspring.main.web-application-type=servlet -jar ./target/thingsboard-mcp-server-2.1.0.jar
 ```
 
 ## Client Configuration
 
-To launch the server as a container when your MCP client starts (e.g., Claude Desktop), you need to add the appropriate configuration to your client's settings.
+To launch the server as a container when your MCP client starts (e.g., Claude Desktop), you need to add the appropriate configuration to your client's
+settings.
 
 ### Docker Configuration
 
@@ -221,18 +224,12 @@ If you're using the Docker image, use this configuration in your `claude_desktop
                 "-e",
                 "THINGSBOARD_URL",
                 "-e",
-                "THINGSBOARD_USERNAME",
-                "-e",
-                "THINGSBOARD_PASSWORD",
-                "-e",
-                "LOGGING_PATTERN_CONSOLE",
+                "THINGSBOARD_API_KEY",
                 "thingsboard/mcp"
             ],
             "env": {
                 "THINGSBOARD_URL": "<thingsboard_url>",
-                "THINGSBOARD_USERNAME": "<thingsboard_username>",
-                "THINGSBOARD_PASSWORD": "<thingsboard_password>",
-                "LOGGING_PATTERN_CONSOLE": ""
+                "THINGSBOARD_API_KEY": "<your_api_key>"
             }
         }
     }
@@ -250,13 +247,11 @@ If you've built the JAR file from sources, use this configuration in your `claud
             "command": "java",
             "args": [
                 "-jar",
-                "/absolute/path/to/thingsboard-mcp-server-2.0.0.jar"
+                "/absolute/path/to/thingsboard-mcp-server-2.1.0.jar"
             ],
             "env": {
                 "THINGSBOARD_URL": "<thingsboard_url>",
-                "THINGSBOARD_USERNAME": "<thingsboard_username>",
-                "THINGSBOARD_PASSWORD": "<thingsboard_password>",
-                "LOGGING_PATTERN_CONSOLE": ""
+                "THINGSBOARD_API_KEY": "<your_api_key>"
             }
         }
     }
@@ -267,23 +262,70 @@ If you've built the JAR file from sources, use this configuration in your `claud
 
 The MCP server requires the following environment variables to connect to your ThingsBoard instance:
 
-| Variable                                    | Description                                    | Default      |
-|---------------------------------------------|------------------------------------------------|--------------|
-| `THINGSBOARD_URL`                           | The base URL of your ThingsBoard instance      |              |
-| `THINGSBOARD_USERNAME`                      | Username used to authenticate with ThingsBoard |              |
-| `THINGSBOARD_PASSWORD`                      | Password used to authenticate with ThingsBoard |              |
-| `THINGSBOARD_LOGIN_INTERVAL_SECONDS`        | Login session refresh interval in seconds      | 1800         |
-| `SPRING_WEB_APPLICATION_TYPE`               | Spring application type (none or servlet)      | none         |
-| `SPRING_AI_MCP_SERVER_STDIO`                | Enable/disable standard I/O communication      | true         |
-| `SPRING_AI_MCP_SERVER_SSE_ENDPOINT`         | Server-Sent Events (SSE) endpoint URL          | /sse         |
-| `SPRING_AI_MCP_SERVER_SSE_MESSAGE_ENDPOINT` | Server-Sent Events message endpoint URL        | /mcp/message |
-| `LOGGING_PATTERN_CONSOLE`                   | Logback console log pattern                    |              |
-| `SERVER_PORT`                               | HTTP server port number                        | 8080         |
+| Variable                                    | Description                                       | Default      |
+|---------------------------------------------|---------------------------------------------------|--------------|
+| `THINGSBOARD_URL`                           | The base URL of your ThingsBoard instance         |              |
+| `THINGSBOARD_API_KEY`                       | API key for authentication (recommended for 4.3+) |              |
+| `THINGSBOARD_USERNAME`                      | Username for authentication (legacy)              |              |
+| `THINGSBOARD_PASSWORD`                      | Password for authentication (legacy)              |              |
+| `THINGSBOARD_LOGIN_INTERVAL_SECONDS`        | Login session refresh interval in seconds         | 1800         |
+| `SPRING_WEB_APPLICATION_TYPE`               | Spring application type (none or servlet)         | none         |
+| `SPRING_AI_MCP_SERVER_STDIO`                | Enable/disable standard I/O communication         | true         |
+| `SPRING_AI_MCP_SERVER_SSE_ENDPOINT`         | Server-Sent Events (SSE) endpoint URL             | /sse         |
+| `SPRING_AI_MCP_SERVER_SSE_MESSAGE_ENDPOINT` | Server-Sent Events message endpoint URL           | /mcp/message |
+| `LOGGING_PATTERN_CONSOLE`                   | Logback console log pattern (must not be empty)   | `%d{yyyy-MM-dd HH:mm:ss} \| %-5level \| %logger{1} \| %msg%n` |
+| `HTTP_BIND_PORT`                            | HTTP server port number                           | 8000         |
+
+**Authentication**: Since ThingsBoard 4.3, we recommend using API keys instead of username/password. Create an API key in ThingsBoard UI under your user profile.
 
 These variables can be set either:
 
 - Directly via Docker command line using the `-e` flag
 - Or through the `env` configuration block in your MCP client setup
+
+## Tool Groups Configuration
+
+The MCP server provides **120+ tools** which may exceed context limits for some MCP clients (e.g., Claude Desktop). You can disable entire tool groups to reduce the tool count and context size.
+
+### Tool Group Environment Variables
+
+| Variable                    | Description                                      | Default | Tools |
+|-----------------------------|--------------------------------------------------|---------|-------|
+| `THINGSBOARD_TOOLS_EDQ`     | Entity Data Query tools + Guide tools            | true    | 40    |
+| `THINGSBOARD_TOOLS_TELEMETRY` | Telemetry and attributes tools                 | true    | 11    |
+| `THINGSBOARD_TOOLS_DEVICE`  | Device management tools                          | true    | 11    |
+| `THINGSBOARD_TOOLS_ASSET`   | Asset management tools                           | true    | 8     |
+| `THINGSBOARD_TOOLS_ALARM`   | Alarm management tools                           | true    | 9     |
+| `THINGSBOARD_TOOLS_OTA`     | OTA package management tools                     | true    | 11    |
+| `THINGSBOARD_TOOLS_RELATION`| Relation management tools                        | true    | 8     |
+| `THINGSBOARD_TOOLS_CUSTOMER`| Customer management tools                        | true    | 7     |
+| `THINGSBOARD_TOOLS_USER`    | User management tools                            | true    | 9     |
+| `THINGSBOARD_TOOLS_GROUP`   | Entity Group tools (PE only)                     | true    | 10    |
+
+### Recommended Configuration for Claude Desktop
+
+If you experience "Context size exceeds the limit" errors, disable some tool groups:
+
+```json
+{
+    "mcpServers": {
+        "thingsboard": {
+            "command": "java",
+            "args": ["-jar", "/path/to/thingsboard-mcp-server-2.1.0.jar"],
+            "env": {
+                "THINGSBOARD_URL": "<thingsboard_url>",
+                "THINGSBOARD_API_KEY": "<your_api_key>",
+                "THINGSBOARD_TOOLS_EDQ": "false",
+                "THINGSBOARD_TOOLS_OTA": "false",
+                "THINGSBOARD_TOOLS_GROUP": "false",
+                "THINGSBOARD_TOOLS_USER": "false"
+            }
+        }
+    }
+}
+```
+
+This configuration reduces the tool count from ~120 to ~50 tools, which should work with most MCP clients.
 
 ## Available Tools
 
@@ -293,16 +335,17 @@ The ThingsBoard MCP Server provides a wide range of tools that can be used throu
 
 | Tool                             | Description                                                                                                                                                  |
 |----------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `saveDevice`                     | Create or update the device object.                                                                                                                          |
+| `createOrUpsertDevice`           | Create or update a device by name. Primary tool for most device tasks.                                                                                       |
+| `saveDevice`                     | Create or update the device object from raw JSON. Advanced tool.                                                                                             |
 | `deleteDevice`                   | Delete the device by id.                                                                                                                                     |
 | `getDeviceById`                  | Fetch the Device object based on the provided Device Id.                                                                                                     |
 | `getDeviceCredentialsByDeviceId` | Get device credentials by device id. If during device creation there wasn't specified any credentials, platform generates random 'ACCESS_TOKEN' credentials. |
 | `getTenantDevices`               | Returns a page of devices owned by tenant.                                                                                                                   |
 | `getTenantDevice`                | Get tenant device by name. Device name is a unique property of device.                                                                                       |
 | `getCustomerDevices`             | Returns a page of devices objects assigned to customer.                                                                                                      |
-| `getUserDevices`                 | Returns a page of device objects available for the current user.                                                                                             |
+| `getUserDevices`  **(PE)**       | Returns a page of device objects available for the current user.                                                                                             |
 | `getDevicesByIds`                | Get Devices By Ids. Requested devices must be owned by tenant or assigned to customer.                                                                       |
-| `getDevicesByEntityGroupId`      | Returns a page of device objects that belongs to specified Entity Group Id.                                                                                  |
+| `getDevicesByEntityGroupId` **(PE)** | Returns a page of device objects that belongs to specified Entity Group Id.                                                                              |
 
 ### Asset Tools
 
@@ -313,10 +356,9 @@ The ThingsBoard MCP Server provides a wide range of tools that can be used throu
 | `getAssetById`             | Get the Asset object based on the provided Asset Id.                                 |
 | `getTenantAssets`          | Returns a page of assets owned by tenant.                                            |
 | `getTenantAsset`           | Get tenant asset by name. Asset name is a unique property of asset.                  |
-| `getCustomerAssets`        | Returns a page of assets objects assigned to customer.                               |
-| `getUserAssets`            | Returns a page of assets objects available for the current user.                     |
-| `getAssetsByIds`           | Get Assets By Ids. Requested assets must be owned by tenant or assigned to customer. |
-| `getAssetsByEntityGroupId` | Returns a page of asset objects that belongs to specified Entity Group Id.           |
+| `getCustomerAssets`             | Returns a page of assets objects assigned to customer.                               |
+| `getUserAssets`  **(PE)**       | Returns a page of assets objects available for the current user.                     |
+| `getAssetsByEntityGroupId` **(PE)** | Returns a page of asset objects that belongs to specified Entity Group Id.       |
 
 ### Customer Tools
 
@@ -327,8 +369,8 @@ The ThingsBoard MCP Server provides a wide range of tools that can be used throu
 | `getCustomerById`             | Get the Customer object based on the provided Customer Id.                    |
 | `getCustomers`                | Returns a page of customers owned by tenant.                                  |
 | `getTenantCustomer`           | Get the Customer using Customer Title.                                        |
-| `getUserCustomers`            | Returns a page of customers available for the user.                           |
-| `getCustomersByEntityGroupId` | Returns a page of Customer objects that belongs to specified Entity Group Id. |
+| `getUserCustomers`  **(PE)**          | Returns a page of customers available for the user.                           |
+| `getCustomersByEntityGroupId` **(PE)** | Returns a page of Customer objects that belongs to specified Entity Group Id. |
 
 ### User Tools
 
@@ -350,8 +392,9 @@ The ThingsBoard MCP Server provides a wide range of tools that can be used throu
 |---------------------------|--------------------------------------------------------------------------------------------------------------|
 | `saveAlarm`               | Create or update the alarm object.                                                                           |
 | `deleteAlarm`             | Delete the alarm by id.                                                                                      |
-| `getAlarmById`            | Get the Alarm object based on the provided alarm id.                                                         |
-| `getAlarmInfoById`        | Get the Alarm info object based on the provided alarm id.                                                    |
+| `ackAlarm`                | Acknowledge the alarm.                                                                                       |
+| `clearAlarm`              | Clear the alarm.                                                                                             |
+| `getAlarmInfoById`        | Get the Alarm info object based on the provided alarm id (includes originator name).                         |
 | `getAlarms`               | Get a page of alarms for the selected entity.                                                                |
 | `getAllAlarms`            | Get a page of alarms that belongs to the current user owner.                                                 |
 | `getHighestAlarmSeverity` | Get highest alarm severity by originator and optional status filters.                                        |
@@ -385,6 +428,8 @@ The ThingsBoard MCP Server provides a wide range of tools that can be used throu
 | `getEntityGroupsByOwnerAndType`       | Fetch the list of Entity Group Info objects based on the provided Owner Id and Entity Type. |
 | `getEntityGroupsForEntity`            | Returns a list of groups that contain the specified Entity Id.                              |
 | `getEntityGroupsByIds`                | Fetch the list of Entity Group Info objects based on the provided entity group ids list.    |
+| `addEntitiesToEntityGroup`            | Add entities to an entity group.                                                           |
+| `removeEntitiesFromEntityGroup`       | Remove entities from an entity group.                                                      |
 
 ### Relation Tools
 
@@ -394,12 +439,10 @@ The ThingsBoard MCP Server provides a wide range of tools that can be used throu
 | `deleteRelation`             | Delete a relation between two entities.                                                                           |
 | `deleteRelations`            | Delete all relations (both 'from' and 'to' directions) for the specified entity within the COMMON relation group. |
 | `getRelation`                | Returns relation object between two specified entities if present.                                                |
-| `findByFrom`                 | Returns list of relation objects for the specified entity by the 'from' direction.                                |
+| `findInfoByFrom`             | Returns list of relation info objects for the specified entity by the 'from' direction (includes entity names).   |
 | `findByFromWithRelationType` | Returns list of relation objects for the specified entity by the 'from' direction and relation type.              |
-| `findInfoByFrom`             | Returns list of relation info objects for the specified entity by the 'from' direction.                           |
-| `findByTo`                   | Returns list of relation objects for the specified entity by the 'to' direction.                                  |
+| `findInfoByTo`               | Returns list of relation info objects for the specified entity by the 'to' direction (includes entity names).     |
 | `findByToWithRelationType`   | Returns list of relation objects for the specified entity by the 'to' direction and relation type.                |
-| `findInfoByTo`               | Returns list of relation info objects for the specified entity by the 'to' direction.                             |
 
 ### Telemetry Tools
 
@@ -413,10 +456,17 @@ The ThingsBoard MCP Server provides a wide range of tools that can be used throu
 | `getLatestTimeseries`        | Get the latest time-series values for the specified entity and keys. |
 | `getTimeseries`              | Get time-series data for the specified entity, keys, and time range. |
 | `saveDeviceAttributes`       | Save device attributes.                                              |
-| `saveEntityAttributesV1`     | Save entity attributes (version 1).                                  |
-| `saveEntityAttributesV2`     | Save entity attributes (version 2).                                  |
+| `saveEntityAttributesV2`     | Save entity attributes.                                              |
 | `saveEntityTelemetry`        | Save entity telemetry data.                                          |
 | `saveEntityTelemetryWithTTL` | Save entity telemetry data with time-to-live (TTL).                  |
+
+### Guide Tools
+
+| Tool                | Description                                                                              |
+|---------------------|------------------------------------------------------------------------------------------|
+| `getEdqGuide`       | Get documentation for creating Entity Data Queries.                                      |
+| `getEdqCountGuide`  | Get documentation for creating Entity Count Queries.                                     |
+| `getKeyFiltersGuide`| Get documentation and JSON schema for creating key filters (predicates over attributes/telemetry). |
 
 ### Entity Data Query Tools
 
@@ -439,6 +489,7 @@ The ThingsBoard MCP Server provides a wide range of tools that can be used throu
 | `findEntityDataByAssetSearchQueryFilter`           | Find **assets related** to a root entity (by relation type + allowed asset types). Supports fields/latest values and optional key filters.                    |
 | `findEntityDataByDeviceSearchQueryFilter`          | Find **devices related** to a root entity (by relation type + allowed device types). Supports fields/latest values and optional key filters.                  |
 | `findEntityDataByEntityViewSearchQueryFilter`      | Find **entity views related** to a root entity (by relation type + allowed view types). Supports fields/latest values and optional key filters.               |
+| `findEntityDataByApiUsageStateFilter`              | Find **API usage** data (tenant or customer-scoped). Supports fields/latest values and optional key filters.                                                  |
 | `findEntityDataByEdgeQueryFilter`                  | Find **edges related** to a root entity (by relation type + allowed edge types). Supports fields/latest values and optional key filters.                      |
 
 ### Entity Count Query Tools
@@ -453,7 +504,6 @@ The ThingsBoard MCP Server provides a wide range of tools that can be used throu
 | `countByEntityGroupListFilter` **(PE)**   | Count results for **multiple groups** (same type) using group IDs with optional key filters.            |
 | `countByEntityGroupNameFilter` **(PE)**   | Count results for groups by **group type** and **group name starts-with** with optional key filters.    |
 | `countByEntitiesGroupNameFilter` **(PE)** | Count results for entities that belong to a **group (by type + group name)** with optional key filters. |
-| `countByStateEntityOwnerFilter`           | Count results for **owner (Tenant/Customer)** of a specified entity with optional key filters.          |
 | `countByAssetTypeFilter`                  | Count **assets** by **type** and **name starts-with** with optional key filters.                        |
 | `countByDeviceTypeFilter`                 | Count **devices** by **type** and **name starts-with** with optional key filters.                       |
 | `countByEdgeTypeFilter`                   | Count **edges** by **type** and **name starts-with** with optional key filters.                         |

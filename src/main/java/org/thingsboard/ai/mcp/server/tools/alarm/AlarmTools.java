@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
+import org.thingsboard.ai.mcp.server.annotation.ToolGroup;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.McpTools;
 import org.thingsboard.common.util.JacksonUtil;
@@ -25,99 +26,53 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ALARM_ID_PARAM_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ALARM_INFO_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ENTITY_ID_PARAM_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ENTITY_TYPE_PARAM_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.PAGE_DATA_PARAMETERS;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.PAGE_NUMBER_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.PAGE_SIZE_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.SORT_ORDER_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.SORT_PROPERTY_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH;
 import static org.thingsboard.ai.mcp.server.util.ToolUtils.createPageLink;
 import static org.thingsboard.ai.mcp.server.util.ToolUtils.createTimePageLink;
 
 @Service
 @RequiredArgsConstructor
+@ToolGroup("alarm")
 public class AlarmTools implements McpTools {
 
-    private static final String ALARM_SECURITY_CHECK = "If the user has the authority of 'Tenant Administrator', the server checks that the originator of alarm is owned by the same tenant. " +
-            "If the user has the authority of 'Customer User', the server checks that the originator of alarm belongs to the customer. ";
     private static final String ALARM_QUERY_SEARCH_STATUS_DESCRIPTION = "A string value representing one of the AlarmSearchStatus enumeration value. Allowed values: 'ANY', 'ACTIVE', 'CLEARED', 'ACK', 'UNACK'";
     private static final String ALARM_QUERY_STATUS_DESCRIPTION = "A string value representing one of the AlarmStatus enumeration value. Allowed values: 'ACTIVE_UNACK', 'ACTIVE_ACK', 'CLEARED_UNACK', 'CLEARED_ACK'";
     private static final String ALARM_QUERY_ASSIGNEE_DESCRIPTION = "A string value representing the assignee user id. For example, '784f394c-42b6-435a-983c-b7beff2784f9'";
     private static final String ALARM_QUERY_TEXT_SEARCH_DESCRIPTION = "The case insensitive 'substring' filter based on of next alarm fields: type, severity or status";
-    private static final String ALARM_QUERY_START_TIME_DESCRIPTION = "The start timestamp in milliseconds of the search time range over the Alarm class field: 'createdTime'.";
-    private static final String ALARM_QUERY_END_TIME_DESCRIPTION = "The end timestamp in milliseconds of the search time range over the Alarm class field: 'createdTime'.";
-    private static final String ALARM_QUERY_FETCH_ORIGINATOR_DESCRIPTION = "A boolean value to specify if the alarm originator name will be " +
-            "filled in the AlarmInfo object  field: 'originatorName' or will returns as null.";
+    private static final String ALARM_QUERY_START_TIME_DESCRIPTION = "Start of time range (epoch ms) over 'createdTime'.";
+    private static final String ALARM_QUERY_END_TIME_DESCRIPTION = "End of time range (epoch ms) over 'createdTime'.";
+    private static final String ALARM_QUERY_FETCH_ORIGINATOR_DESCRIPTION = "If true, includes originator name in response.";
 
     private static final String ALARM_JSON_EXAMPLE = """
             {
-              "id": {
-                "id": "1b2f5b43-7c07-4f3e-9f3a-5d28a9f2a111",
-                "entityType": "ALARM"
-              },
-              "createdTime": 1634058704567,
-              "tenantId": {
-                "id": "0a1b2c3d-4e5f-6789-abcd-001122334455",
-                "entityType": "TENANT"
-              },
-              "customerId": {
-                "id": "11223344-5566-7788-99aa-bbccddeeff00",
-                "entityType": "CUSTOMER"
-              },
+              "originator": {"id": "<deviceId>", "entityType": "DEVICE"},
               "type": "High Temperature Alarm",
-              "originator": {
-                "id": "784f394c-42b6-435a-983c-b7beff2784f9",
-                "entityType": "DEVICE"
-              },
               "severity": "CRITICAL",
-              "acknowledged": true,
-              "cleared": false,
-              "assigneeId": {
-                "id": "9c8b7a65-4321-4fed-ab12-34567890cdef",
-                "entityType": "USER"
-              },
-              "startTs": 1634058704565,
-              "endTs": 1634111163522,
-              "ackTs": 1634115221948,
-              "clearTs": 1634114528465,
-              "assignTs": 1634115928465,
-              "details": {
-                "message": "Temp > 85°C on line A",
-                "dashboardId": "a3b5d6c2-7e8f-4a91-b0a0-123456789abc",
-                "threshold": 85,
-                "unit": "°C"
-              },
               "propagate": true,
-              "propagateToOwner": true,
-              "propagateToOwnerHierarchy": true,
-              "propagateToTenant": true,
-              "propagateRelationTypes": ["Contains"],
-              "status": "ACTIVE_ACK",
-            }
-            """;
+              "details": {"message": "Temperature exceeded threshold"}
+            }""";
 
     private final RestClientService clientService;
 
-    @Tool(description =
-            "Create or update an Alarm. If 'id' is provided, the existing Alarm is updated. " +
-                    "Referencing non-existing Alarm Id will cause 'Not Found' error. " +
-                    "\n\nPlatform also deduplicate the alarms based on the entity id of originator and alarm 'type'. " +
-                    "For example, if the user or system component create the alarm with the type 'HighTemperature' for device 'Device A' the new active alarm is created. " +
-                    "If the user tries to create 'HighTemperature' alarm for the same device again, the previous alarm will be updated (the 'end_ts' will be set to current timestamp). " +
-                    "If the user clears the alarm (see 'Clear Alarm(clearAlarm)'), than new alarm with the same type and same device may be created. " +
-                    "Remove 'id', 'tenantId' and optionally 'customerId' from the request body example (below) to create new Alarm entity. " +
-                    TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
+    @Tool(description = "Use this to create or update an alarm. " +
+            "To create: provide 'originator', 'type', 'severity'. Omit 'id'. " +
+            "To update: include 'id'. " +
+            "Alarms are deduplicated by originator + type: duplicates update the existing active alarm. " +
+            "After clearing (clearAlarm), a new one with the same type can be created.")
     public String saveAlarm(
-            @ToolParam(description = "A JSON string representing the Alarm entity. Remove 'id', 'tenantId' and optionally 'customerId' from the request body example (below) to create new Alarm entity." + ALARM_JSON_EXAMPLE)
+            @ToolParam(description = "JSON alarm object. Required for create: 'originator' ({id, entityType}), 'type', 'severity' (CRITICAL|MAJOR|MINOR|WARNING|INDETERMINATE). " +
+                    "Optional: 'propagate', 'details', 'assigneeId'. Include 'id' to update. Example: " + ALARM_JSON_EXAMPLE)
             @NotBlank @Valid String alarmJson) {
         Alarm alarm = JacksonUtil.fromString(alarmJson, Alarm.class);
         return JacksonUtil.toString(clientService.getClient().saveAlarm(alarm));
     }
 
-    @Tool(description = "Deletes the alarm. Referencing non-existing alarm Id will cause an error. " + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
+    @Tool(description = "Use this to permanently delete an alarm by its id.")
     public String deleteAlarm(@ToolParam(description = ALARM_ID_PARAM_DESCRIPTION) @NotBlank String alarmIdStr) {
         try {
             AlarmId alarmId = new AlarmId(UUID.fromString(alarmIdStr));
@@ -132,10 +87,7 @@ public class AlarmTools implements McpTools {
         }
     }
 
-    @Tool(description = "Acknowledge the Alarm. " +
-            "Once acknowledged, the 'ack_ts' field will be set to current timestamp and special rule chain event 'ALARM_ACK' will be generated. " +
-            "Referencing non-existing Alarm Id will cause an error." +
-            TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
+    @Tool(description = "Use this to acknowledge an alarm. Sets 'ack_ts' and triggers ALARM_ACK rule chain event.")
     public String ackAlarm(
             @ToolParam(description = ALARM_ID_PARAM_DESCRIPTION) @NotBlank String alarmIdStr) {
         try {
@@ -151,10 +103,7 @@ public class AlarmTools implements McpTools {
         }
     }
 
-    @Tool(description = "Clear the Alarm. " +
-            "Once cleared, the 'clear_ts' field will be set to the current timestamp and a rule chain event 'ALARM_CLEAR' will be generated. " +
-            "Referencing a non-existing Alarm Id will cause an error. " +
-            TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
+    @Tool(description = "Use this to clear an alarm. Sets 'clear_ts' and triggers ALARM_CLEAR rule chain event.")
     public String clearAlarm(
             @ToolParam(description = ALARM_ID_PARAM_DESCRIPTION) @NotBlank String alarmIdStr) {
         try {
@@ -170,17 +119,12 @@ public class AlarmTools implements McpTools {
         }
     }
 
-    @Tool(description = "Get the Alarm object based on the provided alarm id. " + ALARM_SECURITY_CHECK)
-    public String getAlarmById(@ToolParam(description = ALARM_ID_PARAM_DESCRIPTION) @NotBlank String alarmId) {
-        return JacksonUtil.toString(clientService.getClient().getAlarmById(new AlarmId(UUID.fromString(alarmId))));
-    }
-
-    @Tool(description = "Get the Alarm info object based on the provided alarm id. " + ALARM_SECURITY_CHECK + ALARM_INFO_DESCRIPTION + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
+    @Tool(description = "Use this to get alarm details by id. Returns AlarmInfo including originator name.")
     public String getAlarmInfoById(@ToolParam(description = ALARM_ID_PARAM_DESCRIPTION) @NotBlank String alarmId) {
         return JacksonUtil.toString(clientService.getClient().getAlarmInfoById(new AlarmId(UUID.fromString(alarmId))));
     }
 
-    @Tool(description = "Get a page of alarms for the selected entity. Specifying both parameters 'searchStatus' and 'status' at the same time will cause an error. " + PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
+    @Tool(description = "Use this to get a paginated list of alarms for a specific entity. Filter by searchStatus or status (not both). Returns PageData of AlarmInfo.")
     public String getAlarms(
             @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String entityType,
             @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityId,
@@ -200,10 +144,7 @@ public class AlarmTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().getAlarms(EntityIdFactory.getByTypeAndId(entityType, entityId), alarmSearchStatus, alarmStatus, pageLink, fetchOriginator));
     }
 
-    @Tool(description = "Get a page of alarms that belongs to the current user owner. " +
-            "If the user has the authority of 'Tenant Administrator', the server returns alarms that belongs to the tenant of current user. " +
-            "If the user has the authority of 'Customer User', the server returns alarms that belongs to the customer of current user. " +
-            "Specifying both parameters 'searchStatus' and 'status' at the same time will cause an error. " + PAGE_DATA_PARAMETERS + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
+    @Tool(description = "Use this to get all alarms visible to the current user (tenant-scoped or customer-scoped). Filter by searchStatus or status (not both). Returns PageData of AlarmInfo.")
     public String getAllAlarms(
             @ToolParam(required = false, description = ALARM_QUERY_SEARCH_STATUS_DESCRIPTION) String searchStatus,
             @ToolParam(required = false, description = ALARM_QUERY_STATUS_DESCRIPTION) String status,
@@ -222,8 +163,7 @@ public class AlarmTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().getAllAlarms(alarmSearchStatus, alarmStatus, assigneeId, pageLink, fetchOriginator));
     }
 
-    @Tool(description = "Get highest alarm severity by originator ('entityType' and 'entityId') and optional 'status' and 'searchStatus' filters and returns the highest AlarmSeverity(CRITICAL, MAJOR, MINOR, WARNING or INDETERMINATE)." +
-            "Specifying both parameters 'searchStatus' and 'status' at the same time will cause an error. " + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
+    @Tool(description = "Use this to get the highest alarm severity for an entity. Returns: CRITICAL, MAJOR, MINOR, WARNING, or INDETERMINATE. Filter by searchStatus or status (not both).")
     public String getHighestAlarmSeverity(
             @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String entityType,
             @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityId,
@@ -234,7 +174,7 @@ public class AlarmTools implements McpTools {
         return JacksonUtil.toString(clientService.getClient().getHighestAlarmSeverity(EntityIdFactory.getByTypeAndId(entityType, entityId), alarmSearchStatus, alarmStatus));
     }
 
-    @Tool(description = "Get a set of unique alarm types based on alarms that are either owned by tenant or assigned to the customer which user is performing the request. " + TENANT_OR_CUSTOMER_AUTHORITY_PARAGRAPH)
+    @Tool(description = "Use this to list unique alarm type names visible to the current user.")
     public String getAlarmTypes(
             @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive String pageSize,
             @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero String page,
