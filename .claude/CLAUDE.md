@@ -3,7 +3,7 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
-Spring Boot MCP (Model Context Protocol) server that exposes ThingsBoard IoT platform operations as tools for LLMs. Supports STDIO and SSE transport modes. Built on Spring AI MCP Server (`spring-ai-starter-mcp-server-webmvc` 1.1.2) with ThingsBoard REST client 4.3.0PE.
+Spring Boot MCP (Model Context Protocol) server that exposes ThingsBoard IoT platform operations as tools for LLMs. Supports STDIO and SSE transport modes. Built on Spring AI MCP Server (`spring-ai-starter-mcp-server-webmvc` 1.1.2) with ThingsBoard REST client 4.4.0-SNAPSHOT.
 
 ## Build & Test
 ```bash
@@ -12,16 +12,16 @@ mvn test                          # Run all tests (171 tests)
 mvn test -Dtest=AlarmToolsTest    # Run single test class
 mvn package -DskipTests           # Build JAR only
 ```
-- Java 17, Maven 3.6+
-- JAR output: `target/thingsboard-mcp-server-2.1.0.jar`
+- Java 25, Maven 3.6+
+- JAR output: `target/thingsboard-mcp-server-2.2.0.jar`
 
 ## Run
 ```bash
 # STDIO mode (default)
-java -jar target/thingsboard-mcp-server-2.1.0.jar
+java -jar target/thingsboard-mcp-server-2.2.0.jar
 
 # SSE mode (HTTP on port 8000)
-java -Dspring.ai.mcp.server.stdio=false -Dspring.main.web-application-type=servlet -jar target/thingsboard-mcp-server-2.1.0.jar
+java -Dspring.ai.mcp.server.stdio=false -Dspring.main.web-application-type=servlet -jar target/thingsboard-mcp-server-2.2.0.jar
 ```
 Required env vars: `THINGSBOARD_URL`, `THINGSBOARD_API_KEY` (or legacy `THINGSBOARD_USERNAME`/`THINGSBOARD_PASSWORD`)
 
