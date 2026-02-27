@@ -1,5 +1,5 @@
 # Stage 1: Build the project using Maven
-FROM maven:3.9.4-eclipse-temurin-25 AS builder
+FROM maven:3.9.12-eclipse-temurin-25 AS builder
 
 WORKDIR /app
 COPY . .

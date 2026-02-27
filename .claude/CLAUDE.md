@@ -3,7 +3,7 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
-Spring Boot MCP (Model Context Protocol) server that exposes ThingsBoard IoT platform operations as tools for LLMs. Supports STDIO and SSE transport modes. Built on Spring AI MCP Server (`spring-ai-starter-mcp-server-webmvc` 1.1.2) with ThingsBoard REST client 4.4.0-SNAPSHOT.
+Spring Boot MCP (Model Context Protocol) server that exposes ThingsBoard IoT platform operations as tools for LLMs. Supports STDIO and SSE transport modes. Built on Spring AI MCP Server (`spring-ai-starter-mcp-server-webmvc` 1.1.2) with ThingsBoard REST client 4.3.0PE.
 
 ## Build & Test
 ```bash
