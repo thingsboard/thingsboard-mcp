@@ -17,5 +17,8 @@ COPY --from=builder /app/target/thingsboard-mcp-server-*.jar app.jar
 # Optional JVM extras at runtime: -Xmx, debug agent, log levels, etc.
 ENV JAVA_OPTS=""
 
+# Bind to all interfaces so the server is reachable from outside the container
+ENV HTTP_BIND_ADDRESS="0.0.0.0"
+
 # Let Spring read env vars from application.yml (${VAR:default})
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
