@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.thingsboard.ai.mcp.server.annotation.ToolGroup;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.McpTools;
-import org.thingsboard.ai.mcp.server.util.JsonUtils;
+import org.thingsboard.ai.mcp.server.util.JacksonUtil;
 import org.thingsboard.client.ApiException;
 import org.thingsboard.client.model.ChecksumAlgorithm;
 import org.thingsboard.client.model.Device;
@@ -59,8 +59,8 @@ public class OtaTools implements McpTools {
             @NotBlank @Valid String otaPackageInfoJson,
             @ToolParam(required = false, description = "If true, the OTA package uses a URL instead of uploaded binary data.")
             Boolean isUrl) {
-        SaveOtaPackageInfoRequest request = JsonUtils.fromString(otaPackageInfoJson, SaveOtaPackageInfoRequest.class);
-        return JsonUtils.toString(clientService.getClient().saveOtaPackageInfo(request));
+        SaveOtaPackageInfoRequest request = JacksonUtil.fromString(otaPackageInfoJson, SaveOtaPackageInfoRequest.class);
+        return JacksonUtil.toString(clientService.getClient().saveOtaPackageInfo(request));
     }
 
     @Tool(description = "Use this to upload OTA package binary data from a file path on the MCP host.")
@@ -79,7 +79,7 @@ public class OtaTools implements McpTools {
         }
         File file = path.toFile();
         ChecksumAlgorithm algo = parseChecksumAlgorithm(checksumAlgorithm);
-        return JsonUtils.toString(clientService.getClient().saveOtaPackageData(otaPackageId, algo.name(), file, null));
+        return JacksonUtil.toString(clientService.getClient().saveOtaPackageData(otaPackageId, algo.name(), file, null));
     }
 
     @Tool(description = "Use this to download OTA package binary to a local file path on the MCP host.")
@@ -91,7 +91,7 @@ public class OtaTools implements McpTools {
             Map<String, Object> err = new HashMap<>();
             err.put("status", "ERROR");
             err.put("message", "No data returned for OTA package download");
-            return JsonUtils.toString(err);
+            return JacksonUtil.toString(err);
         }
         String normalizedPath = normalizePathForWindows(destinationPath);
         Path target = Paths.get(normalizedPath);
@@ -107,19 +107,19 @@ public class OtaTools implements McpTools {
         Map<String, Object> result = new HashMap<>();
         result.put("status", "OK");
         result.put("path", target.toString());
-        return JsonUtils.toString(result);
+        return JacksonUtil.toString(result);
     }
 
     @Tool(description = "Use this to get OTA package info by id.")
     public String getOtaPackageInfoById(
             @ToolParam(description = "A string value representing the OTA package id.") @NotBlank String otaPackageId) {
-        return JsonUtils.toString(clientService.getClient().getOtaPackageInfoById(otaPackageId));
+        return JacksonUtil.toString(clientService.getClient().getOtaPackageInfoById(otaPackageId));
     }
 
     @Tool(description = "Use this to get the full OTA package object by id.")
     public String getOtaPackageById(
             @ToolParam(description = "A string value representing the OTA package id.") @NotBlank String otaPackageId) {
-        return JsonUtils.toString(clientService.getClient().getOtaPackageById(otaPackageId));
+        return JacksonUtil.toString(clientService.getClient().getOtaPackageById(otaPackageId));
     }
 
     @Tool(description = "Use this to get a paginated list of OTA packages.")
@@ -129,7 +129,7 @@ public class OtaTools implements McpTools {
             @ToolParam(required = false, description = "The case insensitive 'substring' filter based on the OTA package title.") String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'title', 'version', 'tag', 'name'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        return JsonUtils.toString(clientService.getClient().getOtaPackages(
+        return JacksonUtil.toString(clientService.getClient().getOtaPackages(
                 parseIntOrDefault(pageSize, 10),
                 parseIntOrDefault(page, 0),
                 sanitizeStringParam(textSearch),
@@ -149,7 +149,7 @@ public class OtaTools implements McpTools {
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
         String type = otaPackageType.trim().toUpperCase();
         try {
-            return JsonUtils.toString(clientService.getClient().getOtaPackagesByDeviceProfileIdAndType(
+            return JacksonUtil.toString(clientService.getClient().getOtaPackagesByDeviceProfileIdAndType(
                     deviceProfileId,
                     type,
                     parseIntOrDefault(pageSize, 10),
@@ -173,7 +173,7 @@ public class OtaTools implements McpTools {
         long count = clientService.getClient().countByDeviceProfileAndEmptyOtaPackage(type, deviceProfileId);
         Map<String, Object> result = new HashMap<>();
         result.put("count", count);
-        return JsonUtils.toString(result);
+        return JacksonUtil.toString(result);
     }
 
     @Tool(description = "Use this to assign or clear an OTA package (FIRMWARE/SOFTWARE) on a specific device.")
@@ -199,7 +199,7 @@ public class OtaTools implements McpTools {
         } else {
             device.softwareId(pkgId);
         }
-        return JsonUtils.toString(clientService.getClient().saveDevice(device, null, null, null, null, null, null));
+        return JacksonUtil.toString(clientService.getClient().saveDevice(device, null, null, null, null, null, null));
     }
 
     @Tool(description = "Use this to assign or clear an OTA package (FIRMWARE/SOFTWARE) on a device profile.")
@@ -225,7 +225,7 @@ public class OtaTools implements McpTools {
         } else {
             profile.softwareId(pkgId);
         }
-        return JsonUtils.toString(clientService.getClient().saveDeviceProfile(profile));
+        return JacksonUtil.toString(clientService.getClient().saveDeviceProfile(profile));
     }
 
     @Tool(description = "Use this to delete an OTA package by id.")
@@ -268,7 +268,7 @@ public class OtaTools implements McpTools {
         Map<String, Object> err = new HashMap<>();
         err.put("status", "ERROR");
         err.put("message", message);
-        return JsonUtils.toString(err);
+        return JacksonUtil.toString(err);
     }
 
 }

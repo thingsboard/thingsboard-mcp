@@ -14,7 +14,7 @@ import org.thingsboard.ai.mcp.server.annotation.ToolGroup;
 import org.thingsboard.ai.mcp.server.data.ThingsBoardEdition;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.McpTools;
-import org.thingsboard.ai.mcp.server.util.JsonUtils;
+import org.thingsboard.ai.mcp.server.util.JacksonUtil;
 import org.thingsboard.ai.mcp.server.util.ToolUtils;
 import org.thingsboard.client.model.Asset;
 
@@ -62,13 +62,13 @@ public class AssetTools implements McpTools {
             String entityGroupId,
             @ToolParam(required = false, description = "(PE only) " + ENTITY_GROUP_IDS_CREATE_PARAM_DESCRIPTION)
             String entityGroupIds) {
-        Asset asset = JsonUtils.fromString(assetJson, Asset.class);
+        Asset asset = JacksonUtil.fromString(assetJson, Asset.class);
         if (StringUtils.isNotBlank(entityGroupId)) {
-            return JsonUtils.toString(clientService.getClient().saveAsset(asset, entityGroupId, null, null, null, null));
+            return JacksonUtil.toString(clientService.getClient().saveAsset(asset, entityGroupId, null, null, null, null));
         } else if (StringUtils.isNotBlank(entityGroupIds)) {
-            return JsonUtils.toString(clientService.getClient().saveAsset(asset, null, Arrays.asList(entityGroupIds.split(",")), null, null, null));
+            return JacksonUtil.toString(clientService.getClient().saveAsset(asset, null, Arrays.asList(entityGroupIds.split(",")), null, null, null));
         } else {
-            return JsonUtils.toString(clientService.getClient().saveAsset(asset, null, null, null, null, null));
+            return JacksonUtil.toString(clientService.getClient().saveAsset(asset, null, null, null, null, null));
         }
     }
 
@@ -82,13 +82,13 @@ public class AssetTools implements McpTools {
             err.put("status", "ERROR");
             err.put("id", assetIdStr);
             err.put("message", e.getMessage());
-            return JsonUtils.toString(err);
+            return JacksonUtil.toString(err);
         }
     }
 
     @Tool(description = "Use this to get an asset by its id.")
     public String getAssetById(@ToolParam(description = ASSET_ID_PARAM_DESCRIPTION) @NotBlank String assetId) {
-        return JsonUtils.toString(clientService.getClient().getAssetById(assetId));
+        return JacksonUtil.toString(clientService.getClient().getAssetById(assetId));
     }
 
     @Tool(description = "Use this to get a paginated list of assets owned by the tenant. Filter by type.")
@@ -99,7 +99,7 @@ public class AssetTools implements McpTools {
             @ToolParam(required = false, description = ASSET_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'name', 'type', 'label', 'customerTitle'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        return JsonUtils.toString(clientService.getClient().getTenantAssets(
+        return JacksonUtil.toString(clientService.getClient().getTenantAssets(
                 ToolUtils.parseIntOrDefault(pageSize, ToolUtils.PAGE_SIZE),
                 ToolUtils.parseIntOrDefault(page, ToolUtils.PAGE_NUMBER),
                 ToolUtils.sanitizeStringParam(type),
@@ -110,7 +110,7 @@ public class AssetTools implements McpTools {
 
     @Tool(description = "Use this to get an asset by its unique name within the tenant.")
     public String getTenantAsset(@NotBlank @ToolParam(description = ASSET_NAME_DESCRIPTION) String assetName) {
-        return JsonUtils.toString(clientService.getClient().getTenantAssetByName(assetName));
+        return JacksonUtil.toString(clientService.getClient().getTenantAssetByName(assetName));
     }
 
     @Tool(description = "Use this to get a paginated list of assets assigned to a specific customer. Filter by type.")
@@ -122,7 +122,7 @@ public class AssetTools implements McpTools {
             @ToolParam(required = false, description = ASSET_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'name', 'type', 'label', 'customerTitle'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        return JsonUtils.toString(clientService.getClient().getCustomerAssets(
+        return JacksonUtil.toString(clientService.getClient().getCustomerAssets(
                 customerId,
                 ToolUtils.parseIntOrDefault(pageSize, ToolUtils.PAGE_SIZE),
                 ToolUtils.parseIntOrDefault(page, ToolUtils.PAGE_NUMBER),
@@ -144,7 +144,8 @@ public class AssetTools implements McpTools {
         if (ThingsBoardEdition.CE == clientService.getEdition()) {
             return PE_ONLY_AVAILABLE;
         }
-        return JsonUtils.toString(clientService.getClient().getUserAssets(
+        // PE-only API methods accept String params for pagination (unlike CE methods that use Integer)
+        return JacksonUtil.toString(clientService.getClient().getUserAssets(
                 ToolUtils.sanitizeStringParam(pageSize),
                 ToolUtils.sanitizeStringParam(page),
                 ToolUtils.sanitizeStringParam(type),
@@ -166,7 +167,8 @@ public class AssetTools implements McpTools {
         if (ThingsBoardEdition.CE == clientService.getEdition()) {
             return PE_ONLY_AVAILABLE;
         }
-        return JsonUtils.toString(clientService.getClient().getAssetsByEntityGroupId(
+        // PE-only API methods accept String params for pagination (unlike CE methods that use Integer)
+        return JacksonUtil.toString(clientService.getClient().getAssetsByEntityGroupId(
                 entityGroupId,
                 ToolUtils.sanitizeStringParam(pageSize),
                 ToolUtils.sanitizeStringParam(page),

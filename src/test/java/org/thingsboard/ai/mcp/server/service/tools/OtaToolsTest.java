@@ -10,7 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.ota.OtaTools;
-import org.thingsboard.ai.mcp.server.util.JsonUtils;
+import org.thingsboard.ai.mcp.server.util.JacksonUtil;
 import org.thingsboard.client.ThingsboardClient;
 import org.thingsboard.client.model.Device;
 import org.thingsboard.client.model.DeviceProfile;
@@ -64,10 +64,10 @@ public class OtaToolsTest {
         info.setId(new OtaPackageId().id(UUID.randomUUID()).entityType(EntityType.OTA_PACKAGE));
         when(restClient.saveOtaPackageInfo(any(SaveOtaPackageInfoRequest.class))).thenReturn(info);
 
-        String result = tools.saveOtaPackageInfo(JsonUtils.toString(info), true);
+        String result = tools.saveOtaPackageInfo(JacksonUtil.toString(info), true);
 
         verify(restClient).saveOtaPackageInfo(any(SaveOtaPackageInfoRequest.class));
-        assertThat(result).isEqualTo(JsonUtils.toString(info));
+        assertThat(result).isEqualTo(JacksonUtil.toString(info));
     }
 
     @Test
@@ -83,7 +83,7 @@ public class OtaToolsTest {
 
         verify(restClient).saveOtaPackageData(eq(pkgUuid.toString()), eq("MD5"), any(File.class), any());
         assertThat(result).contains(pkgUuid.toString());
-        assertThat(result).isEqualTo(JsonUtils.toString(info));
+        assertThat(result).isEqualTo(JacksonUtil.toString(info));
     }
 
     @Test
@@ -132,7 +132,7 @@ public class OtaToolsTest {
         String result = tools.getOtaPackageInfoById(pkgUuid.toString());
 
         verify(restClient).getOtaPackageInfoById(eq(pkgUuid.toString()));
-        assertThat(result).isEqualTo(JsonUtils.toString(info));
+        assertThat(result).isEqualTo(JacksonUtil.toString(info));
     }
 
     @Test
@@ -145,7 +145,7 @@ public class OtaToolsTest {
         String result = tools.getOtaPackageById(pkgUuid.toString());
 
         verify(restClient).getOtaPackageById(eq(pkgUuid.toString()));
-        assertThat(result).isEqualTo(JsonUtils.toString(otaPackage));
+        assertThat(result).isEqualTo(JacksonUtil.toString(otaPackage));
     }
 
     @Test
@@ -162,7 +162,7 @@ public class OtaToolsTest {
         String result = tools.getOtaPackages("10", "2", "firmware", "createdTime", "DESC");
 
         verify(restClient).getOtaPackages(eq(10), eq(2), eq("firmware"), eq("createdTime"), eq("DESC"));
-        assertThat(result).isEqualTo(JsonUtils.toString(pageData));
+        assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
     }
 
     @Test
@@ -182,7 +182,7 @@ public class OtaToolsTest {
 
         verify(restClient).getOtaPackagesByDeviceProfileIdAndType(
                 eq(profileUuid.toString()), eq("FIRMWARE"), eq(15), eq(0), eq("v1"), eq("title"), eq("ASC"));
-        assertThat(result).isEqualTo(JsonUtils.toString(pageData));
+        assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
     }
 
     @Test
@@ -194,7 +194,7 @@ public class OtaToolsTest {
         String result = tools.countByDeviceProfileAndEmptyOtaPackage(profileUuid.toString(), "software");
 
         verify(restClient).countByDeviceProfileAndEmptyOtaPackage(eq("SOFTWARE"), eq(profileUuid.toString()));
-        assertThat(result).isEqualTo(JsonUtils.toString(Map.of("count", 7L)));
+        assertThat(result).isEqualTo(JacksonUtil.toString(Map.of("count", 7L)));
     }
 
     @Test
@@ -211,7 +211,7 @@ public class OtaToolsTest {
         ArgumentCaptor<Device> deviceCaptor = ArgumentCaptor.forClass(Device.class);
         verify(restClient).saveDevice(deviceCaptor.capture(), any(), any(), any(), any(), any(), any());
         assertThat(deviceCaptor.getValue().getFirmwareId().getId()).isEqualTo(otaUuid);
-        assertThat(result).isEqualTo(JsonUtils.toString(device));
+        assertThat(result).isEqualTo(JacksonUtil.toString(device));
     }
 
     @Test
@@ -228,7 +228,7 @@ public class OtaToolsTest {
         ArgumentCaptor<DeviceProfile> profileCaptor = ArgumentCaptor.forClass(DeviceProfile.class);
         verify(restClient).saveDeviceProfile(profileCaptor.capture());
         assertThat(profileCaptor.getValue().getSoftwareId().getId()).isEqualTo(otaUuid);
-        assertThat(result).isEqualTo(JsonUtils.toString(profile));
+        assertThat(result).isEqualTo(JacksonUtil.toString(profile));
     }
 
     @Test

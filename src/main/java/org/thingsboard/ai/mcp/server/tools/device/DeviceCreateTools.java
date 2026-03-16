@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.thingsboard.ai.mcp.server.annotation.ToolGroup;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.McpTools;
-import org.thingsboard.ai.mcp.server.util.JsonUtils;
+import org.thingsboard.ai.mcp.server.util.JacksonUtil;
 import org.thingsboard.client.ApiException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.thingsboard.client.model.Customer;
@@ -78,12 +78,12 @@ public class DeviceCreateTools implements McpTools {
 
                 // customerId is read-only on Device model — set it via JSON round-trip
                 if (resolvedCustomerId != null) {
-                    ObjectNode deviceNode = JsonUtils.getMapper().valueToTree(device);
-                    ObjectNode custIdNode = JsonUtils.getMapper().createObjectNode();
+                    ObjectNode deviceNode = JacksonUtil.getMapper().valueToTree(device);
+                    ObjectNode custIdNode = JacksonUtil.getMapper().createObjectNode();
                     custIdNode.put("id", resolvedCustomerId);
                     custIdNode.put("entityType", "CUSTOMER");
                     deviceNode.set("customerId", custIdNode);
-                    device = JsonUtils.getMapper().treeToValue(deviceNode, Device.class);
+                    device = JacksonUtil.getMapper().treeToValue(deviceNode, Device.class);
                 }
 
                 device = client.saveDevice(device, null, null, null, null, null, null);
@@ -105,13 +105,13 @@ public class DeviceCreateTools implements McpTools {
             result.put("label", device.getLabel());
             result.put("customerId", device.getCustomerId() != null ? device.getCustomerId().getId().toString() : null);
             result.put("deviceProfileId", device.getDeviceProfileId() != null ? device.getDeviceProfileId().getId().toString() : null);
-            return JsonUtils.toString(result);
+            return JacksonUtil.toString(result);
 
         } catch (Exception e) {
             var error = new java.util.LinkedHashMap<String, Object>();
             error.put("error", e.getClass().getSimpleName());
             error.put("message", e.getMessage());
-            return JsonUtils.toString(error);
+            return JacksonUtil.toString(error);
         }
     }
 

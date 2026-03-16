@@ -14,7 +14,7 @@ import org.thingsboard.ai.mcp.server.annotation.ToolGroup;
 import org.thingsboard.ai.mcp.server.data.ThingsBoardEdition;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.McpTools;
-import org.thingsboard.ai.mcp.server.util.JsonUtils;
+import org.thingsboard.ai.mcp.server.util.JacksonUtil;
 import org.thingsboard.client.model.Device;
 
 import java.util.Arrays;
@@ -66,12 +66,12 @@ public class DeviceTools implements McpTools {
             @NotBlank String entityGroupId,
             @ToolParam(required = false, description = "(PE only) " + ENTITY_GROUP_IDS_CREATE_PARAM_DESCRIPTION)
             @NotBlank String entityGroupIds) {
-        Device device = JsonUtils.fromString(deviceJson, Device.class);
+        Device device = JacksonUtil.fromString(deviceJson, Device.class);
         List<String> groupIdsList = null;
         if (StringUtils.isNotBlank(entityGroupIds)) {
             groupIdsList = Arrays.stream(entityGroupIds.split(",")).map(String::trim).toList();
         }
-        return JsonUtils.toString(clientService.getClient().saveDevice(device, accessToken, entityGroupId, groupIdsList, null, null, null));
+        return JacksonUtil.toString(clientService.getClient().saveDevice(device, accessToken, entityGroupId, groupIdsList, null, null, null));
     }
 
     @Tool(description = "Use this to permanently delete a device, its credentials, and all relations by id.")
@@ -84,18 +84,18 @@ public class DeviceTools implements McpTools {
             err.put("status", "ERROR");
             err.put("id", deviceId);
             err.put("message", e.getMessage());
-            return JsonUtils.toString(err);
+            return JacksonUtil.toString(err);
         }
     }
 
     @Tool(description = "Use this to get a device by its id.")
     public String getDeviceById(@ToolParam(description = DEVICE_ID_PARAM_DESCRIPTION) @NotBlank String deviceId) {
-        return JsonUtils.toString(clientService.getClient().getDeviceById(deviceId));
+        return JacksonUtil.toString(clientService.getClient().getDeviceById(deviceId));
     }
 
     @Tool(description = "Use this to get device credentials (e.g., ACCESS_TOKEN) by device id.")
     public String getDeviceCredentialsByDeviceId(@ToolParam(description = DEVICE_ID_PARAM_DESCRIPTION) @NotBlank String deviceId) {
-        return JsonUtils.toString(clientService.getClient().getDeviceCredentialsByDeviceId(deviceId));
+        return JacksonUtil.toString(clientService.getClient().getDeviceCredentialsByDeviceId(deviceId));
     }
 
     @Tool(description = "Use this to get a paginated list of devices owned by the tenant. Filter by type.")
@@ -106,7 +106,7 @@ public class DeviceTools implements McpTools {
             @ToolParam(required = false, description = DEVICE_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'name', 'deviceProfileName', 'label', 'customerTitle'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws Exception {
-        return JsonUtils.toString(clientService.getClient().getTenantDevices(
+        return JacksonUtil.toString(clientService.getClient().getTenantDevices(
                 parseIntOrDefault(pageSize, 10),
                 parseIntOrDefault(page, 0),
                 sanitizeStringParam(type),
@@ -117,7 +117,7 @@ public class DeviceTools implements McpTools {
 
     @Tool(description = "Use this to get a device by its unique name within the tenant.")
     public String getTenantDevice(@ToolParam(description = DEVICE_NAME_DESCRIPTION) @NotBlank String deviceName) {
-        return JsonUtils.toString(clientService.getClient().getTenantDeviceByName(deviceName));
+        return JacksonUtil.toString(clientService.getClient().getTenantDeviceByName(deviceName));
     }
 
     @Tool(description = "Use this to get a paginated list of devices assigned to a specific customer. Filter by type.")
@@ -129,7 +129,7 @@ public class DeviceTools implements McpTools {
             @ToolParam(required = false, description = DEVICE_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'name', 'deviceProfileName', 'label', 'customerTitle'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws Exception {
-        return JsonUtils.toString(clientService.getClient().getCustomerDevices(
+        return JacksonUtil.toString(clientService.getClient().getCustomerDevices(
                 customerId,
                 parseIntOrDefault(pageSize, 10),
                 parseIntOrDefault(page, 0),
@@ -151,7 +151,8 @@ public class DeviceTools implements McpTools {
         if (ThingsBoardEdition.CE == clientService.getEdition()) {
             return PE_ONLY_AVAILABLE;
         }
-        return JsonUtils.toString(clientService.getClient().getUserDevices(
+        // PE-only API methods accept String params for pagination (unlike CE methods that use Integer)
+        return JacksonUtil.toString(clientService.getClient().getUserDevices(
                 sanitizeStringParam(pageSize),
                 sanitizeStringParam(page),
                 sanitizeStringParam(type),
@@ -163,7 +164,7 @@ public class DeviceTools implements McpTools {
     @Tool(description = "Use this to get multiple devices by their ids (comma-separated).")
     public String getDevicesByIds(@ToolParam(description = "A string of devices ids, separated by comma ','") @NotBlank String devicesIds) {
         List<String> deviceIdList = Arrays.stream(devicesIds.split(",")).map(String::trim).toList();
-        return JsonUtils.toString(clientService.getClient().getDevicesByIds(deviceIdList));
+        return JacksonUtil.toString(clientService.getClient().getDevicesByIds(deviceIdList));
     }
 
     @PeOnly
@@ -178,7 +179,8 @@ public class DeviceTools implements McpTools {
         if (ThingsBoardEdition.CE == clientService.getEdition()) {
             return PE_ONLY_AVAILABLE;
         }
-        return JsonUtils.toString(clientService.getClient().getDevicesByEntityGroupId(
+        // PE-only API methods accept String params for pagination (unlike CE methods that use Integer)
+        return JacksonUtil.toString(clientService.getClient().getDevicesByEntityGroupId(
                 entityGroupId,
                 sanitizeStringParam(pageSize),
                 sanitizeStringParam(page),

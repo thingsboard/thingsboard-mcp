@@ -14,7 +14,7 @@ import org.thingsboard.ai.mcp.server.annotation.ToolGroup;
 import org.thingsboard.ai.mcp.server.data.ThingsBoardEdition;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.McpTools;
-import org.thingsboard.ai.mcp.server.util.JsonUtils;
+import org.thingsboard.ai.mcp.server.util.JacksonUtil;
 import org.thingsboard.ai.mcp.server.util.ToolUtils;
 import org.thingsboard.client.model.Customer;
 
@@ -55,13 +55,13 @@ public class CustomerTools implements McpTools {
             @NotBlank String entityGroupId,
             @ToolParam(required = false, description = "(PE only) " + ENTITY_GROUP_IDS_CREATE_PARAM_DESCRIPTION)
             @NotBlank String entityGroupIds) {
-        Customer customer = JsonUtils.fromString(customerJson, Customer.class);
+        Customer customer = JacksonUtil.fromString(customerJson, Customer.class);
         if (StringUtils.isNotBlank(entityGroupId)) {
-            return JsonUtils.toString(clientService.getClient().saveCustomer(customer, entityGroupId, null, null, null, null));
+            return JacksonUtil.toString(clientService.getClient().saveCustomer(customer, entityGroupId, null, null, null, null));
         } else if (StringUtils.isNotBlank(entityGroupIds)) {
-            return JsonUtils.toString(clientService.getClient().saveCustomer(customer, null, Arrays.asList(entityGroupIds.split(",")), null, null, null));
+            return JacksonUtil.toString(clientService.getClient().saveCustomer(customer, null, Arrays.asList(entityGroupIds.split(",")), null, null, null));
         } else {
-            return JsonUtils.toString(clientService.getClient().saveCustomer(customer, null, null, null, null, null));
+            return JacksonUtil.toString(clientService.getClient().saveCustomer(customer, null, null, null, null, null));
         }
     }
 
@@ -75,13 +75,13 @@ public class CustomerTools implements McpTools {
             err.put("status", "ERROR");
             err.put("id", customerIdStr);
             err.put("message", e.getMessage());
-            return JsonUtils.toString(err);
+            return JacksonUtil.toString(err);
         }
     }
 
     @Tool(description = "Use this to get a customer by its id.")
     public String getCustomerById(@ToolParam(description = CUSTOMER_ID_PARAM_DESCRIPTION) @NotBlank String customerId) {
-        return JsonUtils.toString(clientService.getClient().getCustomerById(customerId));
+        return JacksonUtil.toString(clientService.getClient().getCustomerById(customerId));
     }
 
     @Tool(description = "Use this to get a paginated list of customers owned by the tenant.")
@@ -91,7 +91,7 @@ public class CustomerTools implements McpTools {
             @ToolParam(required = false, description = CUSTOMER_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'title', 'email', 'country', 'city'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        return JsonUtils.toString(clientService.getClient().getCustomers(
+        return JacksonUtil.toString(clientService.getClient().getCustomers(
                 ToolUtils.parseIntOrDefault(pageSize, ToolUtils.PAGE_SIZE),
                 ToolUtils.parseIntOrDefault(page, ToolUtils.PAGE_NUMBER),
                 ToolUtils.sanitizeStringParam(textSearch),
@@ -101,7 +101,7 @@ public class CustomerTools implements McpTools {
 
     @Tool(description = "Use this to get a customer by its unique title within the tenant.")
     public String getTenantCustomer(@ToolParam(description = "A string value representing the Customer title.") @NotBlank String customerTitle) {
-        return JsonUtils.toString(clientService.getClient().getTenantCustomer(customerTitle));
+        return JacksonUtil.toString(clientService.getClient().getTenantCustomer(customerTitle));
     }
 
     @PeOnly
@@ -115,7 +115,8 @@ public class CustomerTools implements McpTools {
         if (ThingsBoardEdition.CE == clientService.getEdition()) {
             return PE_ONLY_AVAILABLE;
         }
-        return JsonUtils.toString(clientService.getClient().getUserCustomers(
+        // PE-only API methods accept String params for pagination (unlike CE methods that use Integer)
+        return JacksonUtil.toString(clientService.getClient().getUserCustomers(
                 ToolUtils.sanitizeStringParam(pageSize),
                 ToolUtils.sanitizeStringParam(page),
                 ToolUtils.sanitizeStringParam(textSearch),
@@ -135,7 +136,8 @@ public class CustomerTools implements McpTools {
         if (ThingsBoardEdition.CE == clientService.getEdition()) {
             return PE_ONLY_AVAILABLE;
         }
-        return JsonUtils.toString(clientService.getClient().getCustomersByEntityGroupId(
+        // PE-only API methods accept String params for pagination (unlike CE methods that use Integer)
+        return JacksonUtil.toString(clientService.getClient().getCustomersByEntityGroupId(
                 entityGroupId,
                 ToolUtils.sanitizeStringParam(pageSize),
                 ToolUtils.sanitizeStringParam(page),

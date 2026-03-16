@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.thingsboard.ai.mcp.server.annotation.ToolGroup;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.McpTools;
-import org.thingsboard.ai.mcp.server.util.JsonUtils;
+import org.thingsboard.ai.mcp.server.util.JacksonUtil;
 
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ATTRIBUTES_JSON_REQUEST_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ATTRIBUTES_KEYS_DESCRIPTION;
@@ -42,7 +42,7 @@ public class TelemetryTools implements McpTools {
     public String getAttributeKeys(
             @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String entityType,
             @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityIdStr) {
-        return JsonUtils.toString(clientService.getClient().getAttributeKeys(entityType, entityIdStr));
+        return JacksonUtil.toString(clientService.getClient().getAttributeKeys(entityType, entityIdStr));
     }
 
     @Tool(description = "Use this to get attribute key names for an entity filtered by scope (SERVER_SCOPE, CLIENT_SCOPE, SHARED_SCOPE).")
@@ -50,7 +50,7 @@ public class TelemetryTools implements McpTools {
             @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String entityType,
             @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityIdStr,
             @ToolParam(description = ATTRIBUTES_SCOPE_DESCRIPTION + " Allowable values: 'SERVER_SCOPE', 'SHARED_SCOPE', 'CLIENT_SCOPE'") @NotBlank String scope) {
-        return JsonUtils.toString(clientService.getClient().getAttributeKeysByScope(entityType, entityIdStr, scope));
+        return JacksonUtil.toString(clientService.getClient().getAttributeKeysByScope(entityType, entityIdStr, scope));
     }
 
     @Tool(description = "Use this to get all attributes for an entity. Use optional 'keys' to return specific attributes.")
@@ -58,7 +58,7 @@ public class TelemetryTools implements McpTools {
             @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String entityType,
             @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityIdStr,
             @ToolParam(required = false, description = ATTRIBUTES_KEYS_DESCRIPTION) String keys) {
-        return JsonUtils.toString(clientService.getClient().getAttributes(entityType, entityIdStr, keysToCommaString(keys), null));
+        return JacksonUtil.toString(clientService.getClient().getAttributes(entityType, entityIdStr, keysToCommaString(keys), null));
     }
 
     @Tool(description = "Use this to get attributes for an entity filtered by scope. Scopes: SERVER_SCOPE, SHARED_SCOPE, CLIENT_SCOPE (devices only). Use optional 'keys' to filter.")
@@ -67,14 +67,14 @@ public class TelemetryTools implements McpTools {
             @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityIdStr,
             @ToolParam(description = ATTRIBUTES_SCOPE_DESCRIPTION + " Allowable values: 'SERVER_SCOPE', 'SHARED_SCOPE', 'CLIENT_SCOPE'") @NotBlank String scope,
             @ToolParam(required = false, description = ATTRIBUTES_KEYS_DESCRIPTION) String keys) {
-        return JsonUtils.toString(clientService.getClient().getAttributesByScope(entityType, entityIdStr, scope, keysToCommaString(keys), null));
+        return JacksonUtil.toString(clientService.getClient().getAttributesByScope(entityType, entityIdStr, scope, keysToCommaString(keys), null));
     }
 
     @Tool(description = "Use this to get all time series key names for an entity.")
     public String getTimeseriesKeys(
             @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String entityType,
             @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityIdStr) {
-        return JsonUtils.toString(clientService.getClient().getTimeseriesKeys(entityType, entityIdStr));
+        return JacksonUtil.toString(clientService.getClient().getTimeseriesKeys(entityType, entityIdStr));
     }
 
     @Tool(description = "Use this to get the latest time series values for an entity. Use optional 'keys' to filter. Set 'useStrictDataTypes'=true to preserve original types.")
@@ -83,7 +83,7 @@ public class TelemetryTools implements McpTools {
             @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityIdStr,
             @ToolParam(required = false, description = TELEMETRY_KEYS_DESCRIPTION) String keys,
             @ToolParam(required = false, description = STRICT_DATA_TYPES_DESCRIPTION) String useStrictDataTypes) {
-        return JsonUtils.toString(clientService.getClient().getLatestTimeseries(
+        return JacksonUtil.toString(clientService.getClient().getLatestTimeseries(
                 entityType, entityIdStr, keysToCommaString(keys), Boolean.parseBoolean(useStrictDataTypes), null));
     }
 
@@ -112,7 +112,7 @@ public class TelemetryTools implements McpTools {
         Long intervalLong = interval != null ? Long.parseLong(interval) : 0L;
         String limitStr = limit != null ? limit.trim() : "100";
         String order = orderBy != null ? orderBy.trim().toUpperCase() : "ASC";
-        return JsonUtils.toString(clientService.getClient().getTimeseriesHistory(
+        return JacksonUtil.toString(clientService.getClient().getTimeseriesHistory(
                 entityType,
                 entityIdStr,
                 parseLong(startTs, 0L),

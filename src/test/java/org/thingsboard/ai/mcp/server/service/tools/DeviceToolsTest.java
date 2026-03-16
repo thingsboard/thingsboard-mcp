@@ -13,7 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.thingsboard.ai.mcp.server.data.ThingsBoardEdition;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.device.DeviceTools;
-import org.thingsboard.ai.mcp.server.util.JsonUtils;
+import org.thingsboard.ai.mcp.server.util.JacksonUtil;
 import org.thingsboard.client.ThingsboardClient;
 import org.thingsboard.client.model.Device;
 import org.thingsboard.client.model.DeviceCredentials;
@@ -61,7 +61,7 @@ public class DeviceToolsTest {
         String result = tools.getDeviceById(deviceId);
 
         verify(restClient).getDeviceById(eq(deviceId));
-        assertThat(result).isEqualTo(JsonUtils.toString(device));
+        assertThat(result).isEqualTo(JacksonUtil.toString(device));
     }
 
     @Test
@@ -73,7 +73,7 @@ public class DeviceToolsTest {
         String result = tools.getDeviceCredentialsByDeviceId(deviceId);
 
         verify(restClient).getDeviceCredentialsByDeviceId(eq(deviceId));
-        assertThat(result).isEqualTo(JsonUtils.toString(credentials));
+        assertThat(result).isEqualTo(JacksonUtil.toString(credentials));
     }
 
     @ParameterizedTest(name = "tenantDevices page={1} size={0} type={2} text={3} sort={4} {5}")
@@ -92,7 +92,7 @@ public class DeviceToolsTest {
         String result = tools.getTenantDevices(Integer.toString(pageSize), Integer.toString(page), type, text, sortProp, dir);
 
         verify(restClient).getTenantDevices(eq(pageSize), eq(page), eq(type), eq(text), eq(sortProp), eq(dir));
-        assertThat(result).isEqualTo(JsonUtils.toString(pageData));
+        assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
     }
 
     @Test
@@ -103,7 +103,7 @@ public class DeviceToolsTest {
         String result = tools.getTenantDevice("Boiler-Device-01");
 
         verify(restClient).getTenantDeviceByName("Boiler-Device-01");
-        assertThat(result).isEqualTo(JsonUtils.toString(device));
+        assertThat(result).isEqualTo(JacksonUtil.toString(device));
     }
 
     @ParameterizedTest(name = "customerDevices page={1} size={0} type={3} text={4} sort={5} {6}")
@@ -124,7 +124,7 @@ public class DeviceToolsTest {
         String result = tools.getCustomerDevices(customerId, Integer.toString(pageSize), Integer.toString(page), type, text, sortProp, dir);
 
         verify(restClient).getCustomerDevices(eq(customerId), eq(pageSize), eq(page), eq(type), eq(text), eq(sortProp), eq(dir));
-        assertThat(result).isEqualTo(JsonUtils.toString(pageData));
+        assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
     }
 
     @ParameterizedTest(name = "userDevices page={1} size={0} type={2} text={3} sort={4} {5}")
@@ -147,7 +147,7 @@ public class DeviceToolsTest {
         String result = tools.getUserDevices(Integer.toString(pageSize), Integer.toString(page), type, text, sortProp, dir);
 
         verify(restClient).getUserDevices(any(), any(), any(), any(), any(), any());
-        assertThat(result).isEqualTo(JsonUtils.toString(pageData));
+        assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
     }
 
     @Test
@@ -164,7 +164,7 @@ public class DeviceToolsTest {
         String result = tools.getDevicesByIds(id1 + "," + id2);
 
         verify(restClient).getDevicesByIds(eq(List.of(id1, id2)));
-        assertThat(result).isEqualTo(JsonUtils.toString(devices));
+        assertThat(result).isEqualTo(JacksonUtil.toString(devices));
     }
 
     @ParameterizedTest(name = "devicesByGroup page={1} size={0} sort={4} {5}")
@@ -188,7 +188,7 @@ public class DeviceToolsTest {
         String result = tools.getDevicesByEntityGroupId(groupId, Integer.toString(pageSize), Integer.toString(page), text, sortProp, dir);
 
         verify(restClient).getDevicesByEntityGroupId(eq(groupId), any(), any(), any(), any(), any());
-        assertThat(result).isEqualTo(JsonUtils.toString(pageData));
+        assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
     }
 
     @Nested
@@ -200,10 +200,10 @@ public class DeviceToolsTest {
             when(restClient.saveDevice(any(Device.class), isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
                     .thenReturn(payload);
 
-            String res = tools.saveDevice(JsonUtils.toString(payload), null, null, null);
+            String res = tools.saveDevice(JacksonUtil.toString(payload), null, null, null);
 
             verify(restClient).saveDevice(any(Device.class), isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
-            assertThat(res).isEqualTo(JsonUtils.toString(payload));
+            assertThat(res).isEqualTo(JacksonUtil.toString(payload));
         }
 
         @Test
@@ -212,10 +212,10 @@ public class DeviceToolsTest {
             when(restClient.saveDevice(any(Device.class), eq("tok"), isNull(), isNull(), isNull(), isNull(), isNull()))
                     .thenReturn(payload);
 
-            String res = tools.saveDevice(JsonUtils.toString(payload), "tok", null, null);
+            String res = tools.saveDevice(JacksonUtil.toString(payload), "tok", null, null);
 
             verify(restClient).saveDevice(any(Device.class), eq("tok"), isNull(), isNull(), isNull(), isNull(), isNull());
-            assertThat(res).isEqualTo(JsonUtils.toString(payload));
+            assertThat(res).isEqualTo(JacksonUtil.toString(payload));
         }
 
         @Test
@@ -226,10 +226,10 @@ public class DeviceToolsTest {
             when(restClient.saveDevice(any(Device.class), eq("tok"), eq(group), isNull(), isNull(), isNull(), isNull()))
                     .thenReturn(payload);
 
-            String res = tools.saveDevice(JsonUtils.toString(payload), "tok", group, null);
+            String res = tools.saveDevice(JacksonUtil.toString(payload), "tok", group, null);
 
             verify(restClient).saveDevice(any(Device.class), eq("tok"), eq(group), isNull(), isNull(), isNull(), isNull());
-            assertThat(res).isEqualTo(JsonUtils.toString(payload));
+            assertThat(res).isEqualTo(JacksonUtil.toString(payload));
         }
 
         @Test
@@ -242,10 +242,10 @@ public class DeviceToolsTest {
             when(restClient.saveDevice(any(Device.class), eq("tok"), isNull(), eq(List.of(id1, id2)), isNull(), isNull(), isNull()))
                     .thenReturn(payload);
 
-            String res = tools.saveDevice(JsonUtils.toString(payload), "tok", null, groupIds);
+            String res = tools.saveDevice(JacksonUtil.toString(payload), "tok", null, groupIds);
 
             verify(restClient).saveDevice(any(Device.class), eq("tok"), isNull(), eq(List.of(id1, id2)), isNull(), isNull(), isNull());
-            assertThat(res).isEqualTo(JsonUtils.toString(payload));
+            assertThat(res).isEqualTo(JacksonUtil.toString(payload));
         }
 
     }

@@ -118,7 +118,7 @@ public class ToolUtils {
             return null;
         }
         String normalizedJson = normalizeKeyFiltersFormat(keyFiltersJson);
-        List<KeyFilterInput> inputs = JsonUtils.fromString(normalizedJson, new TypeReference<>() {});
+        List<KeyFilterInput> inputs = JacksonUtil.fromString(normalizedJson, new TypeReference<>() {});
         if (inputs == null || inputs.isEmpty()) {
             return null;
         }
@@ -127,7 +127,7 @@ public class ToolUtils {
 
     private static String normalizeKeyFiltersFormat(String json) {
         try {
-            JsonNode arrayNode = JsonUtils.toJsonNode(json);
+            JsonNode arrayNode = JacksonUtil.toJsonNode(json);
             if (arrayNode == null || !arrayNode.isArray() || arrayNode.isEmpty()) {
                 return json;
             }
@@ -221,7 +221,7 @@ public class ToolUtils {
         if (isNullOrBlank(entityKeysJson)) {
             return null;
         }
-        return JsonUtils.fromString(entityKeysJson, new TypeReference<>() {});
+        return JacksonUtil.fromString(entityKeysJson, new TypeReference<>() {});
     }
 
 }

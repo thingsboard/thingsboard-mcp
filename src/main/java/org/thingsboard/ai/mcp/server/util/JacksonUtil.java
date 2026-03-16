@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class JsonUtils {
+public class JacksonUtil {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 

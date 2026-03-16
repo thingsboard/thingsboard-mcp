@@ -9,7 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.thingsboard.ai.mcp.server.data.ThingsBoardEdition;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.user.UserTools;
-import org.thingsboard.ai.mcp.server.util.JsonUtils;
+import org.thingsboard.ai.mcp.server.util.JacksonUtil;
 import org.thingsboard.client.ThingsboardClient;
 import org.thingsboard.client.model.PageDataUser;
 import org.thingsboard.client.model.PageDataUserEmailInfo;
@@ -63,10 +63,10 @@ class UserToolsTest {
         when(restClient.saveUser(any(User.class), eq("true"), isNull(), isNull()))
                 .thenReturn(payload);
 
-        String result = tools.saveUser(JsonUtils.toString(payload), null, null, null);
+        String result = tools.saveUser(JacksonUtil.toString(payload), null, null, null);
 
         verify(restClient).saveUser(any(User.class), eq("true"), isNull(), isNull());
-        assertThat(result).isEqualTo(JsonUtils.toString(payload));
+        assertThat(result).isEqualTo(JacksonUtil.toString(payload));
     }
 
     @Test
@@ -77,10 +77,10 @@ class UserToolsTest {
         when(restClient.saveUser(any(User.class), eq("true"), eq(groupId), isNull()))
                 .thenReturn(payload);
 
-        String result = tools.saveUser(JsonUtils.toString(payload), true, groupId, null);
+        String result = tools.saveUser(JacksonUtil.toString(payload), true, groupId, null);
 
         verify(restClient).saveUser(any(User.class), eq("true"), eq(groupId), isNull());
-        assertThat(result).isEqualTo(JsonUtils.toString(payload));
+        assertThat(result).isEqualTo(JacksonUtil.toString(payload));
     }
 
     @Test
@@ -93,10 +93,10 @@ class UserToolsTest {
         when(restClient.saveUser(any(User.class), eq("true"), isNull(), eq(List.of(id1, id2))))
                 .thenReturn(payload);
 
-        String result = tools.saveUser(JsonUtils.toString(payload), true, null, groupIds);
+        String result = tools.saveUser(JacksonUtil.toString(payload), true, null, groupIds);
 
         verify(restClient).saveUser(any(User.class), eq("true"), isNull(), eq(List.of(id1, id2)));
-        assertThat(result).isEqualTo(JsonUtils.toString(payload));
+        assertThat(result).isEqualTo(JacksonUtil.toString(payload));
     }
 
     @Test
@@ -128,7 +128,7 @@ class UserToolsTest {
         String result = tools.getUserById(id);
 
         verify(restClient).getUserById(eq(id));
-        assertThat(result).isEqualTo(JsonUtils.toString(user));
+        assertThat(result).isEqualTo(JacksonUtil.toString(user));
     }
 
     @Test
@@ -143,7 +143,7 @@ class UserToolsTest {
         String result = tools.getUsers("25", "0", null, null, null);
 
         verify(restClient).getAllCustomerUsers(eq(25), eq(0), isNull(), isNull(), isNull());
-        assertThat(result).isEqualTo(JsonUtils.toString(pageData));
+        assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
     }
 
     @Test
@@ -159,7 +159,7 @@ class UserToolsTest {
         String result = tools.getTenantAdmins(tenantId, "50", "1", "john", "email", "ASC");
 
         verify(restClient).getTenantAdmins(eq(tenantId), eq(50), eq(1), eq("john"), eq("email"), eq("ASC"));
-        assertThat(result).isEqualTo(JsonUtils.toString(pageData));
+        assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
     }
 
     @Test
@@ -175,7 +175,7 @@ class UserToolsTest {
         String result = tools.getCustomerUsers(customerId, "10", "2", "a", "firstName", "DESC");
 
         verify(restClient).getCustomerUsers(eq(customerId), eq(10), eq(2), eq("a"), eq("firstName"), eq("DESC"));
-        assertThat(result).isEqualTo(JsonUtils.toString(pageData));
+        assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
     }
 
     @Test
@@ -192,7 +192,7 @@ class UserToolsTest {
         String result = tools.getAllCustomerUsers("15", "3", "x", "lastName", "ASC");
 
         verify(restClient).getAllCustomerUsers(eq(15), eq(3), eq("x"), eq("lastName"), eq("ASC"));
-        assertThat(result).isEqualTo(JsonUtils.toString(pageData));
+        assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
     }
 
     @Test
@@ -209,7 +209,7 @@ class UserToolsTest {
         String result = tools.getUsersForAssign(alarmId, "30", "0", "doe", "email", "ASC");
 
         verify(restClient).getUsersForAssign(eq(alarmId), eq(30), eq(0), eq("doe"), eq("email"), eq("ASC"));
-        assertThat(result).isEqualTo(JsonUtils.toString(pageData));
+        assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
     }
 
     @Test
@@ -227,7 +227,7 @@ class UserToolsTest {
         String result = tools.getUsersByEntityGroupId(groupId, "40", "4", "k", "createdTime", "DESC");
 
         verify(restClient).getUsersByEntityGroupId(eq(groupId), eq(40), eq(4), eq("k"), eq("createdTime"), eq("DESC"));
-        assertThat(result).isEqualTo(JsonUtils.toString(pageData));
+        assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
     }
 
 }

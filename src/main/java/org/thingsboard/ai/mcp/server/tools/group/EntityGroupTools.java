@@ -11,7 +11,7 @@ import org.thingsboard.ai.mcp.server.annotation.ToolGroup;
 import org.thingsboard.ai.mcp.server.data.ThingsBoardEdition;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.McpTools;
-import org.thingsboard.ai.mcp.server.util.JsonUtils;
+import org.thingsboard.ai.mcp.server.util.JacksonUtil;
 import org.thingsboard.client.model.EntityGroup;
 
 import java.util.Arrays;
@@ -47,8 +47,8 @@ public class EntityGroupTools implements McpTools {
     public String saveEntityGroup(
             @ToolParam(description = "JSON entity group object. Omit 'id' to create; include 'id' to update. " + ENTITY_GROUP_JSON_EXAMPLE)
             @NotBlank @Valid String entityGroupJson) {
-        EntityGroup eg = JsonUtils.fromString(entityGroupJson, EntityGroup.class);
-        return JsonUtils.toString(clientService.getClient().saveEntityGroup(eg));
+        EntityGroup eg = JacksonUtil.fromString(entityGroupJson, EntityGroup.class);
+        return JacksonUtil.toString(clientService.getClient().saveEntityGroup(eg));
     }
 
     @PeOnly
@@ -62,7 +62,7 @@ public class EntityGroupTools implements McpTools {
             err.put("status", "ERROR");
             err.put("id", entityGroupIdStr);
             err.put("message", e.getMessage());
-            return JsonUtils.toString(err);
+            return JacksonUtil.toString(err);
         }
     }
 
@@ -81,7 +81,7 @@ public class EntityGroupTools implements McpTools {
             err.put("status", "ERROR");
             err.put("id", entityGroupIdStr);
             err.put("message", e.getMessage());
-            return JsonUtils.toString(err);
+            return JacksonUtil.toString(err);
         }
     }
 
@@ -100,7 +100,7 @@ public class EntityGroupTools implements McpTools {
             err.put("status", "ERROR");
             err.put("id", entityGroupIdStr);
             err.put("message", e.getMessage());
-            return JsonUtils.toString(err);
+            return JacksonUtil.toString(err);
         }
     }
 
@@ -110,7 +110,7 @@ public class EntityGroupTools implements McpTools {
         if (ThingsBoardEdition.CE == clientService.getEdition()) {
             return PE_ONLY_AVAILABLE;
         }
-        return JsonUtils.toString(clientService.getClient().getEntityGroupById(entityGroupId));
+        return JacksonUtil.toString(clientService.getClient().getEntityGroupById(entityGroupId));
     }
 
     @PeOnly
@@ -123,7 +123,7 @@ public class EntityGroupTools implements McpTools {
         if (!ALLOWED_TYPES.contains(entityType)) {
             throw new IllegalArgumentException("Unsupported entityType: " + entityType + ". Allowed: CUSTOMER, ASSET, DEVICE, USER, ENTITY_VIEW, DASHBOARD, EDGE");
         }
-        return JsonUtils.toString(clientService.getClient().getAllEntityGroupsByType(entityType, null));
+        return JacksonUtil.toString(clientService.getClient().getAllEntityGroupsByType(entityType, null));
     }
 
     @PeOnly
@@ -139,7 +139,7 @@ public class EntityGroupTools implements McpTools {
         if (!ALLOWED_TYPES.contains(entityType)) {
             throw new IllegalArgumentException("Unsupported entityType: " + entityType + ". Allowed: CUSTOMER, ASSET, DEVICE, USER, ENTITY_VIEW, DASHBOARD, EDGE");
         }
-        return JsonUtils.toString(clientService.getClient().getEntityGroupByOwnerAndNameAndType(strOwnerType, strOwnerId, entityType, name));
+        return JacksonUtil.toString(clientService.getClient().getEntityGroupByOwnerAndNameAndType(strOwnerType, strOwnerId, entityType, name));
     }
 
     @PeOnly
@@ -154,7 +154,7 @@ public class EntityGroupTools implements McpTools {
         if (!ALLOWED_TYPES.contains(entityType)) {
             throw new IllegalArgumentException("Unsupported entityType: " + entityType + ". Allowed: CUSTOMER, ASSET, DEVICE, USER, ENTITY_VIEW, DASHBOARD, EDGE");
         }
-        return JsonUtils.toString(clientService.getClient().getEntityGroupsByOwnerAndTypeAndPageLink(
+        return JacksonUtil.toString(clientService.getClient().getEntityGroupsByOwnerAndTypeAndPageLink(
                 strOwnerType, strOwnerId, entityType, "1000", "0", null, null, null
         ));
     }
@@ -170,7 +170,7 @@ public class EntityGroupTools implements McpTools {
         if (!ALLOWED_TYPES.contains(entityType)) {
             throw new IllegalArgumentException("Unsupported entityType: " + entityType + ". Allowed: CUSTOMER, ASSET, DEVICE, USER, ENTITY_VIEW, DASHBOARD, EDGE");
         }
-        return JsonUtils.toString(clientService.getClient().getEntityGroupsForEntity(entityType, strEntityId));
+        return JacksonUtil.toString(clientService.getClient().getEntityGroupsForEntity(entityType, strEntityId));
     }
 
     @PeOnly
@@ -180,7 +180,7 @@ public class EntityGroupTools implements McpTools {
             return PE_ONLY_AVAILABLE;
         }
         List<String> entityGroupIds = Arrays.stream(entityIds.split(",")).map(String::trim).toList();
-        return JsonUtils.toString(clientService.getClient().getEntityGroupsByIds(entityGroupIds));
+        return JacksonUtil.toString(clientService.getClient().getEntityGroupsByIds(entityGroupIds));
     }
 
 }

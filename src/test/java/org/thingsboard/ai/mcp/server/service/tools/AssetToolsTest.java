@@ -13,7 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.thingsboard.ai.mcp.server.data.ThingsBoardEdition;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.asset.AssetTools;
-import org.thingsboard.ai.mcp.server.util.JsonUtils;
+import org.thingsboard.ai.mcp.server.util.JacksonUtil;
 import org.thingsboard.client.ThingsboardClient;
 import org.thingsboard.client.model.Asset;
 import org.thingsboard.client.model.PageDataAsset;
@@ -59,7 +59,7 @@ public class AssetToolsTest {
         String result = tools.getAssetById(assetId);
 
         verify(restClient).getAssetById(eq(assetId));
-        assertThat(result).isEqualTo(JsonUtils.toString(asset));
+        assertThat(result).isEqualTo(JacksonUtil.toString(asset));
     }
 
     @ParameterizedTest(name = "tenantAssets page={1} size={0} type={2} sort={4} {5}")
@@ -79,7 +79,7 @@ public class AssetToolsTest {
         String result = tools.getTenantAssets(Integer.toString(pageSize), Integer.toString(page), type, text, sortProperty, sortDir);
 
         verify(restClient).getTenantAssets(eq(pageSize), eq(page), eq(type), eq(text), eq(sortProperty), eq(sortDir));
-        assertThat(result).isEqualTo(JsonUtils.toString(pageData));
+        assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
     }
 
     @Test
@@ -90,7 +90,7 @@ public class AssetToolsTest {
         String result = tools.getTenantAsset("Boiler-01");
 
         verify(restClient).getTenantAssetByName("Boiler-01");
-        assertThat(result).isEqualTo(JsonUtils.toString(asset));
+        assertThat(result).isEqualTo(JacksonUtil.toString(asset));
     }
 
     @ParameterizedTest(name = "customerAssets page={1} size={0} type={3} text={4}")
@@ -111,7 +111,7 @@ public class AssetToolsTest {
         String result = tools.getCustomerAssets(customerId, Integer.toString(pageSize), Integer.toString(page), type, textSearch, sortProp, dir);
 
         verify(restClient).getCustomerAssets(eq(customerId), eq(pageSize), eq(page), eq(type), eq(textSearch), eq(sortProp), eq(dir));
-        assertThat(result).isEqualTo(JsonUtils.toString(pageData));
+        assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
     }
 
     @ParameterizedTest(name = "userAssets page={1} size={0} type={2} sort={4} {5}")
@@ -134,7 +134,7 @@ public class AssetToolsTest {
         String result = tools.getUserAssets(Integer.toString(pageSize), Integer.toString(page), type, text, sortProp, dir);
 
         verify(restClient).getUserAssets(any(), any(), any(), any(), any(), any(), any());
-        assertThat(result).isEqualTo(JsonUtils.toString(pageData));
+        assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
     }
 
     @ParameterizedTest(name = "assetsByGroup page={1} size={0} sort={4} {5}")
@@ -158,7 +158,7 @@ public class AssetToolsTest {
         String result = tools.getAssetsByEntityGroupId(groupId, Integer.toString(pageSize), Integer.toString(page), text, sortProp, dir);
 
         verify(restClient).getAssetsByEntityGroupId(eq(groupId), any(), any(), any(), any(), any());
-        assertThat(result).isEqualTo(JsonUtils.toString(pageData));
+        assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
     }
 
     @Nested
@@ -170,10 +170,10 @@ public class AssetToolsTest {
             when(restClient.saveAsset(any(Asset.class), isNull(), isNull(), isNull(), isNull(), isNull()))
                     .thenReturn(payload);
 
-            String res = tools.saveAsset(JsonUtils.toString(payload), null, null);
+            String res = tools.saveAsset(JacksonUtil.toString(payload), null, null);
 
             verify(restClient).saveAsset(any(Asset.class), isNull(), isNull(), isNull(), isNull(), isNull());
-            assertThat(res).isEqualTo(JsonUtils.toString(payload));
+            assertThat(res).isEqualTo(JacksonUtil.toString(payload));
         }
 
         @Test
@@ -184,10 +184,10 @@ public class AssetToolsTest {
             when(restClient.saveAsset(any(Asset.class), eq(groupId), isNull(), isNull(), isNull(), isNull()))
                     .thenReturn(payload);
 
-            String res = tools.saveAsset(JsonUtils.toString(payload), groupId, null);
+            String res = tools.saveAsset(JacksonUtil.toString(payload), groupId, null);
 
             verify(restClient).saveAsset(any(Asset.class), eq(groupId), isNull(), isNull(), isNull(), isNull());
-            assertThat(res).isEqualTo(JsonUtils.toString(payload));
+            assertThat(res).isEqualTo(JacksonUtil.toString(payload));
         }
 
         @Test
@@ -200,10 +200,10 @@ public class AssetToolsTest {
             when(restClient.saveAsset(any(Asset.class), isNull(), eq(Arrays.asList(id1, id2)), isNull(), isNull(), isNull()))
                     .thenReturn(payload);
 
-            String res = tools.saveAsset(JsonUtils.toString(payload), null, groupIds);
+            String res = tools.saveAsset(JacksonUtil.toString(payload), null, groupIds);
 
             verify(restClient).saveAsset(any(Asset.class), isNull(), eq(Arrays.asList(id1, id2)), isNull(), isNull(), isNull());
-            assertThat(res).isEqualTo(JsonUtils.toString(payload));
+            assertThat(res).isEqualTo(JacksonUtil.toString(payload));
         }
 
     }

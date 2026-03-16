@@ -7,7 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.relation.RelationTools;
-import org.thingsboard.ai.mcp.server.util.JsonUtils;
+import org.thingsboard.ai.mcp.server.util.JacksonUtil;
 import org.thingsboard.client.ThingsboardClient;
 import org.thingsboard.client.model.EntityRelation;
 import org.thingsboard.client.model.EntityRelationInfo;
@@ -53,7 +53,7 @@ public class RelationToolsTest {
                 eq(toUuid.toString()), eq("ASSET"), eq("COMMON")
         );
 
-        assertThat(result).isEqualTo(JsonUtils.toString(relation));
+        assertThat(result).isEqualTo(JacksonUtil.toString(relation));
     }
 
     @Test
@@ -74,7 +74,7 @@ public class RelationToolsTest {
                 eq(toUuid.toString()), eq("DEVICE"), eq("RULE_CHAIN")
         );
 
-        assertThat(result).isEqualTo(JsonUtils.toString(relation));
+        assertThat(result).isEqualTo(JacksonUtil.toString(relation));
     }
 
     @Test
@@ -93,7 +93,7 @@ public class RelationToolsTest {
 
         verify(restClient).findEntityRelationInfosByFrom(eq("DEVICE"), eq(fromUuid.toString()), eq("RULE_CHAIN"));
 
-        assertThat(result).isEqualTo(JsonUtils.toString(relationInfos));
+        assertThat(result).isEqualTo(JacksonUtil.toString(relationInfos));
     }
 
     @Test
@@ -112,7 +112,7 @@ public class RelationToolsTest {
 
         verify(restClient).findEntityRelationsByFromAndRelationType(eq("TENANT"), eq(fromUuid.toString()), eq("Owns"), eq("COMMON"));
 
-        assertThat(result).isEqualTo(JsonUtils.toString(relations));
+        assertThat(result).isEqualTo(JacksonUtil.toString(relations));
     }
 
     @Test
@@ -131,7 +131,7 @@ public class RelationToolsTest {
 
         verify(restClient).findEntityRelationInfosByTo(eq("DEVICE"), eq(fromUuid.toString()), eq("RULE_CHAIN"));
 
-        assertThat(result).isEqualTo(JsonUtils.toString(relationInfos));
+        assertThat(result).isEqualTo(JacksonUtil.toString(relationInfos));
     }
 
     @Test
@@ -150,7 +150,7 @@ public class RelationToolsTest {
 
         verify(restClient).findEntityRelationsByToAndRelationType(eq("DASHBOARD"), eq(toUuid.toString()), eq("Contains"), eq("DASHBOARD"));
 
-        assertThat(result).isEqualTo(JsonUtils.toString(relations));
+        assertThat(result).isEqualTo(JacksonUtil.toString(relations));
     }
 
     @Test
@@ -169,7 +169,7 @@ public class RelationToolsTest {
 
         verify(restClient).findEntityRelationsByToAndRelationType(eq("DASHBOARD"), eq(toUuid.toString()), eq("Contains"), eq("COMMON"));
 
-        assertThat(result).isEqualTo(JsonUtils.toString(relations));
+        assertThat(result).isEqualTo(JacksonUtil.toString(relations));
     }
 
     @Test

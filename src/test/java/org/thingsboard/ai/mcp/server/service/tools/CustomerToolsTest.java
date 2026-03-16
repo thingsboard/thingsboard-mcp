@@ -13,7 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.thingsboard.ai.mcp.server.data.ThingsBoardEdition;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.customer.CustomerTools;
-import org.thingsboard.ai.mcp.server.util.JsonUtils;
+import org.thingsboard.ai.mcp.server.util.JacksonUtil;
 import org.thingsboard.client.ThingsboardClient;
 import org.thingsboard.client.model.Customer;
 import org.thingsboard.client.model.PageDataCustomer;
@@ -58,7 +58,7 @@ public class CustomerToolsTest {
         String result = tools.getCustomerById(id);
 
         verify(restClient).getCustomerById(eq(id));
-        assertThat(result).isEqualTo(JsonUtils.toString(customer));
+        assertThat(result).isEqualTo(JacksonUtil.toString(customer));
     }
 
     @ParameterizedTest(name = "getCustomers page={1} size={0} text={2} sort={3} {4}")
@@ -77,7 +77,7 @@ public class CustomerToolsTest {
         String result = tools.getCustomers(Integer.toString(pageSize), Integer.toString(page), text, sortProp, dir);
 
         verify(restClient).getCustomers(eq(pageSize), eq(page), eq(text), eq(sortProp), eq(dir));
-        assertThat(result).isEqualTo(JsonUtils.toString(pageData));
+        assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
     }
 
     @Test
@@ -88,7 +88,7 @@ public class CustomerToolsTest {
         String result = tools.getTenantCustomer("Acme");
 
         verify(restClient).getTenantCustomer("Acme");
-        assertThat(result).isEqualTo(JsonUtils.toString(customer));
+        assertThat(result).isEqualTo(JacksonUtil.toString(customer));
     }
 
     @ParameterizedTest(name = "getUserCustomers page={1} size={0} text={2} sort={3} {4}")
@@ -110,7 +110,7 @@ public class CustomerToolsTest {
         String result = tools.getUserCustomers(Integer.toString(pageSize), Integer.toString(page), text, sortProp, dir);
 
         verify(restClient).getUserCustomers(any(), any(), any(), any(), any());
-        assertThat(result).isEqualTo(JsonUtils.toString(pageData));
+        assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
     }
 
     @ParameterizedTest(name = "customersByGroup page={1} size={0} text={2} sort={3} {4}")
@@ -133,7 +133,7 @@ public class CustomerToolsTest {
         String result = tools.getCustomersByEntityGroupId(groupId, Integer.toString(pageSize), Integer.toString(page), text, sortProp, dir);
 
         verify(restClient).getCustomersByEntityGroupId(eq(groupId), any(), any(), any(), any(), any());
-        assertThat(result).isEqualTo(JsonUtils.toString(pageData));
+        assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
     }
 
     @Nested
@@ -145,10 +145,10 @@ public class CustomerToolsTest {
             when(restClient.saveCustomer(any(Customer.class), isNull(), isNull(), isNull(), isNull(), isNull()))
                     .thenReturn(payload);
 
-            String res = tools.saveCustomer(JsonUtils.toString(payload), null, null);
+            String res = tools.saveCustomer(JacksonUtil.toString(payload), null, null);
 
             verify(restClient).saveCustomer(any(Customer.class), isNull(), isNull(), isNull(), isNull(), isNull());
-            assertThat(res).isEqualTo(JsonUtils.toString(payload));
+            assertThat(res).isEqualTo(JacksonUtil.toString(payload));
         }
 
         @Test
@@ -159,10 +159,10 @@ public class CustomerToolsTest {
             when(restClient.saveCustomer(any(Customer.class), eq(group), isNull(), isNull(), isNull(), isNull()))
                     .thenReturn(payload);
 
-            String res = tools.saveCustomer(JsonUtils.toString(payload), group, null);
+            String res = tools.saveCustomer(JacksonUtil.toString(payload), group, null);
 
             verify(restClient).saveCustomer(any(Customer.class), eq(group), isNull(), isNull(), isNull(), isNull());
-            assertThat(res).isEqualTo(JsonUtils.toString(payload));
+            assertThat(res).isEqualTo(JacksonUtil.toString(payload));
         }
 
         @Test
@@ -175,10 +175,10 @@ public class CustomerToolsTest {
             when(restClient.saveCustomer(any(Customer.class), isNull(), eq(List.of(id1, id2)), isNull(), isNull(), isNull()))
                     .thenReturn(payload);
 
-            String res = tools.saveCustomer(JsonUtils.toString(payload), null, groupIds);
+            String res = tools.saveCustomer(JacksonUtil.toString(payload), null, groupIds);
 
             verify(restClient).saveCustomer(any(Customer.class), isNull(), eq(List.of(id1, id2)), isNull(), isNull(), isNull());
-            assertThat(res).isEqualTo(JsonUtils.toString(payload));
+            assertThat(res).isEqualTo(JacksonUtil.toString(payload));
         }
 
     }

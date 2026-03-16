@@ -14,7 +14,7 @@ import org.thingsboard.ai.mcp.server.annotation.ToolGroup;
 import org.thingsboard.ai.mcp.server.data.ThingsBoardEdition;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.McpTools;
-import org.thingsboard.ai.mcp.server.util.JsonUtils;
+import org.thingsboard.ai.mcp.server.util.JacksonUtil;
 import org.thingsboard.client.model.User;
 
 import java.util.Arrays;
@@ -64,15 +64,15 @@ public class UserTools implements McpTools {
             @ToolParam(required = false, description = "(PE only) " + ENTITY_GROUP_IDS_CREATE_PARAM_DESCRIPTION)
             @NotBlank String entityGroupIds) {
         sendActivationEmail = sendActivationEmail == null || sendActivationEmail;
-        User user = JsonUtils.fromString(userJson, User.class);
+        User user = JacksonUtil.fromString(userJson, User.class);
         String sendActivationMailStr = String.valueOf(sendActivationEmail);
         if (StringUtils.isNotBlank(entityGroupId)) {
-            return JsonUtils.toString(clientService.getClient().saveUser(user, sendActivationMailStr, entityGroupId, null));
+            return JacksonUtil.toString(clientService.getClient().saveUser(user, sendActivationMailStr, entityGroupId, null));
         } else if (StringUtils.isNotBlank(entityGroupIds)) {
             List<String> groupIdsList = Arrays.asList(entityGroupIds.split(","));
-            return JsonUtils.toString(clientService.getClient().saveUser(user, sendActivationMailStr, null, groupIdsList));
+            return JacksonUtil.toString(clientService.getClient().saveUser(user, sendActivationMailStr, null, groupIdsList));
         } else {
-            return JsonUtils.toString(clientService.getClient().saveUser(user, sendActivationMailStr, null, null));
+            return JacksonUtil.toString(clientService.getClient().saveUser(user, sendActivationMailStr, null, null));
         }
     }
 
@@ -86,13 +86,13 @@ public class UserTools implements McpTools {
             err.put("status", "ERROR");
             err.put("id", userIdStr);
             err.put("message", e.getMessage());
-            return JsonUtils.toString(err);
+            return JacksonUtil.toString(err);
         }
     }
 
     @Tool(description = "Use this to get a user by id.")
     public String getUserById(@ToolParam(description = USER_ID_PARAM_DESCRIPTION) String userId) {
-        return JsonUtils.toString(clientService.getClient().getUserById(userId));
+        return JacksonUtil.toString(clientService.getClient().getUserById(userId));
     }
 
     @Tool(description = "Use this to get a paginated list of users. Scope depends on caller's authority.")
@@ -102,7 +102,7 @@ public class UserTools implements McpTools {
             @ToolParam(required = false, description = CUSTOMER_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'firstName', 'lastName', 'email'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        return JsonUtils.toString(clientService.getClient().getAllCustomerUsers(
+        return JacksonUtil.toString(clientService.getClient().getAllCustomerUsers(
                 parseIntOrDefault(pageSize, 10),
                 parseIntOrDefault(page, 0),
                 sanitizeStringParam(textSearch),
@@ -118,7 +118,7 @@ public class UserTools implements McpTools {
             @ToolParam(required = false, description = CUSTOMER_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'firstName', 'lastName', 'email'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        return JsonUtils.toString(clientService.getClient().getTenantAdmins(
+        return JacksonUtil.toString(clientService.getClient().getTenantAdmins(
                 tenantId,
                 parseIntOrDefault(pageSize, 10),
                 parseIntOrDefault(page, 0),
@@ -135,7 +135,7 @@ public class UserTools implements McpTools {
             @ToolParam(required = false, description = CUSTOMER_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'firstName', 'lastName', 'email'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        return JsonUtils.toString(clientService.getClient().getCustomerUsers(
+        return JacksonUtil.toString(clientService.getClient().getCustomerUsers(
                 customerId,
                 parseIntOrDefault(pageSize, 10),
                 parseIntOrDefault(page, 0),
@@ -155,7 +155,7 @@ public class UserTools implements McpTools {
         if (ThingsBoardEdition.CE == clientService.getEdition()) {
             return PE_ONLY_AVAILABLE;
         }
-        return JsonUtils.toString(clientService.getClient().getAllCustomerUsers(
+        return JacksonUtil.toString(clientService.getClient().getAllCustomerUsers(
                 parseIntOrDefault(pageSize, 10),
                 parseIntOrDefault(page, 0),
                 sanitizeStringParam(textSearch),
@@ -171,7 +171,7 @@ public class UserTools implements McpTools {
             @ToolParam(required = false, description = CUSTOMER_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'firstName', 'lastName', 'email'") String sortProperty,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        return JsonUtils.toString(clientService.getClient().getUsersForAssign(
+        return JacksonUtil.toString(clientService.getClient().getUsersForAssign(
                 alarmId,
                 parseIntOrDefault(pageSize, 10),
                 parseIntOrDefault(page, 0),
@@ -192,7 +192,7 @@ public class UserTools implements McpTools {
         if (ThingsBoardEdition.CE == clientService.getEdition()) {
             return PE_ONLY_AVAILABLE;
         }
-        return JsonUtils.toString(clientService.getClient().getUsersByEntityGroupId(
+        return JacksonUtil.toString(clientService.getClient().getUsersByEntityGroupId(
                 entityGroupId,
                 parseIntOrDefault(pageSize, 10),
                 parseIntOrDefault(page, 0),

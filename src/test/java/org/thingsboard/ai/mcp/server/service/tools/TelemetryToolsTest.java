@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.telemetry.TelemetryTools;
-import org.thingsboard.ai.mcp.server.util.JsonUtils;
+import org.thingsboard.ai.mcp.server.util.JacksonUtil;
 import org.thingsboard.client.ThingsboardClient;
 import org.thingsboard.client.model.AttributeData;
 import org.thingsboard.client.model.TsData;
@@ -52,7 +52,7 @@ public class TelemetryToolsTest {
         String result = tools.getAttributeKeys("DEVICE", id.toString());
 
         verify(restClient).getAttributeKeys(eq("DEVICE"), eq(id.toString()));
-        assertThat(result).isEqualTo(JsonUtils.toString(keys));
+        assertThat(result).isEqualTo(JacksonUtil.toString(keys));
     }
 
     @Test
@@ -64,7 +64,7 @@ public class TelemetryToolsTest {
         String result = tools.getAttributeKeysByScope("DEVICE", id.toString(), "SHARED_SCOPE");
 
         verify(restClient).getAttributeKeysByScope(eq("DEVICE"), eq(id.toString()), eq("SHARED_SCOPE"));
-        assertThat(result).isEqualTo(JsonUtils.toString(keys));
+        assertThat(result).isEqualTo(JacksonUtil.toString(keys));
     }
 
     @Test
@@ -79,7 +79,7 @@ public class TelemetryToolsTest {
         String result = tools.getAttributes("DEVICE", id.toString(), "temp,model");
 
         verify(restClient).getAttributes(eq("DEVICE"), eq(id.toString()), eq("temp,model"), isNull());
-        assertThat(result).isEqualTo(JsonUtils.toString(body));
+        assertThat(result).isEqualTo(JacksonUtil.toString(body));
     }
 
     @Test
@@ -94,7 +94,7 @@ public class TelemetryToolsTest {
         String result = tools.getAttributes("DEVICE", id.toString(), null);
 
         verify(restClient).getAttributes(eq("DEVICE"), eq(id.toString()), isNull(), isNull());
-        assertThat(result).isEqualTo(JsonUtils.toString(body));
+        assertThat(result).isEqualTo(JacksonUtil.toString(body));
     }
 
     @Test
@@ -109,7 +109,7 @@ public class TelemetryToolsTest {
         String result = tools.getAttributesByScope("DEVICE", id.toString(), "SHARED_SCOPE", null);
 
         verify(restClient).getAttributesByScope(eq("DEVICE"), eq(id.toString()), eq("SHARED_SCOPE"), isNull(), isNull());
-        assertThat(result).isEqualTo(JsonUtils.toString(body));
+        assertThat(result).isEqualTo(JacksonUtil.toString(body));
     }
 
     @Test
@@ -123,7 +123,7 @@ public class TelemetryToolsTest {
         String result = tools.getLatestTimeseries("DEVICE", id.toString(), null, "false");
 
         verify(restClient).getLatestTimeseries(eq("DEVICE"), eq(id.toString()), isNull(), eq(false), isNull());
-        assertThat(result).isEqualTo(JsonUtils.toString(body));
+        assertThat(result).isEqualTo(JacksonUtil.toString(body));
     }
 
     @Test
@@ -138,7 +138,7 @@ public class TelemetryToolsTest {
         String result = tools.getAttributesByScope("DEVICE", id.toString(), "SHARED_SCOPE", "sharedKey");
 
         verify(restClient).getAttributesByScope(eq("DEVICE"), eq(id.toString()), eq("SHARED_SCOPE"), eq("sharedKey"), isNull());
-        assertThat(result).isEqualTo(JsonUtils.toString(body));
+        assertThat(result).isEqualTo(JacksonUtil.toString(body));
     }
 
     @Test
@@ -150,7 +150,7 @@ public class TelemetryToolsTest {
         String result = tools.getTimeseriesKeys("DEVICE", id.toString());
 
         verify(restClient).getTimeseriesKeys(eq("DEVICE"), eq(id.toString()));
-        assertThat(result).isEqualTo(JsonUtils.toString(keys));
+        assertThat(result).isEqualTo(JacksonUtil.toString(keys));
     }
 
     @Test
@@ -200,7 +200,7 @@ public class TelemetryToolsTest {
                 isNull()
         );
 
-        assertThat(result).isEqualTo(JsonUtils.toString(ts));
+        assertThat(result).isEqualTo(JacksonUtil.toString(ts));
     }
 
     @Test
@@ -250,7 +250,7 @@ public class TelemetryToolsTest {
                 isNull()
         );
 
-        assertThat(result).isEqualTo(JsonUtils.toString(ts));
+        assertThat(result).isEqualTo(JacksonUtil.toString(ts));
     }
 
     @Test

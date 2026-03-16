@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.thingsboard.ai.mcp.server.annotation.ToolGroup;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.McpTools;
-import org.thingsboard.ai.mcp.server.util.JsonUtils;
+import org.thingsboard.ai.mcp.server.util.JacksonUtil;
 import org.thingsboard.client.model.Alarm;
 
 import java.util.HashMap;
@@ -61,8 +61,8 @@ public class AlarmTools implements McpTools {
             @ToolParam(description = "JSON alarm object. Required for create: 'originator' ({id, entityType}), 'type', 'severity' (CRITICAL|MAJOR|MINOR|WARNING|INDETERMINATE). " +
                     "Optional: 'propagate', 'details', 'assigneeId'. Include 'id' to update. Example: " + ALARM_JSON_EXAMPLE)
             @NotBlank @Valid String alarmJson) {
-        Alarm alarm = JsonUtils.fromString(alarmJson, Alarm.class);
-        return JsonUtils.toString(clientService.getClient().saveAlarm(alarm));
+        Alarm alarm = JacksonUtil.fromString(alarmJson, Alarm.class);
+        return JacksonUtil.toString(clientService.getClient().saveAlarm(alarm));
     }
 
     @Tool(description = "Use this to permanently delete an alarm by its id.")
@@ -75,7 +75,7 @@ public class AlarmTools implements McpTools {
             err.put("status", "ERROR");
             err.put("id", alarmIdStr);
             err.put("message", e.getMessage());
-            return JsonUtils.toString(err);
+            return JacksonUtil.toString(err);
         }
     }
 
@@ -83,13 +83,13 @@ public class AlarmTools implements McpTools {
     public String ackAlarm(
             @ToolParam(description = ALARM_ID_PARAM_DESCRIPTION) @NotBlank String alarmIdStr) {
         try {
-            return JsonUtils.toString(clientService.getClient().ackAlarm(alarmIdStr));
+            return JacksonUtil.toString(clientService.getClient().ackAlarm(alarmIdStr));
         } catch (Exception e) {
             Map<String, Object> err = new HashMap<>();
             err.put("status", "ERROR");
             err.put("id", alarmIdStr);
             err.put("message", e.getMessage());
-            return JsonUtils.toString(err);
+            return JacksonUtil.toString(err);
         }
     }
 
@@ -97,19 +97,19 @@ public class AlarmTools implements McpTools {
     public String clearAlarm(
             @ToolParam(description = ALARM_ID_PARAM_DESCRIPTION) @NotBlank String alarmIdStr) {
         try {
-            return JsonUtils.toString(clientService.getClient().clearAlarm(alarmIdStr));
+            return JacksonUtil.toString(clientService.getClient().clearAlarm(alarmIdStr));
         } catch (Exception e) {
             Map<String, Object> err = new HashMap<>();
             err.put("status", "ERROR");
             err.put("id", alarmIdStr);
             err.put("message", e.getMessage());
-            return JsonUtils.toString(err);
+            return JacksonUtil.toString(err);
         }
     }
 
     @Tool(description = "Use this to get alarm details by id. Returns AlarmInfo including originator name.")
     public String getAlarmInfoById(@ToolParam(description = ALARM_ID_PARAM_DESCRIPTION) @NotBlank String alarmId) {
-        return JsonUtils.toString(clientService.getClient().getAlarmInfoById(alarmId));
+        return JacksonUtil.toString(clientService.getClient().getAlarmInfoById(alarmId));
     }
 
     @Tool(description = "Use this to get a paginated list of alarms for a specific entity. Filter by searchStatus or status (not both). Returns PageData of AlarmInfo.")
@@ -126,7 +126,7 @@ public class AlarmTools implements McpTools {
             @ToolParam(required = false, description = ALARM_QUERY_START_TIME_DESCRIPTION) String startTs,
             @ToolParam(required = false, description = ALARM_QUERY_END_TIME_DESCRIPTION) String endTs,
             @ToolParam(required = false, description = ALARM_QUERY_FETCH_ORIGINATOR_DESCRIPTION) Boolean fetchOriginator) {
-        return JsonUtils.toString(clientService.getClient().getAlarmsByEntity(
+        return JacksonUtil.toString(clientService.getClient().getAlarmsByEntity(
                 entityType,
                 entityId,
                 parseIntOrDefault(pageSize, 10),
@@ -155,7 +155,7 @@ public class AlarmTools implements McpTools {
             @ToolParam(required = false, description = ALARM_QUERY_START_TIME_DESCRIPTION) String startTs,
             @ToolParam(required = false, description = ALARM_QUERY_END_TIME_DESCRIPTION) String endTs,
             @ToolParam(required = false, description = ALARM_QUERY_FETCH_ORIGINATOR_DESCRIPTION) Boolean fetchOriginator) {
-        return JsonUtils.toString(clientService.getClient().getAllAlarms(
+        return JacksonUtil.toString(clientService.getClient().getAllAlarms(
                 parseIntOrDefault(pageSize, 10),
                 parseIntOrDefault(page, 0),
                 sanitizeStringParam(searchStatus),
@@ -175,7 +175,7 @@ public class AlarmTools implements McpTools {
             @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityId,
             @ToolParam(required = false, description = ALARM_QUERY_SEARCH_STATUS_DESCRIPTION) String searchStatus,
             @ToolParam(required = false, description = "A string value representing one of the AlarmStatus enumeration value. Allowed values: 'ACTIVE_UNACK', 'ACTIVE_ACK', 'CLEARED_UNACK', 'CLEARED_ACK'") String status) {
-        return JsonUtils.toString(clientService.getClient().getHighestAlarmSeverity(
+        return JacksonUtil.toString(clientService.getClient().getHighestAlarmSeverity(
                 entityType,
                 entityId,
                 sanitizeStringParam(searchStatus),
@@ -189,7 +189,7 @@ public class AlarmTools implements McpTools {
             @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero String page,
             @ToolParam(required = false, description = ALARM_QUERY_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        return JsonUtils.toString(clientService.getClient().getAlarmTypes(
+        return JacksonUtil.toString(clientService.getClient().getAlarmTypes(
                 parseIntOrDefault(pageSize, 10),
                 parseIntOrDefault(page, 0),
                 sanitizeStringParam(textSearch),

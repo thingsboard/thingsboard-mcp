@@ -21,7 +21,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.concurrent.TimeUnit;
 
-import static org.thingsboard.ai.mcp.server.util.JsonUtils.getMapper;
+import static org.thingsboard.ai.mcp.server.util.JacksonUtil.getMapper;
 
 @Slf4j
 @Service
@@ -96,6 +96,9 @@ public class RestClientService {
                 } else if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
                     client = ThingsboardClient.builder().url(url).credentials(username, password).build();
                 }
+            }
+            if (client == null) {
+                throw new IllegalStateException("No credentials configured (set THINGSBOARD_API_KEY or THINGSBOARD_USERNAME/PASSWORD)");
             }
             detectEdition();
             log.info("Connected to ThingsBoard [{} {}] at {}", edition.getName(), version, url);

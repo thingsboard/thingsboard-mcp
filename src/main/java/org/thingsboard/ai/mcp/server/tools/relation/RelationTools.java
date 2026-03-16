@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.thingsboard.ai.mcp.server.annotation.ToolGroup;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.McpTools;
-import org.thingsboard.ai.mcp.server.util.JsonUtils;
+import org.thingsboard.ai.mcp.server.util.JacksonUtil;
 import org.thingsboard.client.model.EntityRelation;
 import org.thingsboard.client.model.RelationTypeGroup;
 
@@ -41,11 +41,11 @@ public class RelationTools implements McpTools {
     public String saveRelation(
             @ToolParam(description = "JSON relation object. " + RELATION_JSON_EXAMPLE)
             @NotBlank @Valid String relationJson) {
-        EntityRelation relation = JsonUtils.fromString(relationJson, EntityRelation.class);
+        EntityRelation relation = JacksonUtil.fromString(relationJson, EntityRelation.class);
         if (relation.getTypeGroup() == null) {
             relation.typeGroup(RelationTypeGroup.COMMON);
         }
-        return JsonUtils.toString(clientService.getClient().saveRelation(relation));
+        return JacksonUtil.toString(clientService.getClient().saveRelation(relation));
     }
 
     @Tool(description = "Use this to delete a specific relation identified by (from, to, typeGroup, type). Defaults typeGroup to COMMON.")
@@ -67,7 +67,7 @@ public class RelationTools implements McpTools {
             Map<String, Object> err = new HashMap<>();
             err.put("status", "ERROR");
             err.put("message", e.getMessage());
-            return JsonUtils.toString(err);
+            return JacksonUtil.toString(err);
         }
     }
 
@@ -84,7 +84,7 @@ public class RelationTools implements McpTools {
             err.put("entityId", strEntityId);
             err.put("entityType", strEntityType);
             err.put("message", e.getMessage());
-            return JsonUtils.toString(err);
+            return JacksonUtil.toString(err);
         }
     }
 
@@ -97,7 +97,7 @@ public class RelationTools implements McpTools {
             @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String strToId,
             @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String strToType) {
         RelationTypeGroup typeGroup = parseRelationTypeGroup(strRelationTypeGroup);
-        return JsonUtils.toString(clientService.getClient().getRelation(
+        return JacksonUtil.toString(clientService.getClient().getRelation(
                 strFromId, strFromType, relationType,
                 strToId, strToType, typeGroup.name()
         ));
@@ -109,7 +109,7 @@ public class RelationTools implements McpTools {
             @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String strFromType,
             @ToolParam(required = false, description = RELATION_TYPE_GROUP_PARAM_DESCRIPTION) String strRelationTypeGroup) {
         RelationTypeGroup typeGroup = parseRelationTypeGroup(strRelationTypeGroup);
-        return JsonUtils.toString(clientService.getClient().findEntityRelationInfosByFrom(
+        return JacksonUtil.toString(clientService.getClient().findEntityRelationInfosByFrom(
                 strFromType, strFromId, typeGroup.name()
         ));
     }
@@ -121,7 +121,7 @@ public class RelationTools implements McpTools {
             @ToolParam(description = RELATION_TYPE_PARAM_DESCRIPTION) @NotBlank String relationType,
             @ToolParam(required = false, description = RELATION_TYPE_GROUP_PARAM_DESCRIPTION) String strRelationTypeGroup) {
         RelationTypeGroup typeGroup = parseRelationTypeGroup(strRelationTypeGroup);
-        return JsonUtils.toString(clientService.getClient().findEntityRelationsByFromAndRelationType(
+        return JacksonUtil.toString(clientService.getClient().findEntityRelationsByFromAndRelationType(
                 strFromType, strFromId, relationType, typeGroup.name()
         ));
     }
@@ -132,7 +132,7 @@ public class RelationTools implements McpTools {
             @ToolParam(description = ENTITY_TYPE_PARAM_DESCRIPTION) @NotBlank String strToType,
             @ToolParam(required = false, description = RELATION_TYPE_GROUP_PARAM_DESCRIPTION) String strRelationTypeGroup) {
         RelationTypeGroup typeGroup = parseRelationTypeGroup(strRelationTypeGroup);
-        return JsonUtils.toString(clientService.getClient().findEntityRelationInfosByTo(
+        return JacksonUtil.toString(clientService.getClient().findEntityRelationInfosByTo(
                 strToType, strToId, typeGroup.name()
         ));
     }
@@ -144,7 +144,7 @@ public class RelationTools implements McpTools {
             @ToolParam(description = RELATION_TYPE_PARAM_DESCRIPTION) @NotBlank String relationType,
             @ToolParam(required = false, description = RELATION_TYPE_GROUP_PARAM_DESCRIPTION) String strRelationTypeGroup) {
         RelationTypeGroup typeGroup = parseRelationTypeGroup(strRelationTypeGroup);
-        return JsonUtils.toString(clientService.getClient().findEntityRelationsByToAndRelationType(
+        return JacksonUtil.toString(clientService.getClient().findEntityRelationsByToAndRelationType(
                 strToType, strToId, relationType, typeGroup.name()
         ));
     }

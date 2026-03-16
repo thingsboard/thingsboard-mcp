@@ -11,7 +11,7 @@ import org.thingsboard.ai.mcp.server.annotation.PeOnly;
 import org.thingsboard.ai.mcp.server.annotation.ToolGroup;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.McpTools;
-import org.thingsboard.ai.mcp.server.util.JsonUtils;
+import org.thingsboard.ai.mcp.server.util.JacksonUtil;
 import org.thingsboard.client.model.ApiUsageStateFilter;
 import org.thingsboard.client.model.AssetSearchQueryFilter;
 import org.thingsboard.client.model.AssetTypeFilter;
@@ -93,7 +93,7 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        SingleEntityFilter singleEntityFilter = JsonUtils.fromString(singleEntityFilterJson, SingleEntityFilter.class);
+        SingleEntityFilter singleEntityFilter = JacksonUtil.fromString(singleEntityFilterJson, SingleEntityFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
@@ -104,7 +104,7 @@ public class EntityQueryTools implements McpTools {
                 .entityFields(entityFields)
                 .latestValues(latestValues)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @PeOnly
@@ -120,7 +120,7 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        EntityGroupFilter entityGroupFilter = JsonUtils.fromString(entityGroupFilterJson, EntityGroupFilter.class);
+        EntityGroupFilter entityGroupFilter = JacksonUtil.fromString(entityGroupFilterJson, EntityGroupFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
@@ -131,7 +131,7 @@ public class EntityQueryTools implements McpTools {
                 .entityFields(entityFields)
                 .latestValues(latestValues)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = EDQ_ROUTING + "Use this to find entity data for multiple entities by their ids." + EDQ_GUIDES)
@@ -146,7 +146,7 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        EntityListFilter entityListFilter = JsonUtils.fromString(entityListFilterJson, EntityListFilter.class);
+        EntityListFilter entityListFilter = JacksonUtil.fromString(entityListFilterJson, EntityListFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
@@ -157,7 +157,7 @@ public class EntityQueryTools implements McpTools {
                 .entityFields(entityFields)
                 .latestValues(latestValues)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = EDQ_ROUTING + "Use this to find entity data by name prefix ('starts with'). For DEVICE/ASSET/EDGE/ENTITY_VIEW with known profile, use the corresponding type filter instead." + EDQ_GUIDES)
@@ -172,7 +172,7 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        EntityNameFilter entityNameFilter = JsonUtils.fromString(entityNameFilterJson, EntityNameFilter.class);
+        EntityNameFilter entityNameFilter = JacksonUtil.fromString(entityNameFilterJson, EntityNameFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
@@ -183,7 +183,7 @@ public class EntityQueryTools implements McpTools {
                 .entityFields(entityFields)
                 .latestValues(latestValues)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = EDQ_ROUTING + "Use this to find entity data for all entities of a type (DEVICE, ASSET, CUSTOMER, USER, DASHBOARD, ENTITY_VIEW, EDGE, TENANT)." + EDQ_GUIDES)
@@ -198,7 +198,7 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        EntityTypeFilter entityTypeFilter = JsonUtils.fromString(entityTypeFilterJson, EntityTypeFilter.class);
+        EntityTypeFilter entityTypeFilter = JacksonUtil.fromString(entityTypeFilterJson, EntityTypeFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
@@ -209,7 +209,7 @@ public class EntityQueryTools implements McpTools {
                 .entityFields(entityFields)
                 .latestValues(latestValues)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @PeOnly
@@ -225,7 +225,7 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        EntityGroupListFilter entityGroupListFilter = JsonUtils.fromString(entityGroupListFilterJson, EntityGroupListFilter.class);
+        EntityGroupListFilter entityGroupListFilter = JacksonUtil.fromString(entityGroupListFilterJson, EntityGroupListFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
@@ -236,7 +236,7 @@ public class EntityQueryTools implements McpTools {
                 .entityFields(entityFields)
                 .latestValues(latestValues)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @PeOnly
@@ -252,7 +252,7 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        EntityGroupNameFilter entityGroupNameFilter = JsonUtils.fromString(entityGroupNameFilterJson, EntityGroupNameFilter.class);
+        EntityGroupNameFilter entityGroupNameFilter = JacksonUtil.fromString(entityGroupNameFilterJson, EntityGroupNameFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
@@ -263,7 +263,7 @@ public class EntityQueryTools implements McpTools {
                 .entityFields(entityFields)
                 .latestValues(latestValues)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @PeOnly
@@ -279,7 +279,7 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        EntitiesByGroupNameFilter entitiesByGroupNameFilter = JsonUtils.fromString(entitiesByGroupNameFilterJson, EntitiesByGroupNameFilter.class);
+        EntitiesByGroupNameFilter entitiesByGroupNameFilter = JacksonUtil.fromString(entitiesByGroupNameFilterJson, EntitiesByGroupNameFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
@@ -290,7 +290,7 @@ public class EntityQueryTools implements McpTools {
                 .entityFields(entityFields)
                 .latestValues(latestValues)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = EDQ_ROUTING + "Use this to find entity data for the owner (Tenant or Customer) of a specified entity." + EDQ_GUIDES)
@@ -305,7 +305,7 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        StateEntityOwnerFilter stateEntityOwnerFilter = JsonUtils.fromString(stateEntityOwnerFilterJson, StateEntityOwnerFilter.class);
+        StateEntityOwnerFilter stateEntityOwnerFilter = JacksonUtil.fromString(stateEntityOwnerFilterJson, StateEntityOwnerFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
@@ -316,7 +316,7 @@ public class EntityQueryTools implements McpTools {
                 .entityFields(entityFields)
                 .latestValues(latestValues)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = EDQ_ROUTING + "Use this to find entity data for assets by profile/type and optional name prefix." + EDQ_GUIDES)
@@ -331,7 +331,7 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        AssetTypeFilter assetTypeFilter = JsonUtils.fromString(assetTypeFilterJson, AssetTypeFilter.class);
+        AssetTypeFilter assetTypeFilter = JacksonUtil.fromString(assetTypeFilterJson, AssetTypeFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
@@ -342,7 +342,7 @@ public class EntityQueryTools implements McpTools {
                 .entityFields(entityFields)
                 .latestValues(latestValues)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = EDQ_ROUTING + "Use this to find entity data for devices by profile/type and optional name prefix." + EDQ_GUIDES)
@@ -357,7 +357,7 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        DeviceTypeFilter deviceTypeFilter = JsonUtils.fromString(deviceTypeFilterJson, DeviceTypeFilter.class);
+        DeviceTypeFilter deviceTypeFilter = JacksonUtil.fromString(deviceTypeFilterJson, DeviceTypeFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
@@ -368,7 +368,7 @@ public class EntityQueryTools implements McpTools {
                 .entityFields(entityFields)
                 .latestValues(latestValues)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = EDQ_ROUTING + "Use this to find entity data for edges by type and optional name prefix." + EDQ_GUIDES)
@@ -383,7 +383,7 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        EdgeTypeFilter edgeTypeFilter = JsonUtils.fromString(edgeTypeFilterJson, EdgeTypeFilter.class);
+        EdgeTypeFilter edgeTypeFilter = JacksonUtil.fromString(edgeTypeFilterJson, EdgeTypeFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
@@ -394,7 +394,7 @@ public class EntityQueryTools implements McpTools {
                 .entityFields(entityFields)
                 .latestValues(latestValues)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = EDQ_ROUTING + "Use this to find entity data for entity views by type and optional name prefix." + EDQ_GUIDES)
@@ -409,7 +409,7 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        EntityViewTypeFilter entityViewTypeFilter = JsonUtils.fromString(entityViewTypeFilterJson, EntityViewTypeFilter.class);
+        EntityViewTypeFilter entityViewTypeFilter = JacksonUtil.fromString(entityViewTypeFilterJson, EntityViewTypeFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
@@ -420,7 +420,7 @@ public class EntityQueryTools implements McpTools {
                 .entityFields(entityFields)
                 .latestValues(latestValues)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = "Use this to find API usage data. If customer id provided, returns customer's usage; otherwise tenant's." + EDQ_GUIDES)
@@ -435,7 +435,7 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        ApiUsageStateFilter apiUsageStateFilter = JsonUtils.fromString(apiUsageStateFilterJson, ApiUsageStateFilter.class);
+        ApiUsageStateFilter apiUsageStateFilter = JacksonUtil.fromString(apiUsageStateFilterJson, ApiUsageStateFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
@@ -446,7 +446,7 @@ public class EntityQueryTools implements McpTools {
                 .entityFields(entityFields)
                 .latestValues(latestValues)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = EDQ_ROUTING + "Use this to find entity data for entities related to a root entity via relations." + EDQ_GUIDES)
@@ -461,7 +461,7 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        RelationsQueryFilter relationsQueryFilter = JsonUtils.fromString(relationsQueryFilterJson, RelationsQueryFilter.class);
+        RelationsQueryFilter relationsQueryFilter = JacksonUtil.fromString(relationsQueryFilterJson, RelationsQueryFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
@@ -472,7 +472,7 @@ public class EntityQueryTools implements McpTools {
                 .entityFields(entityFields)
                 .latestValues(latestValues)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = EDQ_ROUTING + "Use this to find entity data for assets related to a root entity. Filters by relation type and asset types." + EDQ_GUIDES)
@@ -487,7 +487,7 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        AssetSearchQueryFilter assetSearchQueryFilter = JsonUtils.fromString(assetSearchQueryFilterJson, AssetSearchQueryFilter.class);
+        AssetSearchQueryFilter assetSearchQueryFilter = JacksonUtil.fromString(assetSearchQueryFilterJson, AssetSearchQueryFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
@@ -498,7 +498,7 @@ public class EntityQueryTools implements McpTools {
                 .entityFields(entityFields)
                 .latestValues(latestValues)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = EDQ_ROUTING + "Use this to find entity data for devices related to a root entity. Filters by relation type and device types." + EDQ_GUIDES)
@@ -513,7 +513,7 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        DeviceSearchQueryFilter deviceSearchQueryFilter = JsonUtils.fromString(deviceSearchQueryFilterJson, DeviceSearchQueryFilter.class);
+        DeviceSearchQueryFilter deviceSearchQueryFilter = JacksonUtil.fromString(deviceSearchQueryFilterJson, DeviceSearchQueryFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
@@ -524,7 +524,7 @@ public class EntityQueryTools implements McpTools {
                 .entityFields(entityFields)
                 .latestValues(latestValues)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = EDQ_ROUTING + "Use this to find entity data for entity views related to a root entity. Filters by relation type and view types." + EDQ_GUIDES)
@@ -539,7 +539,7 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        EntityViewSearchQueryFilter entityViewSearchQueryFilter = JsonUtils.fromString(entityViewSearchQueryFilterJson, EntityViewSearchQueryFilter.class);
+        EntityViewSearchQueryFilter entityViewSearchQueryFilter = JacksonUtil.fromString(entityViewSearchQueryFilterJson, EntityViewSearchQueryFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
@@ -550,7 +550,7 @@ public class EntityQueryTools implements McpTools {
                 .entityFields(entityFields)
                 .latestValues(latestValues)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = EDQ_ROUTING + "Use this to find entity data for edges related to a root entity. Filters by relation type and edge types." + EDQ_GUIDES)
@@ -565,7 +565,7 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
-        EdgeSearchQueryFilter edgeSearchQueryFilter = JsonUtils.fromString(edgeSearchQueryFilterJson, EdgeSearchQueryFilter.class);
+        EdgeSearchQueryFilter edgeSearchQueryFilter = JacksonUtil.fromString(edgeSearchQueryFilterJson, EdgeSearchQueryFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
@@ -576,7 +576,7 @@ public class EntityQueryTools implements McpTools {
                 .entityFields(entityFields)
                 .latestValues(latestValues)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     // Entity Count Query:
@@ -584,12 +584,12 @@ public class EntityQueryTools implements McpTools {
     public String countBySingleEntityFilter(
             @ToolParam(description = SINGLE_ENTITY) @NotBlank String singleEntityFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        SingleEntityFilter singleEntityFilter = JsonUtils.fromString(singleEntityFilterJson, SingleEntityFilter.class);
+        SingleEntityFilter singleEntityFilter = JacksonUtil.fromString(singleEntityFilterJson, SingleEntityFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         EntityCountQuery query = new EntityCountQuery()
                 .entityFilter(singleEntityFilter)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @PeOnly
@@ -597,48 +597,48 @@ public class EntityQueryTools implements McpTools {
     public String countByEntityGroupFilter(
             @ToolParam(description = ENTITY_GROUP_FILTER) @NotBlank String entityGroupFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        EntityGroupFilter entityGroupFilter = JsonUtils.fromString(entityGroupFilterJson, EntityGroupFilter.class);
+        EntityGroupFilter entityGroupFilter = JacksonUtil.fromString(entityGroupFilterJson, EntityGroupFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         EntityCountQuery query = new EntityCountQuery()
                 .entityFilter(entityGroupFilter)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @Tool(description = "Use this to count entities by their ids with optional keyFilters. " + COUNT_GUIDES)
     public String countByEntityListFilter(
             @ToolParam(description = ENTITY_LIST) @NotBlank String entityListFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        EntityListFilter entityListFilter = JsonUtils.fromString(entityListFilterJson, EntityListFilter.class);
+        EntityListFilter entityListFilter = JacksonUtil.fromString(entityListFilterJson, EntityListFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         EntityCountQuery query = new EntityCountQuery()
                 .entityFilter(entityListFilter)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @Tool(description = "Use this to count entities matching a name prefix with optional keyFilters. " + COUNT_GUIDES)
     public String countByEntityNameFilter(
             @ToolParam(description = ENTITY_NAME) @NotBlank String entityNameFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        EntityNameFilter entityNameFilter = JsonUtils.fromString(entityNameFilterJson, EntityNameFilter.class);
+        EntityNameFilter entityNameFilter = JacksonUtil.fromString(entityNameFilterJson, EntityNameFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         EntityCountQuery query = new EntityCountQuery()
                 .entityFilter(entityNameFilter)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @Tool(description = "Use this to count all entities of a type (DEVICE, ASSET, CUSTOMER, etc.) with optional keyFilters. " + COUNT_GUIDES)
     public String countByEntityTypeFilter(
             @ToolParam(description = ENTITY_TYPE_FILTER) @NotBlank String entityTypeFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        EntityTypeFilter entityTypeFilter = JsonUtils.fromString(entityTypeFilterJson, EntityTypeFilter.class);
+        EntityTypeFilter entityTypeFilter = JacksonUtil.fromString(entityTypeFilterJson, EntityTypeFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         EntityCountQuery query = new EntityCountQuery()
                 .entityFilter(entityTypeFilter)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @PeOnly
@@ -646,12 +646,12 @@ public class EntityQueryTools implements McpTools {
     public String countByEntityGroupListFilter(
             @ToolParam(description = ENTITY_GROUP_LIST_FILTER) @NotBlank String entityGroupListFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        EntityGroupListFilter entityGroupListFilter = JsonUtils.fromString(entityGroupListFilterJson, EntityGroupListFilter.class);
+        EntityGroupListFilter entityGroupListFilter = JacksonUtil.fromString(entityGroupListFilterJson, EntityGroupListFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         EntityCountQuery query = new EntityCountQuery()
                 .entityFilter(entityGroupListFilter)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @PeOnly
@@ -659,12 +659,12 @@ public class EntityQueryTools implements McpTools {
     public String countByEntityGroupNameFilter(
             @ToolParam(description = ENTITY_GROUP_NAME_FILTER) @NotBlank String entityGroupNameFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        EntityGroupNameFilter entityGroupNameFilter = JsonUtils.fromString(entityGroupNameFilterJson, EntityGroupNameFilter.class);
+        EntityGroupNameFilter entityGroupNameFilter = JacksonUtil.fromString(entityGroupNameFilterJson, EntityGroupNameFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         EntityCountQuery query = new EntityCountQuery()
                 .entityFilter(entityGroupNameFilter)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @PeOnly
@@ -672,132 +672,132 @@ public class EntityQueryTools implements McpTools {
     public String countByEntitiesGroupNameFilter(
             @ToolParam(description = ENTITIES_BY_GROUP_NAME_FILTER) @NotBlank String entitiesByGroupNameFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        EntitiesByGroupNameFilter entitiesByGroupNameFilter = JsonUtils.fromString(entitiesByGroupNameFilterJson, EntitiesByGroupNameFilter.class);
+        EntitiesByGroupNameFilter entitiesByGroupNameFilter = JacksonUtil.fromString(entitiesByGroupNameFilterJson, EntitiesByGroupNameFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         EntityCountQuery query = new EntityCountQuery()
                 .entityFilter(entitiesByGroupNameFilter)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @Tool(description = "Use this to count assets by profile/type and optional name prefix with keyFilters. " + COUNT_GUIDES)
     public String countByAssetTypeFilter(
             @ToolParam(description = ASSET_TYPE) @NotBlank String assetTypeFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        AssetTypeFilter assetTypeFilter = JsonUtils.fromString(assetTypeFilterJson, AssetTypeFilter.class);
+        AssetTypeFilter assetTypeFilter = JacksonUtil.fromString(assetTypeFilterJson, AssetTypeFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         EntityCountQuery query = new EntityCountQuery()
                 .entityFilter(assetTypeFilter)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @Tool(description = "Use this to count devices by profile/type and optional name prefix with keyFilters. " + COUNT_GUIDES)
     public String countByDeviceTypeFilter(
             @ToolParam(description = DEVICE_TYPE) @NotBlank String deviceTypeFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        DeviceTypeFilter deviceTypeFilter = JsonUtils.fromString(deviceTypeFilterJson, DeviceTypeFilter.class);
+        DeviceTypeFilter deviceTypeFilter = JacksonUtil.fromString(deviceTypeFilterJson, DeviceTypeFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         EntityCountQuery query = new EntityCountQuery()
                 .entityFilter(deviceTypeFilter)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @Tool(description = "Use this to count edges by type and optional name prefix with keyFilters. " + COUNT_GUIDES)
     public String countByEdgeTypeFilter(
             @ToolParam(description = EDGE_TYPE) @NotBlank String edgeTypeFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        EdgeTypeFilter edgeTypeFilter = JsonUtils.fromString(edgeTypeFilterJson, EdgeTypeFilter.class);
+        EdgeTypeFilter edgeTypeFilter = JacksonUtil.fromString(edgeTypeFilterJson, EdgeTypeFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         EntityCountQuery query = new EntityCountQuery()
                 .entityFilter(edgeTypeFilter)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @Tool(description = "Use this to count entity views by type and optional name prefix with keyFilters. " + COUNT_GUIDES)
     public String countByEntityViewTypeFilter(
             @ToolParam(description = ENTITY_VIEW_TYPE) @NotBlank String entityViewTypeFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        EntityViewTypeFilter entityViewTypeFilter = JsonUtils.fromString(entityViewTypeFilterJson, EntityViewTypeFilter.class);
+        EntityViewTypeFilter entityViewTypeFilter = JacksonUtil.fromString(entityViewTypeFilterJson, EntityViewTypeFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         EntityCountQuery query = new EntityCountQuery()
                 .entityFilter(entityViewTypeFilter)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @Tool(description = "Use this to get API usage count. Customer-scoped if customer id set, otherwise tenant-scoped. " + COUNT_GUIDES)
     public String countByApiUsageStateFilter(
             @ToolParam(description = API_USAGE) @NotBlank String apiUsageStateFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        ApiUsageStateFilter apiUsageStateFilter = JsonUtils.fromString(apiUsageStateFilterJson, ApiUsageStateFilter.class);
+        ApiUsageStateFilter apiUsageStateFilter = JacksonUtil.fromString(apiUsageStateFilterJson, ApiUsageStateFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         EntityCountQuery query = new EntityCountQuery()
                 .entityFilter(apiUsageStateFilter)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @Tool(description = "Use this to count entities related to a root entity with optional keyFilters. " + COUNT_GUIDES)
     public String countByRelationsQueryFilter(
             @ToolParam(description = RELATIONS_QUERY_FILTER) @NotBlank String relationsQueryFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        RelationsQueryFilter relationsQueryFilter = JsonUtils.fromString(relationsQueryFilterJson, RelationsQueryFilter.class);
+        RelationsQueryFilter relationsQueryFilter = JacksonUtil.fromString(relationsQueryFilterJson, RelationsQueryFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         EntityCountQuery query = new EntityCountQuery()
                 .entityFilter(relationsQueryFilter)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @Tool(description = "Use this to count assets related to a root entity by relation type and asset types. " + COUNT_GUIDES)
     public String countByAssetSearchQueryFilter(
             @ToolParam(description = ASSET_QUERY_FILTER) @NotBlank String assetSearchQueryFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        AssetSearchQueryFilter assetSearchQueryFilter = JsonUtils.fromString(assetSearchQueryFilterJson, AssetSearchQueryFilter.class);
+        AssetSearchQueryFilter assetSearchQueryFilter = JacksonUtil.fromString(assetSearchQueryFilterJson, AssetSearchQueryFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         EntityCountQuery query = new EntityCountQuery()
                 .entityFilter(assetSearchQueryFilter)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @Tool(description = "Use this to count devices related to a root entity by relation type and device types. " + COUNT_GUIDES)
     public String countByDeviceSearchQueryFilter(
             @ToolParam(description = DEVICE_QUERY_FILTER) @NotBlank String deviceSearchQueryFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        DeviceSearchQueryFilter deviceSearchQueryFilter = JsonUtils.fromString(deviceSearchQueryFilterJson, DeviceSearchQueryFilter.class);
+        DeviceSearchQueryFilter deviceSearchQueryFilter = JacksonUtil.fromString(deviceSearchQueryFilterJson, DeviceSearchQueryFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         EntityCountQuery query = new EntityCountQuery()
                 .entityFilter(deviceSearchQueryFilter)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @Tool(description = "Use this to count entity views related to a root entity by relation type and view types. " + COUNT_GUIDES)
     public String countByEntityViewSearchQueryFilter(
             @ToolParam(description = EV_QUERY_FILTER) @NotBlank String entityViewSearchQueryFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        EntityViewSearchQueryFilter entityViewSearchQueryFilter = JsonUtils.fromString(entityViewSearchQueryFilterJson, EntityViewSearchQueryFilter.class);
+        EntityViewSearchQueryFilter entityViewSearchQueryFilter = JacksonUtil.fromString(entityViewSearchQueryFilterJson, EntityViewSearchQueryFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         EntityCountQuery query = new EntityCountQuery()
                 .entityFilter(entityViewSearchQueryFilter)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @Tool(description = "Use this to count edges related to a root entity by relation type and edge types. " + COUNT_GUIDES)
     public String countByEdgeQueryFilter(
             @ToolParam(description = EDGE_QUERY_FILTER) @NotBlank String edgeSearchQueryFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        EdgeSearchQueryFilter edgeSearchQueryFilter = JsonUtils.fromString(edgeSearchQueryFilterJson, EdgeSearchQueryFilter.class);
+        EdgeSearchQueryFilter edgeSearchQueryFilter = JacksonUtil.fromString(edgeSearchQueryFilterJson, EdgeSearchQueryFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         EntityCountQuery query = new EntityCountQuery()
                 .entityFilter(edgeSearchQueryFilter)
                 .keyFilters(keyFilters);
-        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
+        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
 }

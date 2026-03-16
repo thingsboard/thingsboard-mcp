@@ -16,7 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.thingsboard.ai.mcp.server.data.ThingsBoardEdition;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.group.EntityGroupTools;
-import org.thingsboard.ai.mcp.server.util.JsonUtils;
+import org.thingsboard.ai.mcp.server.util.JacksonUtil;
 import org.thingsboard.client.ThingsboardClient;
 import org.thingsboard.client.model.EntityGroup;
 import org.thingsboard.client.model.EntityGroupId;
@@ -66,7 +66,7 @@ public class EntityGroupToolsTest {
         String result = tools.getEntityGroupById(groupId);
 
         verify(restClient).getEntityGroupById(eq(groupId));
-        assertThat(result).isEqualTo(JsonUtils.toString(entityGroupInfo));
+        assertThat(result).isEqualTo(JacksonUtil.toString(entityGroupInfo));
     }
 
     @ParameterizedTest(name = "getEntityGroupsByType → {0}")
@@ -80,7 +80,7 @@ public class EntityGroupToolsTest {
         String result = tools.getEntityGroupsByType(typeStr);
 
         verify(restClient).getAllEntityGroupsByType(eq(typeStr), any());
-        assertThat(result).isEqualTo(JsonUtils.toString(infos));
+        assertThat(result).isEqualTo(JacksonUtil.toString(infos));
     }
 
     @ParameterizedTest
@@ -108,7 +108,7 @@ public class EntityGroupToolsTest {
         assertThat(ownerIdCap.getValue()).isEqualTo(ownerId);
         assertThat(typeCap.getValue()).isEqualTo("ASSET");
         assertThat(nameCap.getValue()).isEqualTo(name);
-        assertThat(result).isEqualTo(JsonUtils.toString(info));
+        assertThat(result).isEqualTo(JacksonUtil.toString(info));
     }
 
     @ParameterizedTest
@@ -125,7 +125,7 @@ public class EntityGroupToolsTest {
         String result = tools.getEntityGroupsByOwnerAndType(ownerType, ownerId, typeStr);
 
         verify(restClient).getEntityGroupsByOwnerAndTypeAndPageLink(eq(ownerType), eq(ownerId), eq(typeStr), eq("1000"), eq("0"), any(), any(), any());
-        assertThat(result).isEqualTo(JsonUtils.toString(pageData));
+        assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
     }
 
     @Test
@@ -141,7 +141,7 @@ public class EntityGroupToolsTest {
         String result = tools.getEntityGroupsForEntity(entityType, entityId);
 
         verify(restClient).getEntityGroupsForEntity(eq(entityType), eq(entityId));
-        assertThat(result).isEqualTo(JsonUtils.toString(ids));
+        assertThat(result).isEqualTo(JacksonUtil.toString(ids));
     }
 
     @Test
@@ -160,7 +160,7 @@ public class EntityGroupToolsTest {
 
         List<String> passedIds = stringListCaptor.getValue();
         assertThat(passedIds).containsExactlyInAnyOrder(id1, id2);
-        assertThat(result).isEqualTo(JsonUtils.toString(infos));
+        assertThat(result).isEqualTo(JacksonUtil.toString(infos));
     }
 
     @Nested
@@ -175,13 +175,13 @@ public class EntityGroupToolsTest {
             returned.setName("Water meters");
             when(restClient.saveEntityGroup(any(EntityGroup.class))).thenReturn(returned);
 
-            String res = tools.saveEntityGroup(JsonUtils.toString(payload));
+            String res = tools.saveEntityGroup(JacksonUtil.toString(payload));
 
             ArgumentCaptor<EntityGroup> argCap = ArgumentCaptor.forClass(EntityGroup.class);
             verify(restClient).saveEntityGroup(argCap.capture());
             assertThat(argCap.getValue().getName()).isEqualTo("Water meters");
 
-            assertThat(res).isEqualTo(JsonUtils.toString(returned));
+            assertThat(res).isEqualTo(JacksonUtil.toString(returned));
         }
 
         @Test

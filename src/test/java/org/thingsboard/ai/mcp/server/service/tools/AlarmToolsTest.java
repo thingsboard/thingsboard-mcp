@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.alarm.AlarmTools;
-import org.thingsboard.ai.mcp.server.util.JsonUtils;
+import org.thingsboard.ai.mcp.server.util.JacksonUtil;
 import org.thingsboard.client.ThingsboardClient;
 import org.thingsboard.client.model.Alarm;
 import org.thingsboard.client.model.AlarmInfo;
@@ -58,7 +58,7 @@ public class AlarmToolsTest {
         String result = tools.getAlarmInfoById(alarmId);
 
         verify(restClient).getAlarmInfoById(eq(alarmId));
-        assertThat(result).isEqualTo(JsonUtils.toString(alarmInfo));
+        assertThat(result).isEqualTo(JacksonUtil.toString(alarmInfo));
     }
 
     @Test
@@ -67,32 +67,32 @@ public class AlarmToolsTest {
         DeviceId originator = new DeviceId().id(UUID.fromString(originatorId)).entityType(EntityType.DEVICE);
         Alarm payload = new Alarm().type("Overheat").originator(originator);
 
-        Alarm saved = JsonUtils.fromString(
+        Alarm saved = JacksonUtil.fromString(
                 "{\"id\":{\"id\":\"" + UUID.randomUUID() + "\",\"entityType\":\"ALARM\"},\"type\":\"Overheat\"}",
                 Alarm.class);
         saved.originator(originator);
 
         when(restClient.saveAlarm(any(Alarm.class))).thenReturn(saved);
 
-        String result = tools.saveAlarm(JsonUtils.toString(payload));
+        String result = tools.saveAlarm(JacksonUtil.toString(payload));
 
         verify(restClient).saveAlarm(any(Alarm.class));
-        assertThat(result).isEqualTo(JsonUtils.toString(saved));
+        assertThat(result).isEqualTo(JacksonUtil.toString(saved));
     }
 
     @Test
     void testSaveAlarm_updateExisting() {
         String alarmUuid = UUID.randomUUID().toString();
-        Alarm payload = JsonUtils.fromString(
+        Alarm payload = JacksonUtil.fromString(
                 "{\"id\":{\"id\":\"" + alarmUuid + "\",\"entityType\":\"ALARM\"},\"type\":\"Overheat\"}",
                 Alarm.class);
 
         when(restClient.saveAlarm(any(Alarm.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        String result = tools.saveAlarm(JsonUtils.toString(payload));
+        String result = tools.saveAlarm(JacksonUtil.toString(payload));
 
         verify(restClient).saveAlarm(any(Alarm.class));
-        assertThat(result).isEqualTo(JsonUtils.toString(payload));
+        assertThat(result).isEqualTo(JacksonUtil.toString(payload));
     }
 
     @Test
@@ -127,7 +127,7 @@ public class AlarmToolsTest {
         String res = tools.ackAlarm(id);
 
         verify(restClient).ackAlarm(eq(id));
-        assertThat(res).isEqualTo(JsonUtils.toString(acked));
+        assertThat(res).isEqualTo(JacksonUtil.toString(acked));
     }
 
     @Test
@@ -149,7 +149,7 @@ public class AlarmToolsTest {
         String res = tools.clearAlarm(id);
 
         verify(restClient).clearAlarm(eq(id));
-        assertThat(res).isEqualTo(JsonUtils.toString(cleared));
+        assertThat(res).isEqualTo(JacksonUtil.toString(cleared));
     }
 
     @Test
@@ -181,7 +181,7 @@ public class AlarmToolsTest {
                 eq(entityType), eq(entityId), eq(100), eq(0),
                 isNull(), isNull(), isNull(), isNull(), isNull(), isNull(),
                 eq(0L), eq(0L), eq(false));
-        assertThat(result).isEqualTo(JsonUtils.toString(page));
+        assertThat(result).isEqualTo(JacksonUtil.toString(page));
     }
 
     @Test
@@ -211,7 +211,7 @@ public class AlarmToolsTest {
                 eq(entityType), eq(entityId), eq(25), eq(2),
                 eq("ACTIVE"), eq("ACTIVE_ACK"), isNull(), eq("temp"),
                 eq("createdTime"), eq("ASC"), eq(1000L), eq(2000L), eq(true));
-        assertThat(result).isEqualTo(JsonUtils.toString(emptyPage));
+        assertThat(result).isEqualTo(JacksonUtil.toString(emptyPage));
     }
 
     @Test
@@ -226,7 +226,7 @@ public class AlarmToolsTest {
                 eq(100), eq(0),
                 isNull(), isNull(), isNull(), isNull(), isNull(), isNull(),
                 eq(0L), eq(0L), eq(false));
-        assertThat(result).isEqualTo(JsonUtils.toString(page));
+        assertThat(result).isEqualTo(JacksonUtil.toString(page));
     }
 
     @Test
@@ -242,7 +242,7 @@ public class AlarmToolsTest {
                 eq(10), eq(1),
                 eq("CLEARED"), eq("CLEARED_UNACK"), eq("user-1"), eq("temp"),
                 eq("endTs"), eq("DESC"), eq(10L), eq(20L), eq(true));
-        assertThat(result).isEqualTo(JsonUtils.toString(page));
+        assertThat(result).isEqualTo(JacksonUtil.toString(page));
     }
 
     @Test
@@ -256,7 +256,7 @@ public class AlarmToolsTest {
 
         verify(restClient).getHighestAlarmSeverity(
                 eq(entityType), eq(entityId), eq("CLEARED"), eq("CLEARED_ACK"), isNull());
-        assertThat(result).isEqualTo(JsonUtils.toString(AlarmSeverity.MINOR));
+        assertThat(result).isEqualTo(JacksonUtil.toString(AlarmSeverity.MINOR));
     }
 
     @Test
@@ -277,7 +277,7 @@ public class AlarmToolsTest {
         String result = tools.getAlarmTypes("50", "3", "abc", "DESC");
 
         verify(restClient).getAlarmTypes(eq(50), eq(3), eq("abc"), eq("DESC"));
-        assertThat(result).isEqualTo(JsonUtils.toString(page));
+        assertThat(result).isEqualTo(JacksonUtil.toString(page));
     }
 
 }
