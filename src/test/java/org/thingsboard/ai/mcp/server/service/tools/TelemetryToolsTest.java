@@ -95,6 +95,7 @@ public class TelemetryToolsTest {
         String result = tools.getAttributes("DEVICE", id.toString(), "temp,model");
 
         ArgumentCaptor<EntityId> entityCap = ArgumentCaptor.forClass(EntityId.class);
+        @SuppressWarnings("unchecked")
         ArgumentCaptor<List<String>> keysCap = ArgumentCaptor.forClass(List.class);
         verify(restClient).getAttributeKvEntries(entityCap.capture(), keysCap.capture());
         assertThat(entityCap.getValue().getId()).isEqualTo(id);
@@ -113,6 +114,7 @@ public class TelemetryToolsTest {
         String result = tools.getAttributes("DEVICE", id.toString(), null);
 
         ArgumentCaptor<EntityId> entityCap = ArgumentCaptor.forClass(EntityId.class);
+        @SuppressWarnings("unchecked")
         ArgumentCaptor<List<String>> keysCap = ArgumentCaptor.forClass(List.class);
         verify(restClient).getAttributeKvEntries(entityCap.capture(), keysCap.capture());
         assertThat(entityCap.getValue().getId()).isEqualTo(id);
@@ -132,6 +134,7 @@ public class TelemetryToolsTest {
 
         ArgumentCaptor<EntityId> entityCap = ArgumentCaptor.forClass(EntityId.class);
         ArgumentCaptor<String> scopeCap = ArgumentCaptor.forClass(String.class);
+        @SuppressWarnings("unchecked")
         ArgumentCaptor<List<String>> keysCap = ArgumentCaptor.forClass(List.class);
         verify(restClient).getAttributesByScope(entityCap.capture(), scopeCap.capture(), keysCap.capture());
         assertThat(entityCap.getValue().getId()).isEqualTo(id);
@@ -153,6 +156,7 @@ public class TelemetryToolsTest {
         String result = tools.getLatestTimeseries("DEVICE", id.toString(), null, "false");
 
         ArgumentCaptor<EntityId> entityCap = ArgumentCaptor.forClass(EntityId.class);
+        @SuppressWarnings("unchecked")
         ArgumentCaptor<List<String>> keysCap = ArgumentCaptor.forClass(List.class);
         verify(restClient).getLatestTimeseries(entityCap.capture(), keysCap.capture(), eq(false));
         assertThat(entityCap.getValue().getId()).isEqualTo(id);
@@ -172,6 +176,7 @@ public class TelemetryToolsTest {
 
         ArgumentCaptor<EntityId> entityCap = ArgumentCaptor.forClass(EntityId.class);
         ArgumentCaptor<String> scopeCap = ArgumentCaptor.forClass(String.class);
+        @SuppressWarnings("unchecked")
         ArgumentCaptor<List<String>> keysCap = ArgumentCaptor.forClass(List.class);
         verify(restClient).getAttributesByScope(entityCap.capture(), scopeCap.capture(), keysCap.capture());
         assertThat(entityCap.getValue().getId()).isEqualTo(id);
@@ -235,6 +240,7 @@ public class TelemetryToolsTest {
         );
 
         ArgumentCaptor<EntityId> entityCap = ArgumentCaptor.forClass(EntityId.class);
+        @SuppressWarnings("unchecked")
         ArgumentCaptor<List<String>> keysCap = ArgumentCaptor.forClass(List.class);
         ArgumentCaptor<Long> intervalCap = ArgumentCaptor.forClass(Long.class);
         ArgumentCaptor<Aggregation> aggCap = ArgumentCaptor.forClass(Aggregation.class);
@@ -314,6 +320,7 @@ public class TelemetryToolsTest {
         );
 
         ArgumentCaptor<EntityId> entityCap = ArgumentCaptor.forClass(EntityId.class);
+        @SuppressWarnings("unchecked")
         ArgumentCaptor<List<String>> keysCap = ArgumentCaptor.forClass(List.class);
         ArgumentCaptor<Long> intervalCap = ArgumentCaptor.forClass(Long.class);
         ArgumentCaptor<Aggregation> aggCap = ArgumentCaptor.forClass(Aggregation.class);

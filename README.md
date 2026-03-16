@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/thingsboard/mcp-server/blob/master/LICENSE)
 [![Docker](https://img.shields.io/docker/v/thingsboard/mcp?label=Docker%20Hub&sort=semver)](https://hub.docker.com/r/thingsboard/mcp)
-[![Java](https://img.shields.io/badge/Java-17%2B-orange)](https://github.com/thingsboard/mcp-server)
+[![Java](https://img.shields.io/badge/Java-25%2B-orange)](https://github.com/thingsboard/mcp-server)
 
 Connect AI agents to your [ThingsBoard](https://thingsboard.io) IoT platform via [Model Context Protocol (MCP)](https://modelcontextprotocol.io). Query devices, manage entities, analyze telemetry, and automate operations — all through natural language.
 
@@ -154,17 +154,17 @@ See [Quick Start](#quick-start) for usage examples.
 ### Download Binary
 
 ```bash
-wget https://github.com/thingsboard/mcp-server/releases/download/v2.1.0/thingsboard-mcp-server-2.1.0.jar
+wget https://github.com/thingsboard/mcp-server/releases/download/v2.2.0/thingsboard-mcp-server-2.2.0.jar
 ```
 
 Run with:
 
 ```bash
 # STDIO mode
-java -jar thingsboard-mcp-server-2.1.0.jar
+java -jar thingsboard-mcp-server-2.2.0.jar
 
 # SSE mode
-java -Dspring.ai.mcp.server.stdio=false -Dspring.main.web-application-type=servlet -jar thingsboard-mcp-server-2.1.0.jar
+java -Dspring.ai.mcp.server.stdio=false -Dspring.main.web-application-type=servlet -jar thingsboard-mcp-server-2.2.0.jar
 ```
 
 <details>
@@ -177,7 +177,7 @@ If you're using the JAR file instead of Docker, use this in your `claude_desktop
   "mcpServers": {
     "thingsboard": {
       "command": "java",
-      "args": ["-jar", "/absolute/path/to/thingsboard-mcp-server-2.1.0.jar"],
+      "args": ["-jar", "/absolute/path/to/thingsboard-mcp-server-2.2.0.jar"],
       "env": {
         "THINGSBOARD_URL": "https://thingsboard.cloud",
         "THINGSBOARD_API_KEY": "YOUR_API_KEY"
@@ -191,13 +191,13 @@ If you're using the JAR file instead of Docker, use this in your `claude_desktop
 
 ### Build from Source
 
-Requires Java 17+ and Maven 3.6+.
+Requires Java 25+ and Maven 3.6+.
 
 ```bash
 git clone https://github.com/thingsboard/mcp-server.git
 cd mcp-server
 mvn clean install -DskipTests
-java -jar target/thingsboard-mcp-server-2.1.0.jar
+java -jar target/thingsboard-mcp-server-2.2.0.jar
 ```
 
 ## Configuration

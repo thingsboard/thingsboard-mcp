@@ -9,7 +9,7 @@ Please include a summary of the change and which issue is fixed.
 - [ ] Docs only
 
 ## Checklist
-- [ ] Code builds on Java 17 / Maven 3.6+
+- [ ] Code builds on Java 25 / Maven 3.6+
 - [ ] Unit tests added/updated (where applicable)
 - [ ] Docs updated (README, examples, env var notes)
 - [ ] No breaking API changes (or documented under “Breaking changes”)

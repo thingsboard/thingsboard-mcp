@@ -20,7 +20,7 @@ Please review our [Code of Conduct](CODE_OF_CONDUCT.md) before contributing. By 
 ## 🛠 Development Setup
 
 ### Prerequisites
-- **Java 17**
+- **Java 25**
 - **Maven 3.6+**
 - Docker (optional, for container testing)
 - Git

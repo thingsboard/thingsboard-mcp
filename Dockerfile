@@ -1,5 +1,5 @@
 # Stage 1: Build the project using Maven
-FROM maven:3.9.4-eclipse-temurin-21 AS builder
+FROM maven:3.9.12-eclipse-temurin-25 AS builder
 
 WORKDIR /app
 COPY . .
@@ -7,7 +7,7 @@ COPY . .
 RUN mvn clean package -DskipTests
 
 # Stage 2: Runtime container
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:25-jre
 
 WORKDIR /app
 
