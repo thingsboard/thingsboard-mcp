@@ -11,19 +11,14 @@ import org.thingsboard.ai.mcp.server.annotation.ToolGroup;
 import org.thingsboard.ai.mcp.server.data.ThingsBoardEdition;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.McpTools;
-import org.thingsboard.common.util.JacksonUtil;
-import org.thingsboard.server.common.data.EntityType;
-import org.thingsboard.server.common.data.group.EntityGroup;
-import org.thingsboard.server.common.data.id.EntityGroupId;
-import org.thingsboard.server.common.data.id.EntityId;
-import org.thingsboard.server.common.data.id.EntityIdFactory;
+import org.thingsboard.ai.mcp.server.util.JacksonUtil;
+import org.thingsboard.client.model.EntityGroup;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ENTITY_GROUP_ID_PARAM_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ENTITY_ID_PARAM_DESCRIPTION;
@@ -43,7 +38,7 @@ public class EntityGroupTools implements McpTools {
 
     private static final String ENTITY_GROUP_TYPE_PARAMETER_DESCRIPTION = "Entity Group type";
 
-    private static final Set<EntityType> ALLOWED_TYPES = Set.of(EntityType.CUSTOMER, EntityType.ASSET, EntityType.DEVICE, EntityType.USER, EntityType.ENTITY_VIEW, EntityType.DASHBOARD, EntityType.EDGE);
+    private static final Set<String> ALLOWED_TYPES = Set.of("CUSTOMER", "ASSET", "DEVICE", "USER", "ENTITY_VIEW", "DASHBOARD", "EDGE");
 
     private final RestClientService clientService;
 
@@ -60,9 +55,8 @@ public class EntityGroupTools implements McpTools {
     @Tool(description = "Use this to delete an entity group by id. Entities remain in the 'All' group. Cannot delete the 'All' group. PE only.")
     public String deleteEntityGroup(@ToolParam(description = ENTITY_GROUP_ID_PARAM_DESCRIPTION) @NotBlank String entityGroupIdStr) {
         try {
-            EntityGroupId entityGroupId = new EntityGroupId(UUID.fromString(entityGroupIdStr));
-            clientService.getClient().deleteEntityGroup(entityGroupId);
-            return "{\"status\":\"OK\",\"id\":\"" + entityGroupId + "\"}";
+            clientService.getClient().deleteEntityGroup(entityGroupIdStr);
+            return "{\"status\":\"OK\",\"id\":\"" + entityGroupIdStr + "\"}";
         } catch (Exception e) {
             Map<String, Object> err = new HashMap<>();
             err.put("status", "ERROR");
@@ -79,9 +73,8 @@ public class EntityGroupTools implements McpTools {
             @ToolParam(description = "Comma-separated list of entity IDs (UUIDs). to be added to the entity group") @NotBlank String entityIdsStr,
             @ToolParam(description = ENTITY_GROUP_TYPE_PARAMETER_DESCRIPTION) @NotBlank String entityGroupType) {
         try {
-            List<EntityId> entityIds = Arrays.stream(entityIdsStr.split(",")).map(entityId -> EntityIdFactory.getByTypeAndId(entityGroupType, entityId)).toList();
-            EntityGroupId entityGroupId = new EntityGroupId(UUID.fromString(entityGroupIdStr));
-            clientService.getClient().addEntitiesToEntityGroup(entityGroupId, entityIds);
+            List<String> entityIds = Arrays.stream(entityIdsStr.split(",")).map(String::trim).toList();
+            clientService.getClient().addEntitiesToEntityGroup(entityGroupIdStr, entityIds);
             return "{\"status\":\"OK\"}";
         } catch (Exception e) {
             Map<String, Object> err = new HashMap<>();
@@ -99,9 +92,8 @@ public class EntityGroupTools implements McpTools {
             @ToolParam(description = "Comma-separated list of entity IDs (UUIDs) to be removed from the entity group.") @NotBlank String entityIdsStr,
             @ToolParam(description = ENTITY_GROUP_TYPE_PARAMETER_DESCRIPTION) @NotBlank String entityGroupType) {
         try {
-            List<EntityId> entityIds = Arrays.stream(entityIdsStr.split(",")).map(entityId -> EntityIdFactory.getByTypeAndId(entityGroupType, entityId)).toList();
-            EntityGroupId entityGroupId = new EntityGroupId(UUID.fromString(entityGroupIdStr));
-            clientService.getClient().removeEntitiesFromEntityGroup(entityGroupId, entityIds);
+            List<String> entityIds = Arrays.stream(entityIdsStr.split(",")).map(String::trim).toList();
+            clientService.getClient().removeEntitiesFromEntityGroup(entityGroupIdStr, entityIds);
             return "{\"success\": true}";
         } catch (Exception e) {
             Map<String, Object> err = new HashMap<>();
@@ -118,7 +110,7 @@ public class EntityGroupTools implements McpTools {
         if (ThingsBoardEdition.CE == clientService.getEdition()) {
             return PE_ONLY_AVAILABLE;
         }
-        return JacksonUtil.toString(clientService.getClient().getEntityGroupById(new EntityGroupId(UUID.fromString(entityGroupId))));
+        return JacksonUtil.toString(clientService.getClient().getEntityGroupById(entityGroupId));
     }
 
     @PeOnly
@@ -128,11 +120,10 @@ public class EntityGroupTools implements McpTools {
         if (ThingsBoardEdition.CE == clientService.getEdition()) {
             return PE_ONLY_AVAILABLE;
         }
-        EntityType type = EntityType.valueOf(entityType);
-        if (!ALLOWED_TYPES.contains(type)) {
-            throw new IllegalArgumentException("Unsupported entityType: " + type + ". Allowed: CUSTOMER, ASSET, DEVICE, USER, ENTITY_VIEW, DASHBOARD, EDGE");
+        if (!ALLOWED_TYPES.contains(entityType)) {
+            throw new IllegalArgumentException("Unsupported entityType: " + entityType + ". Allowed: CUSTOMER, ASSET, DEVICE, USER, ENTITY_VIEW, DASHBOARD, EDGE");
         }
-        return JacksonUtil.toString(clientService.getClient().getEntityGroupsByType(type));
+        return JacksonUtil.toString(clientService.getClient().getAllEntityGroupsByType(entityType, null));
     }
 
     @PeOnly
@@ -145,12 +136,10 @@ public class EntityGroupTools implements McpTools {
         if (ThingsBoardEdition.CE == clientService.getEdition()) {
             return PE_ONLY_AVAILABLE;
         }
-        EntityId ownerId = EntityIdFactory.getByTypeAndId(strOwnerType, strOwnerId);
-        EntityType type = EntityType.valueOf(entityType);
-        if (!ALLOWED_TYPES.contains(type)) {
-            throw new IllegalArgumentException("Unsupported entityType: " + type + ". Allowed: CUSTOMER, ASSET, DEVICE, USER, ENTITY_VIEW, DASHBOARD, EDGE");
+        if (!ALLOWED_TYPES.contains(entityType)) {
+            throw new IllegalArgumentException("Unsupported entityType: " + entityType + ". Allowed: CUSTOMER, ASSET, DEVICE, USER, ENTITY_VIEW, DASHBOARD, EDGE");
         }
-        return JacksonUtil.toString(clientService.getClient().getEntityGroupInfoByOwnerAndNameAndType(ownerId, type, name));
+        return JacksonUtil.toString(clientService.getClient().getEntityGroupByOwnerAndNameAndType(strOwnerType, strOwnerId, entityType, name));
     }
 
     @PeOnly
@@ -162,12 +151,12 @@ public class EntityGroupTools implements McpTools {
         if (ThingsBoardEdition.CE == clientService.getEdition()) {
             return PE_ONLY_AVAILABLE;
         }
-        EntityId ownerId = EntityIdFactory.getByTypeAndId(strOwnerType, strOwnerId);
-        EntityType type = EntityType.valueOf(entityType);
-        if (!ALLOWED_TYPES.contains(type)) {
-            throw new IllegalArgumentException("Unsupported entityType: " + type + ". Allowed: CUSTOMER, ASSET, DEVICE, USER, ENTITY_VIEW, DASHBOARD, EDGE");
+        if (!ALLOWED_TYPES.contains(entityType)) {
+            throw new IllegalArgumentException("Unsupported entityType: " + entityType + ". Allowed: CUSTOMER, ASSET, DEVICE, USER, ENTITY_VIEW, DASHBOARD, EDGE");
         }
-        return JacksonUtil.toString(clientService.getClient().getEntityGroupsByOwnerAndType(ownerId, type));
+        return JacksonUtil.toString(clientService.getClient().getEntityGroupsByOwnerAndTypeAndPageLink(
+                strOwnerType, strOwnerId, entityType, "1000", "0", null, null, null
+        ));
     }
 
     @PeOnly
@@ -178,11 +167,10 @@ public class EntityGroupTools implements McpTools {
         if (ThingsBoardEdition.CE == clientService.getEdition()) {
             return PE_ONLY_AVAILABLE;
         }
-        EntityId entityId = EntityIdFactory.getByTypeAndId(entityType, strEntityId);
-        if (!ALLOWED_TYPES.contains(entityId.getEntityType())) {
-            throw new IllegalArgumentException("Unsupported entityType: " + entityId.getEntityType() + ". Allowed: CUSTOMER, ASSET, DEVICE, USER, ENTITY_VIEW, DASHBOARD, EDGE");
+        if (!ALLOWED_TYPES.contains(entityType)) {
+            throw new IllegalArgumentException("Unsupported entityType: " + entityType + ". Allowed: CUSTOMER, ASSET, DEVICE, USER, ENTITY_VIEW, DASHBOARD, EDGE");
         }
-        return JacksonUtil.toString(clientService.getClient().getEntityGroupsForEntity(entityId));
+        return JacksonUtil.toString(clientService.getClient().getEntityGroupsForEntity(entityType, strEntityId));
     }
 
     @PeOnly
@@ -191,7 +179,7 @@ public class EntityGroupTools implements McpTools {
         if (ThingsBoardEdition.CE == clientService.getEdition()) {
             return PE_ONLY_AVAILABLE;
         }
-        List<EntityGroupId> entityGroupIds = Arrays.stream(entityIds.split(",")).map(UUID::fromString).map(EntityGroupId::new).toList();
+        List<String> entityGroupIds = Arrays.stream(entityIds.split(",")).map(String::trim).toList();
         return JacksonUtil.toString(clientService.getClient().getEntityGroupsByIds(entityGroupIds));
     }
 

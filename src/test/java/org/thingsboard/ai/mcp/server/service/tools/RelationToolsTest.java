@@ -2,27 +2,23 @@ package org.thingsboard.ai.mcp.server.service.tools;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.thingsboard.ai.mcp.server.rest.RestClient;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.relation.RelationTools;
-import org.thingsboard.common.util.JacksonUtil;
-import org.thingsboard.server.common.data.id.EntityId;
-import org.thingsboard.server.common.data.relation.EntityRelation;
-import org.thingsboard.server.common.data.relation.EntityRelationInfo;
-import org.thingsboard.server.common.data.relation.RelationTypeGroup;
+import org.thingsboard.ai.mcp.server.util.JacksonUtil;
+import org.thingsboard.client.ThingsboardClient;
+import org.thingsboard.client.model.EntityRelation;
+import org.thingsboard.client.model.EntityRelationInfo;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,7 +33,7 @@ public class RelationToolsTest {
     private RestClientService clientService;
 
     @Mock
-    private RestClient restClient;
+    private ThingsboardClient restClient;
 
     @Test
     void testFindRelation_commonGroup() {
@@ -47,24 +43,15 @@ public class RelationToolsTest {
         UUID toUuid = UUID.randomUUID();
 
         EntityRelation relation = new EntityRelation();
-        when(restClient.getRelation(any(EntityId.class), eq("Contains"), eq(RelationTypeGroup.COMMON), any(EntityId.class)))
-                .thenReturn(Optional.of(relation));
+        when(restClient.getRelation(anyString(), anyString(), anyString(), anyString(), anyString(), anyString()))
+                .thenReturn(relation);
 
         String result = tools.getRelation(fromUuid.toString(), "DEVICE", "Contains", null, toUuid.toString(), "ASSET");
 
-        ArgumentCaptor<EntityId> fromCap = ArgumentCaptor.forClass(EntityId.class);
-        ArgumentCaptor<String> typeCap = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<RelationTypeGroup> groupCap = ArgumentCaptor.forClass(RelationTypeGroup.class);
-        ArgumentCaptor<EntityId> toCap = ArgumentCaptor.forClass(EntityId.class);
-
-        verify(restClient).getRelation(fromCap.capture(), typeCap.capture(), groupCap.capture(), toCap.capture());
-
-        assertThat(fromCap.getValue().getEntityType().name()).isEqualTo("DEVICE");
-        assertThat(fromCap.getValue().getId()).isEqualTo(fromUuid);
-        assertThat(typeCap.getValue()).isEqualTo("Contains");
-        assertThat(groupCap.getValue()).isEqualTo(RelationTypeGroup.COMMON);
-        assertThat(toCap.getValue().getEntityType().name()).isEqualTo("ASSET");
-        assertThat(toCap.getValue().getId()).isEqualTo(toUuid);
+        verify(restClient).getRelation(
+                eq(fromUuid.toString()), eq("DEVICE"), eq("Contains"),
+                eq(toUuid.toString()), eq("ASSET"), eq("COMMON")
+        );
 
         assertThat(result).isEqualTo(JacksonUtil.toString(relation));
     }
@@ -77,15 +64,16 @@ public class RelationToolsTest {
         UUID toUuid = UUID.randomUUID();
 
         EntityRelation relation = new EntityRelation();
-        when(restClient.getRelation(any(EntityId.class), eq("Manages"), eq(RelationTypeGroup.RULE_CHAIN), any(EntityId.class)))
-                .thenReturn(Optional.of(relation));
+        when(restClient.getRelation(anyString(), anyString(), anyString(), anyString(), anyString(), anyString()))
+                .thenReturn(relation);
 
         String result = tools.getRelation(fromUuid.toString(), "USER", "Manages", "RULE_CHAIN", toUuid.toString(), "DEVICE");
 
-        ArgumentCaptor<RelationTypeGroup> groupCap = ArgumentCaptor.forClass(RelationTypeGroup.class);
-        verify(restClient).getRelation(any(EntityId.class), eq("Manages"), groupCap.capture(), any(EntityId.class));
+        verify(restClient).getRelation(
+                eq(fromUuid.toString()), eq("USER"), eq("Manages"),
+                eq(toUuid.toString()), eq("DEVICE"), eq("RULE_CHAIN")
+        );
 
-        assertThat(groupCap.getValue()).isEqualTo(RelationTypeGroup.RULE_CHAIN);
         assertThat(result).isEqualTo(JacksonUtil.toString(relation));
     }
 
@@ -99,17 +87,11 @@ public class RelationToolsTest {
         for (int i = 0; i < 2; i++) {
             relationInfos.add(new EntityRelationInfo());
         }
-        when(restClient.findInfoByFrom(any(EntityId.class), eq(RelationTypeGroup.RULE_CHAIN))).thenReturn(relationInfos);
+        when(restClient.findEntityRelationInfosByFrom(anyString(), anyString(), anyString())).thenReturn(relationInfos);
 
         String result = tools.findInfoByFrom(fromUuid.toString(), "DEVICE", "RULE_CHAIN");
 
-        ArgumentCaptor<EntityId> entityCap = ArgumentCaptor.forClass(EntityId.class);
-        ArgumentCaptor<RelationTypeGroup> groupCap = ArgumentCaptor.forClass(RelationTypeGroup.class);
-        verify(restClient).findInfoByFrom(entityCap.capture(), groupCap.capture());
-
-        assertThat(entityCap.getValue().getEntityType().name()).isEqualTo("DEVICE");
-        assertThat(entityCap.getValue().getId()).isEqualTo(fromUuid);
-        assertThat(groupCap.getValue()).isEqualTo(RelationTypeGroup.RULE_CHAIN);
+        verify(restClient).findEntityRelationInfosByFrom(eq("DEVICE"), eq(fromUuid.toString()), eq("RULE_CHAIN"));
 
         assertThat(result).isEqualTo(JacksonUtil.toString(relationInfos));
     }
@@ -124,19 +106,11 @@ public class RelationToolsTest {
         for (int i = 0; i < 2; i++) {
             relations.add(new EntityRelation());
         }
-        when(restClient.findByFrom(any(EntityId.class), eq("Owns"), eq(RelationTypeGroup.COMMON))).thenReturn(relations);
+        when(restClient.findEntityRelationsByFromAndRelationType(anyString(), anyString(), anyString(), anyString())).thenReturn(relations);
 
         String result = tools.findByFromWithRelationType(fromUuid.toString(), "TENANT", "Owns", null);
 
-        ArgumentCaptor<EntityId> entityCap = ArgumentCaptor.forClass(EntityId.class);
-        ArgumentCaptor<String> typeCap = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<RelationTypeGroup> groupCap = ArgumentCaptor.forClass(RelationTypeGroup.class);
-        verify(restClient).findByFrom(entityCap.capture(), typeCap.capture(), groupCap.capture());
-
-        assertThat(entityCap.getValue().getEntityType().name()).isEqualTo("TENANT");
-        assertThat(entityCap.getValue().getId()).isEqualTo(fromUuid);
-        assertThat(typeCap.getValue()).isEqualTo("Owns");
-        assertThat(groupCap.getValue()).isEqualTo(RelationTypeGroup.COMMON);
+        verify(restClient).findEntityRelationsByFromAndRelationType(eq("TENANT"), eq(fromUuid.toString()), eq("Owns"), eq("COMMON"));
 
         assertThat(result).isEqualTo(JacksonUtil.toString(relations));
     }
@@ -151,17 +125,11 @@ public class RelationToolsTest {
         for (int i = 0; i < 2; i++) {
             relationInfos.add(new EntityRelationInfo());
         }
-        when(restClient.findInfoByTo(any(EntityId.class), eq(RelationTypeGroup.RULE_CHAIN))).thenReturn(relationInfos);
+        when(restClient.findEntityRelationInfosByTo(anyString(), anyString(), anyString())).thenReturn(relationInfos);
 
         String result = tools.findInfoByTo(fromUuid.toString(), "DEVICE", "RULE_CHAIN");
 
-        ArgumentCaptor<EntityId> entityCap = ArgumentCaptor.forClass(EntityId.class);
-        ArgumentCaptor<RelationTypeGroup> groupCap = ArgumentCaptor.forClass(RelationTypeGroup.class);
-        verify(restClient).findInfoByTo(entityCap.capture(), groupCap.capture());
-
-        assertThat(entityCap.getValue().getEntityType().name()).isEqualTo("DEVICE");
-        assertThat(entityCap.getValue().getId()).isEqualTo(fromUuid);
-        assertThat(groupCap.getValue()).isEqualTo(RelationTypeGroup.RULE_CHAIN);
+        verify(restClient).findEntityRelationInfosByTo(eq("DEVICE"), eq(fromUuid.toString()), eq("RULE_CHAIN"));
 
         assertThat(result).isEqualTo(JacksonUtil.toString(relationInfos));
     }
@@ -176,19 +144,11 @@ public class RelationToolsTest {
         for (int i = 0; i < 2; i++) {
             relations.add(new EntityRelation());
         }
-        when(restClient.findByTo(any(EntityId.class), eq("Contains"), eq(RelationTypeGroup.DASHBOARD))).thenReturn(relations);
+        when(restClient.findEntityRelationsByToAndRelationType(anyString(), anyString(), anyString(), anyString())).thenReturn(relations);
 
-        String result = tools.findByToWithRelationType(toUuid.toString(), "DASHBOARD", "Contains", RelationTypeGroup.DASHBOARD.name());
+        String result = tools.findByToWithRelationType(toUuid.toString(), "DASHBOARD", "Contains", "DASHBOARD");
 
-        ArgumentCaptor<EntityId> entityCap = ArgumentCaptor.forClass(EntityId.class);
-        ArgumentCaptor<String> typeCap = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<RelationTypeGroup> groupCap = ArgumentCaptor.forClass(RelationTypeGroup.class);
-        verify(restClient).findByTo(entityCap.capture(), typeCap.capture(), groupCap.capture());
-
-        assertThat(entityCap.getValue().getEntityType().name()).isEqualTo("DASHBOARD");
-        assertThat(entityCap.getValue().getId()).isEqualTo(toUuid);
-        assertThat(typeCap.getValue()).isEqualTo("Contains");
-        assertThat(groupCap.getValue()).isEqualTo(RelationTypeGroup.DASHBOARD);
+        verify(restClient).findEntityRelationsByToAndRelationType(eq("DASHBOARD"), eq(toUuid.toString()), eq("Contains"), eq("DASHBOARD"));
 
         assertThat(result).isEqualTo(JacksonUtil.toString(relations));
     }
@@ -203,19 +163,11 @@ public class RelationToolsTest {
         for (int i = 0; i < 2; i++) {
             relations.add(new EntityRelation());
         }
-        when(restClient.findByTo(any(EntityId.class), eq("Contains"), eq(RelationTypeGroup.COMMON))).thenReturn(relations);
+        when(restClient.findEntityRelationsByToAndRelationType(anyString(), anyString(), anyString(), anyString())).thenReturn(relations);
 
         String result = tools.findByToWithRelationType(toUuid.toString(), "DASHBOARD", "Contains", null);
 
-        ArgumentCaptor<EntityId> entityCap = ArgumentCaptor.forClass(EntityId.class);
-        ArgumentCaptor<String> typeCap = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<RelationTypeGroup> groupCap = ArgumentCaptor.forClass(RelationTypeGroup.class);
-        verify(restClient).findByTo(entityCap.capture(), typeCap.capture(), groupCap.capture());
-
-        assertThat(entityCap.getValue().getEntityType().name()).isEqualTo("DASHBOARD");
-        assertThat(entityCap.getValue().getId()).isEqualTo(toUuid);
-        assertThat(typeCap.getValue()).isEqualTo("Contains");
-        assertThat(groupCap.getValue()).isEqualTo(RelationTypeGroup.COMMON);
+        verify(restClient).findEntityRelationsByToAndRelationType(eq("DASHBOARD"), eq(toUuid.toString()), eq("Contains"), eq("COMMON"));
 
         assertThat(result).isEqualTo(JacksonUtil.toString(relations));
     }
@@ -251,11 +203,7 @@ public class RelationToolsTest {
 
         String result = tools.deleteRelations(entityUuid.toString(), type);
 
-        ArgumentCaptor<EntityId> idCap = ArgumentCaptor.forClass(EntityId.class);
-        verify(restClient).deleteRelations(idCap.capture());
-
-        assertThat(idCap.getValue().getEntityType().name()).isEqualTo(type);
-        assertThat(idCap.getValue().getId()).isEqualTo(entityUuid);
+        verify(restClient).deleteRelations(eq(entityUuid.toString()), eq(type));
         assertThat(result).contains("\"status\":\"OK\"");
     }
 
@@ -266,7 +214,7 @@ public class RelationToolsTest {
         UUID entityUuid = UUID.randomUUID();
         String type = "ASSET";
 
-        doThrow(new RuntimeException("boom")).when(restClient).deleteRelations(any(EntityId.class));
+        doThrow(new RuntimeException("boom")).when(restClient).deleteRelations(anyString(), anyString());
 
         String result = tools.deleteRelations(entityUuid.toString(), type);
 
@@ -286,7 +234,7 @@ public class RelationToolsTest {
 
         doThrow(new RuntimeException("boom"))
                 .when(restClient)
-                .deleteRelationV2(any(EntityId.class), any(String.class), any(RelationTypeGroup.class), any(EntityId.class));
+                .deleteRelation(anyString(), anyString(), anyString(), anyString(), anyString(), anyString());
 
         String res = tools.deleteRelation(fromId.toString(), "DEVICE", "Contains", null, toId.toString(), "ASSET");
         assertThat(res).contains("\"status\":\"ERROR\"").contains("boom");

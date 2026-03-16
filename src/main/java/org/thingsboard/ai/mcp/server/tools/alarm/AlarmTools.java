@@ -11,19 +11,11 @@ import org.springframework.stereotype.Service;
 import org.thingsboard.ai.mcp.server.annotation.ToolGroup;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.McpTools;
-import org.thingsboard.common.util.JacksonUtil;
-import org.thingsboard.server.common.data.alarm.Alarm;
-import org.thingsboard.server.common.data.alarm.AlarmSearchStatus;
-import org.thingsboard.server.common.data.alarm.AlarmStatus;
-import org.thingsboard.server.common.data.exception.ThingsboardException;
-import org.thingsboard.server.common.data.id.AlarmId;
-import org.thingsboard.server.common.data.id.EntityIdFactory;
-import org.thingsboard.server.common.data.page.PageLink;
-import org.thingsboard.server.common.data.page.TimePageLink;
+import org.thingsboard.ai.mcp.server.util.JacksonUtil;
+import org.thingsboard.client.model.Alarm;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ALARM_ID_PARAM_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ENTITY_ID_PARAM_DESCRIPTION;
@@ -32,8 +24,9 @@ import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.PAGE_NU
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.PAGE_SIZE_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.SORT_ORDER_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.SORT_PROPERTY_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.util.ToolUtils.createPageLink;
-import static org.thingsboard.ai.mcp.server.util.ToolUtils.createTimePageLink;
+import static org.thingsboard.ai.mcp.server.util.ToolUtils.parseIntOrDefault;
+import static org.thingsboard.ai.mcp.server.util.ToolUtils.parseLong;
+import static org.thingsboard.ai.mcp.server.util.ToolUtils.sanitizeStringParam;
 
 @Service
 @RequiredArgsConstructor
@@ -75,9 +68,8 @@ public class AlarmTools implements McpTools {
     @Tool(description = "Use this to permanently delete an alarm by its id.")
     public String deleteAlarm(@ToolParam(description = ALARM_ID_PARAM_DESCRIPTION) @NotBlank String alarmIdStr) {
         try {
-            AlarmId alarmId = new AlarmId(UUID.fromString(alarmIdStr));
-            clientService.getClient().deleteAlarm(alarmId);
-            return "{\"status\":\"OK\",\"id\":\"" + alarmId + "\"}";
+            clientService.getClient().deleteAlarm(alarmIdStr);
+            return "{\"status\":\"OK\",\"id\":\"" + alarmIdStr + "\"}";
         } catch (Exception e) {
             Map<String, Object> err = new HashMap<>();
             err.put("status", "ERROR");
@@ -91,9 +83,7 @@ public class AlarmTools implements McpTools {
     public String ackAlarm(
             @ToolParam(description = ALARM_ID_PARAM_DESCRIPTION) @NotBlank String alarmIdStr) {
         try {
-            AlarmId alarmId = new AlarmId(UUID.fromString(alarmIdStr));
-            clientService.getClient().ackAlarm(alarmId);
-            return "{\"status\":\"OK\",\"id\":\"" + alarmId + "\"}";
+            return JacksonUtil.toString(clientService.getClient().ackAlarm(alarmIdStr));
         } catch (Exception e) {
             Map<String, Object> err = new HashMap<>();
             err.put("status", "ERROR");
@@ -107,9 +97,7 @@ public class AlarmTools implements McpTools {
     public String clearAlarm(
             @ToolParam(description = ALARM_ID_PARAM_DESCRIPTION) @NotBlank String alarmIdStr) {
         try {
-            AlarmId alarmId = new AlarmId(UUID.fromString(alarmIdStr));
-            clientService.getClient().clearAlarm(alarmId);
-            return "{\"status\":\"OK\",\"id\":\"" + alarmId + "\"}";
+            return JacksonUtil.toString(clientService.getClient().clearAlarm(alarmIdStr));
         } catch (Exception e) {
             Map<String, Object> err = new HashMap<>();
             err.put("status", "ERROR");
@@ -121,7 +109,7 @@ public class AlarmTools implements McpTools {
 
     @Tool(description = "Use this to get alarm details by id. Returns AlarmInfo including originator name.")
     public String getAlarmInfoById(@ToolParam(description = ALARM_ID_PARAM_DESCRIPTION) @NotBlank String alarmId) {
-        return JacksonUtil.toString(clientService.getClient().getAlarmInfoById(new AlarmId(UUID.fromString(alarmId))));
+        return JacksonUtil.toString(clientService.getClient().getAlarmInfoById(alarmId));
     }
 
     @Tool(description = "Use this to get a paginated list of alarms for a specific entity. Filter by searchStatus or status (not both). Returns PageData of AlarmInfo.")
@@ -137,11 +125,21 @@ public class AlarmTools implements McpTools {
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder,
             @ToolParam(required = false, description = ALARM_QUERY_START_TIME_DESCRIPTION) String startTs,
             @ToolParam(required = false, description = ALARM_QUERY_END_TIME_DESCRIPTION) String endTs,
-            @ToolParam(required = false, description = ALARM_QUERY_FETCH_ORIGINATOR_DESCRIPTION) Boolean fetchOriginator) throws ThingsboardException {
-        AlarmSearchStatus alarmSearchStatus = searchStatus != null ? AlarmSearchStatus.valueOf(searchStatus) : null;
-        AlarmStatus alarmStatus = status != null ? AlarmStatus.valueOf(status) : null;
-        TimePageLink pageLink = createTimePageLink(pageSize, page, textSearch, sortProperty, sortOrder, startTs, endTs);
-        return JacksonUtil.toString(clientService.getClient().getAlarms(EntityIdFactory.getByTypeAndId(entityType, entityId), alarmSearchStatus, alarmStatus, pageLink, fetchOriginator));
+            @ToolParam(required = false, description = ALARM_QUERY_FETCH_ORIGINATOR_DESCRIPTION) Boolean fetchOriginator) {
+        return JacksonUtil.toString(clientService.getClient().getAlarmsByEntity(
+                entityType,
+                entityId,
+                parseIntOrDefault(pageSize, 10),
+                parseIntOrDefault(page, 0),
+                sanitizeStringParam(searchStatus),
+                sanitizeStringParam(status),
+                null,
+                sanitizeStringParam(textSearch),
+                sanitizeStringParam(sortProperty),
+                sanitizeStringParam(sortOrder),
+                parseLong(startTs),
+                parseLong(endTs),
+                fetchOriginator));
     }
 
     @Tool(description = "Use this to get all alarms visible to the current user (tenant-scoped or customer-scoped). Filter by searchStatus or status (not both). Returns PageData of AlarmInfo.")
@@ -156,11 +154,19 @@ public class AlarmTools implements McpTools {
             @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder,
             @ToolParam(required = false, description = ALARM_QUERY_START_TIME_DESCRIPTION) String startTs,
             @ToolParam(required = false, description = ALARM_QUERY_END_TIME_DESCRIPTION) String endTs,
-            @ToolParam(required = false, description = ALARM_QUERY_FETCH_ORIGINATOR_DESCRIPTION) Boolean fetchOriginator) throws ThingsboardException {
-        AlarmSearchStatus alarmSearchStatus = searchStatus != null ? AlarmSearchStatus.valueOf(searchStatus) : null;
-        AlarmStatus alarmStatus = status != null ? AlarmStatus.valueOf(status) : null;
-        TimePageLink pageLink = createTimePageLink(pageSize, page, textSearch, sortProperty, sortOrder, startTs, endTs);
-        return JacksonUtil.toString(clientService.getClient().getAllAlarms(alarmSearchStatus, alarmStatus, assigneeId, pageLink, fetchOriginator));
+            @ToolParam(required = false, description = ALARM_QUERY_FETCH_ORIGINATOR_DESCRIPTION) Boolean fetchOriginator) {
+        return JacksonUtil.toString(clientService.getClient().getAllAlarms(
+                parseIntOrDefault(pageSize, 10),
+                parseIntOrDefault(page, 0),
+                sanitizeStringParam(searchStatus),
+                sanitizeStringParam(status),
+                sanitizeStringParam(assigneeId),
+                sanitizeStringParam(textSearch),
+                sanitizeStringParam(sortProperty),
+                sanitizeStringParam(sortOrder),
+                parseLong(startTs),
+                parseLong(endTs),
+                fetchOriginator));
     }
 
     @Tool(description = "Use this to get the highest alarm severity for an entity. Returns: CRITICAL, MAJOR, MINOR, WARNING, or INDETERMINATE. Filter by searchStatus or status (not both).")
@@ -169,9 +175,12 @@ public class AlarmTools implements McpTools {
             @ToolParam(description = ENTITY_ID_PARAM_DESCRIPTION) @NotBlank String entityId,
             @ToolParam(required = false, description = ALARM_QUERY_SEARCH_STATUS_DESCRIPTION) String searchStatus,
             @ToolParam(required = false, description = "A string value representing one of the AlarmStatus enumeration value. Allowed values: 'ACTIVE_UNACK', 'ACTIVE_ACK', 'CLEARED_UNACK', 'CLEARED_ACK'") String status) {
-        AlarmSearchStatus alarmSearchStatus = searchStatus != null ? AlarmSearchStatus.valueOf(searchStatus) : null;
-        AlarmStatus alarmStatus = status != null ? AlarmStatus.valueOf(status) : null;
-        return JacksonUtil.toString(clientService.getClient().getHighestAlarmSeverity(EntityIdFactory.getByTypeAndId(entityType, entityId), alarmSearchStatus, alarmStatus));
+        return JacksonUtil.toString(clientService.getClient().getHighestAlarmSeverity(
+                entityType,
+                entityId,
+                sanitizeStringParam(searchStatus),
+                sanitizeStringParam(status),
+                null));
     }
 
     @Tool(description = "Use this to list unique alarm type names visible to the current user.")
@@ -179,9 +188,12 @@ public class AlarmTools implements McpTools {
             @ToolParam(description = PAGE_SIZE_DESCRIPTION) @Positive String pageSize,
             @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero String page,
             @ToolParam(required = false, description = ALARM_QUERY_TEXT_SEARCH_DESCRIPTION) String textSearch,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
-        PageLink pageLink = createPageLink(pageSize, page, textSearch, "type", sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getAlarmTypes(pageLink));
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
+        return JacksonUtil.toString(clientService.getClient().getAlarmTypes(
+                parseIntOrDefault(pageSize, 10),
+                parseIntOrDefault(page, 0),
+                sanitizeStringParam(textSearch),
+                sanitizeStringParam(sortOrder)));
     }
 
 }

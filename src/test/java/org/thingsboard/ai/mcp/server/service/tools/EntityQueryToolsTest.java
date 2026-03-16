@@ -10,38 +10,37 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.thingsboard.ai.mcp.server.rest.RestClient;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.query.EntityQueryTools;
-import org.thingsboard.common.util.JacksonUtil;
-import org.thingsboard.server.common.data.EntityType;
-import org.thingsboard.server.common.data.exception.ThingsboardException;
-import org.thingsboard.server.common.data.id.DeviceId;
-import org.thingsboard.server.common.data.page.PageData;
-import org.thingsboard.server.common.data.query.ApiUsageStateFilter;
-import org.thingsboard.server.common.data.query.AssetSearchQueryFilter;
-import org.thingsboard.server.common.data.query.AssetTypeFilter;
-import org.thingsboard.server.common.data.query.DeviceSearchQueryFilter;
-import org.thingsboard.server.common.data.query.DeviceTypeFilter;
-import org.thingsboard.server.common.data.query.EdgeSearchQueryFilter;
-import org.thingsboard.server.common.data.query.EdgeTypeFilter;
-import org.thingsboard.server.common.data.query.EntitiesByGroupNameFilter;
-import org.thingsboard.server.common.data.query.EntityCountQuery;
-import org.thingsboard.server.common.data.query.EntityData;
-import org.thingsboard.server.common.data.query.EntityDataQuery;
-import org.thingsboard.server.common.data.query.EntityGroupFilter;
-import org.thingsboard.server.common.data.query.EntityGroupListFilter;
-import org.thingsboard.server.common.data.query.EntityGroupNameFilter;
-import org.thingsboard.server.common.data.query.EntityKeyType;
-import org.thingsboard.server.common.data.query.EntityListFilter;
-import org.thingsboard.server.common.data.query.EntityNameFilter;
-import org.thingsboard.server.common.data.query.EntityTypeFilter;
-import org.thingsboard.server.common.data.query.EntityViewSearchQueryFilter;
-import org.thingsboard.server.common.data.query.EntityViewTypeFilter;
-import org.thingsboard.server.common.data.query.RelationsQueryFilter;
-import org.thingsboard.server.common.data.query.SingleEntityFilter;
-import org.thingsboard.server.common.data.query.StateEntityOwnerFilter;
-import org.thingsboard.server.common.data.query.TsValue;
+import org.thingsboard.ai.mcp.server.util.JacksonUtil;
+import org.thingsboard.client.ThingsboardClient;
+import org.thingsboard.client.model.ApiUsageStateFilter;
+import org.thingsboard.client.model.AssetSearchQueryFilter;
+import org.thingsboard.client.model.AssetTypeFilter;
+import org.thingsboard.client.model.DeviceId;
+import org.thingsboard.client.model.DeviceSearchQueryFilter;
+import org.thingsboard.client.model.DeviceTypeFilter;
+import org.thingsboard.client.model.EdgeSearchQueryFilter;
+import org.thingsboard.client.model.EdgeTypeFilter;
+import org.thingsboard.client.model.EntitiesByGroupNameFilter;
+import org.thingsboard.client.model.EntityCountQuery;
+import org.thingsboard.client.model.EntityData;
+import org.thingsboard.client.model.EntityDataQuery;
+import org.thingsboard.client.model.EntityGroupFilter;
+import org.thingsboard.client.model.EntityGroupListFilter;
+import org.thingsboard.client.model.EntityGroupNameFilter;
+import org.thingsboard.client.model.EntityKeyType;
+import org.thingsboard.client.model.EntityListFilter;
+import org.thingsboard.client.model.EntityNameFilter;
+import org.thingsboard.client.model.EntityType;
+import org.thingsboard.client.model.EntityTypeFilter;
+import org.thingsboard.client.model.EntityViewSearchQueryFilter;
+import org.thingsboard.client.model.EntityViewTypeFilter;
+import org.thingsboard.client.model.PageDataEntityData;
+import org.thingsboard.client.model.RelationsQueryFilter;
+import org.thingsboard.client.model.SingleEntityFilter;
+import org.thingsboard.client.model.StateEntityOwnerFilter;
+import org.thingsboard.client.model.TsValue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,7 +63,7 @@ public class EntityQueryToolsTest {
     private RestClientService clientService;
 
     @Mock
-    private RestClient restClient;
+    private ThingsboardClient restClient;
 
     @Captor
     private ArgumentCaptor<EntityDataQuery> entityDataQueryCaptor;
@@ -83,7 +82,7 @@ public class EntityQueryToolsTest {
 
         @Test
         @DisplayName("Should find entity data by single entity filter with all parameters")
-        void testFindEntityDataBySingleEntityFilter_withAllParams() throws ThingsboardException {
+        void testFindEntityDataBySingleEntityFilter_withAllParams() {
             UUID deviceId = UUID.randomUUID();
             String filterJson = String.format("""
                     {"type":"singleEntity","singleEntity":{"entityType":"DEVICE","id":"%s"}}
@@ -93,7 +92,7 @@ public class EntityQueryToolsTest {
             String entityFieldsJson = "[{\"type\":\"ENTITY_FIELD\",\"key\":\"name\"}]";
             String latestValuesJson = "[{\"type\":\"TIME_SERIES\",\"key\":\"temperature\"}]";
 
-            PageData<EntityData> pageData = createMockPageData();
+            PageDataEntityData pageData = createMockPageData();
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataBySingleEntityFilter(
@@ -117,13 +116,13 @@ public class EntityQueryToolsTest {
 
         @Test
         @DisplayName("Should find entity data with minimal parameters")
-        void testFindEntityDataBySingleEntityFilter_minimalParams() throws ThingsboardException {
+        void testFindEntityDataBySingleEntityFilter_minimalParams() {
             UUID deviceId = UUID.randomUUID();
             String filterJson = String.format("""
                     {"type":"singleEntity","singleEntity":{"entityType":"DEVICE","id":"%s"}}
                     """, deviceId);
 
-            PageData<EntityData> pageData = createMockPageData();
+            PageDataEntityData pageData = createMockPageData();
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataBySingleEntityFilter(
@@ -149,13 +148,13 @@ public class EntityQueryToolsTest {
 
         @Test
         @DisplayName("Should find all devices by entity type filter")
-        void testFindEntityDataByEntityTypeFilter() throws ThingsboardException {
+        void testFindEntityDataByEntityTypeFilter() {
             EntityTypeFilter filter = new EntityTypeFilter();
             filter.setEntityType(EntityType.DEVICE);
 
             String entityFieldsJson = "[{\"type\":\"ENTITY_FIELD\",\"key\":\"name\"},{\"type\":\"ENTITY_FIELD\",\"key\":\"label\"}]";
 
-            PageData<EntityData> pageData = createMockPageDataWithFields(List.of("name", "label"));
+            PageDataEntityData pageData = createMockPageDataWithFields(List.of("name", "label"));
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByEntityTypeFilter(
@@ -180,7 +179,7 @@ public class EntityQueryToolsTest {
 
         @Test
         @DisplayName("Should find devices by device type with filters")
-        void testFindEntityDataByDeviceTypeFilter() throws ThingsboardException {
+        void testFindEntityDataByDeviceTypeFilter() {
             DeviceTypeFilter filter = new DeviceTypeFilter();
             filter.setDeviceTypes(List.of("Temperature Sensor"));
             filter.setDeviceNameFilter("Room");
@@ -188,7 +187,7 @@ public class EntityQueryToolsTest {
             String keyFiltersJson = "[{\"keyType\":\"TIME_SERIES\",\"key\":\"temperature\",\"valueType\":\"NUMERIC\",\"predicateType\":\"NUMERIC\",\"operation\":\"GREATER\",\"defaultValue\":30.0}]";
             String latestValuesJson = "[{\"type\":\"TIME_SERIES\",\"key\":\"temperature\"},{\"type\":\"TIME_SERIES\",\"key\":\"humidity\"}]";
 
-            PageData<EntityData> pageData = createMockPageDataWithTelemetry(List.of("temperature", "humidity"));
+            PageDataEntityData pageData = createMockPageDataWithTelemetry(List.of("temperature", "humidity"));
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByDeviceTypeFilter(
@@ -215,13 +214,13 @@ public class EntityQueryToolsTest {
 
         @Test
         @DisplayName("Should find entities related to root entity")
-        void testFindEntityDataByRelationsQueryFilter() throws ThingsboardException {
+        void testFindEntityDataByRelationsQueryFilter() {
             UUID assetId = UUID.randomUUID();
             String filterJson = String.format("""
                     {"type":"relationsQuery","rootEntity":{"entityType":"ASSET","id":"%s"},"direction":"FROM","maxLevel":1,"filters":[]}
                     """, assetId);
 
-            PageData<EntityData> pageData = createMockPageData();
+            PageDataEntityData pageData = createMockPageData();
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByRelationsQueryFilter(
@@ -244,12 +243,12 @@ public class EntityQueryToolsTest {
 
         @Test
         @DisplayName("Should find entities by name pattern")
-        void testFindEntityDataByEntityNameFilter() throws ThingsboardException {
+        void testFindEntityDataByEntityNameFilter() {
             EntityNameFilter filter = new EntityNameFilter();
             filter.setEntityType(EntityType.DEVICE);
             filter.setEntityNameFilter("Sensor");
 
-            PageData<EntityData> pageData = createMockPageData();
+            PageDataEntityData pageData = createMockPageData();
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByEntityNameFilter(
@@ -273,12 +272,12 @@ public class EntityQueryToolsTest {
 
         @Test
         @DisplayName("Should find assets by type")
-        void testFindEntityDataByAssetTypeFilter() throws ThingsboardException {
+        void testFindEntityDataByAssetTypeFilter() {
             AssetTypeFilter filter = new AssetTypeFilter();
             filter.setAssetTypes(List.of("Building"));
             filter.setAssetNameFilter("Office");
 
-            PageData<EntityData> pageData = createMockPageData();
+            PageDataEntityData pageData = createMockPageData();
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByAssetTypeFilter(
@@ -293,11 +292,11 @@ public class EntityQueryToolsTest {
 
         @Test
         @DisplayName("Should find edges by type")
-        void testFindEntityDataByEdgeTypeFilter() throws ThingsboardException {
+        void testFindEntityDataByEdgeTypeFilter() {
             EdgeTypeFilter filter = new EdgeTypeFilter();
             filter.setEdgeTypes(List.of("Gateway"));
 
-            PageData<EntityData> pageData = createMockPageData();
+            PageDataEntityData pageData = createMockPageData();
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByEdgeTypeFilter(
@@ -312,11 +311,11 @@ public class EntityQueryToolsTest {
 
         @Test
         @DisplayName("Should find entity views by type")
-        void testFindEntityDataByEntityViewTypeFilter() throws ThingsboardException {
+        void testFindEntityDataByEntityViewTypeFilter() {
             EntityViewTypeFilter filter = new EntityViewTypeFilter();
             filter.setEntityViewTypes(List.of("Monitor"));
 
-            PageData<EntityData> pageData = createMockPageData();
+            PageDataEntityData pageData = createMockPageData();
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByEntityViewTypeFilter(
@@ -596,13 +595,13 @@ public class EntityQueryToolsTest {
 
         @Test
         @DisplayName("Should find entity data by entity group filter")
-        void testFindEntityDataByEntityGroupFilter() throws ThingsboardException {
+        void testFindEntityDataByEntityGroupFilter() {
             UUID groupId = UUID.randomUUID();
             String filterJson = String.format("""
                     {"type":"entityGroup","groupType":"DEVICE","entityGroup":"%s"}
                     """, groupId);
 
-            PageData<EntityData> pageData = createMockPageData();
+            PageDataEntityData pageData = createMockPageData();
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByEntityGroupFilter(
@@ -646,12 +645,12 @@ public class EntityQueryToolsTest {
 
         @Test
         @DisplayName("Should find entity data by entity list filter")
-        void testFindEntityDataByEntityListFilter() throws ThingsboardException {
+        void testFindEntityDataByEntityListFilter() {
             EntityListFilter filter = new EntityListFilter();
             filter.setEntityType(EntityType.DEVICE);
             filter.setEntityList(List.of(UUID.randomUUID().toString(), UUID.randomUUID().toString()));
 
-            PageData<EntityData> pageData = createMockPageData();
+            PageDataEntityData pageData = createMockPageData();
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByEntityListFilter(
@@ -672,14 +671,14 @@ public class EntityQueryToolsTest {
 
         @Test
         @DisplayName("Should find entity data by entity group list filter")
-        void testFindEntityDataByEntityGroupListFilter() throws ThingsboardException {
+        void testFindEntityDataByEntityGroupListFilter() {
             UUID group1 = UUID.randomUUID();
             UUID group2 = UUID.randomUUID();
             String filterJson = String.format("""
                     {"type":"entityGroupList","groupType":"DEVICE","entityGroupList":["%s","%s"]}
                     """, group1, group2);
 
-            PageData<EntityData> pageData = createMockPageData();
+            PageDataEntityData pageData = createMockPageData();
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByEntityGroupListFilter(
@@ -724,12 +723,12 @@ public class EntityQueryToolsTest {
 
         @Test
         @DisplayName("Should find entity data by entity group name filter")
-        void testFindEntityDataByEntityGroupNameFilter() throws ThingsboardException {
+        void testFindEntityDataByEntityGroupNameFilter() {
             String filterJson = """
                     {"type":"entityGroupName","groupType":"DEVICE","entityGroupNameFilter":"Sensors"}
                     """;
 
-            PageData<EntityData> pageData = createMockPageData();
+            PageDataEntityData pageData = createMockPageData();
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByEntityGroupNameFilter(
@@ -772,12 +771,12 @@ public class EntityQueryToolsTest {
 
         @Test
         @DisplayName("Should find entity data by entities group name filter")
-        void testFindEntityDataByEntitiesGroupNameFilter() throws ThingsboardException {
+        void testFindEntityDataByEntitiesGroupNameFilter() {
             String filterJson = """
                     {"type":"entitiesByGroupName","groupType":"DEVICE","entityGroupNameFilter":"Water Meters"}
                     """;
 
-            PageData<EntityData> pageData = createMockPageData();
+            PageDataEntityData pageData = createMockPageData();
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByEntitiesGroupNameFilter(
@@ -820,13 +819,13 @@ public class EntityQueryToolsTest {
 
         @Test
         @DisplayName("Should find entity data by state entity owner filter")
-        void testFindEntityDataByStateEntityOwnerFilter() throws ThingsboardException {
+        void testFindEntityDataByStateEntityOwnerFilter() {
             UUID deviceId = UUID.randomUUID();
             String filterJson = String.format("""
                     {"type":"stateEntityOwner","singleEntity":{"id":"%s","entityType":"DEVICE"}}
                     """, deviceId);
 
-            PageData<EntityData> pageData = createMockPageData();
+            PageDataEntityData pageData = createMockPageData();
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByStateEntityOwnerFilter(
@@ -847,12 +846,12 @@ public class EntityQueryToolsTest {
 
         @Test
         @DisplayName("Should find entity data by API usage state filter")
-        void testFindEntityDataByApiUsageStateFilter() throws ThingsboardException {
+        void testFindEntityDataByApiUsageStateFilter() {
             String filterJson = """
                     {"type":"apiUsageState"}
                     """;
 
-            PageData<EntityData> pageData = createMockPageData();
+            PageDataEntityData pageData = createMockPageData();
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByApiUsageStateFilter(
@@ -895,13 +894,13 @@ public class EntityQueryToolsTest {
 
         @Test
         @DisplayName("Should find entity data by asset search query filter")
-        void testFindEntityDataByAssetSearchQueryFilter() throws ThingsboardException {
+        void testFindEntityDataByAssetSearchQueryFilter() {
             UUID assetId = UUID.randomUUID();
             String filterJson = String.format("""
                     {"type":"assetSearchQuery","rootEntity":{"entityType":"ASSET","id":"%s"},"direction":"FROM","maxLevel":1,"relationType":"Contains","assetTypes":["Building"]}
                     """, assetId);
 
-            PageData<EntityData> pageData = createMockPageData();
+            PageDataEntityData pageData = createMockPageData();
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByAssetSearchQueryFilter(
@@ -945,13 +944,13 @@ public class EntityQueryToolsTest {
 
         @Test
         @DisplayName("Should find entity data by device search query filter")
-        void testFindEntityDataByDeviceSearchQueryFilter() throws ThingsboardException {
+        void testFindEntityDataByDeviceSearchQueryFilter() {
             UUID assetId = UUID.randomUUID();
             String filterJson = String.format("""
                     {"type":"deviceSearchQuery","rootEntity":{"entityType":"ASSET","id":"%s"},"direction":"FROM","maxLevel":2,"relationType":"Contains","deviceTypes":["Sensor"]}
                     """, assetId);
 
-            PageData<EntityData> pageData = createMockPageData();
+            PageDataEntityData pageData = createMockPageData();
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByDeviceSearchQueryFilter(
@@ -995,13 +994,13 @@ public class EntityQueryToolsTest {
 
         @Test
         @DisplayName("Should find entity data by entity view search query filter")
-        void testFindEntityDataByEntityViewSearchQueryFilter() throws ThingsboardException {
+        void testFindEntityDataByEntityViewSearchQueryFilter() {
             UUID assetId = UUID.randomUUID();
             String filterJson = String.format("""
                     {"type":"entityViewSearchQuery","rootEntity":{"entityType":"ASSET","id":"%s"},"direction":"FROM","maxLevel":1,"relationType":"Contains","entityViewTypes":["Monitor"]}
                     """, assetId);
 
-            PageData<EntityData> pageData = createMockPageData();
+            PageDataEntityData pageData = createMockPageData();
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByEntityViewSearchQueryFilter(
@@ -1045,13 +1044,13 @@ public class EntityQueryToolsTest {
 
         @Test
         @DisplayName("Should find entity data by edge search query filter")
-        void testFindEntityDataByEdgeQueryFilter() throws ThingsboardException {
+        void testFindEntityDataByEdgeQueryFilter() {
             UUID assetId = UUID.randomUUID();
             String filterJson = String.format("""
                     {"type":"edgeSearchQuery","rootEntity":{"entityType":"ASSET","id":"%s"},"direction":"FROM","maxLevel":2,"relationType":"Contains","edgeTypes":["Gateway"]}
                     """, assetId);
 
-            PageData<EntityData> pageData = createMockPageData();
+            PageDataEntityData pageData = createMockPageData();
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataByEdgeQueryFilter(
@@ -1089,36 +1088,36 @@ public class EntityQueryToolsTest {
 
     }
 
-    private PageData<EntityData> createMockPageData() {
+    private PageDataEntityData createMockPageData() {
         List<EntityData> data = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             EntityData ed = new EntityData();
-            ed.setEntityId(new DeviceId(UUID.randomUUID()));
+            ed.setEntityId(new DeviceId().id(UUID.randomUUID()));
             data.add(ed);
         }
-        return new PageData<>(data, 1, 3, false);
+        return new PageDataEntityData(1, 3L, false).data(data);
     }
 
-    private PageData<EntityData> createMockPageDataWithFields(List<String> fieldNames) {
+    private PageDataEntityData createMockPageDataWithFields(List<String> fieldNames) {
         List<EntityData> data = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             EntityData ed = new EntityData();
-            ed.setEntityId(new DeviceId(UUID.randomUUID()));
+            ed.setEntityId(new DeviceId().id(UUID.randomUUID()));
 
-            Map<EntityKeyType, Map<String, TsValue>> latest = new HashMap<>();
+            Map<String, Map<String, TsValue>> latest = new HashMap<>();
             Map<String, TsValue> entityFields = new HashMap<>();
 
             for (String fieldName : fieldNames) {
-                TsValue tsValue = new TsValue(System.currentTimeMillis(), fieldName + " value " + i);
+                TsValue tsValue = new TsValue().ts(System.currentTimeMillis()).value(fieldName + " value " + i);
                 entityFields.put(fieldName, tsValue);
             }
 
-            latest.put(EntityKeyType.ENTITY_FIELD, entityFields);
+            latest.put(EntityKeyType.ENTITY_FIELD.getValue(), entityFields);
             ed.setLatest(latest);
 
             data.add(ed);
         }
-        return new PageData<>(data, 1, 3, false);
+        return new PageDataEntityData(1, 3L, false).data(data);
     }
 
     @Nested
@@ -1127,7 +1126,7 @@ public class EntityQueryToolsTest {
 
         @Test
         @DisplayName("Should accept canonical nested key filter format")
-        void testCanonicalNestedFormat() throws ThingsboardException {
+        void testCanonicalNestedFormat() {
             UUID deviceId = UUID.randomUUID();
             String filterJson = String.format("""
                     {"type":"singleEntity","singleEntity":{"entityType":"DEVICE","id":"%s"}}
@@ -1137,7 +1136,7 @@ public class EntityQueryToolsTest {
                     [{"key":{"type":"TIME_SERIES","key":"temperature"},"valueType":"NUMERIC","predicate":{"operation":"GREATER","value":{"defaultValue":25.0},"type":"NUMERIC"}}]
                     """;
 
-            PageData<EntityData> pageData = createMockPageData();
+            PageDataEntityData pageData = createMockPageData();
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataBySingleEntityFilter(
@@ -1156,7 +1155,7 @@ public class EntityQueryToolsTest {
 
         @Test
         @DisplayName("Should accept canonical format with complex predicate")
-        void testCanonicalComplexPredicate() throws ThingsboardException {
+        void testCanonicalComplexPredicate() {
             UUID deviceId = UUID.randomUUID();
             String filterJson = String.format("""
                     {"type":"singleEntity","singleEntity":{"entityType":"DEVICE","id":"%s"}}
@@ -1166,7 +1165,7 @@ public class EntityQueryToolsTest {
                     [{"key":{"type":"TIME_SERIES","key":"temperature"},"valueType":"NUMERIC","predicate":{"type":"COMPLEX","operation":"OR","predicates":[{"operation":"LESS","value":{"defaultValue":10},"type":"NUMERIC"},{"operation":"GREATER","value":{"defaultValue":30},"type":"NUMERIC"}]}}]
                     """;
 
-            PageData<EntityData> pageData = createMockPageData();
+            PageDataEntityData pageData = createMockPageData();
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataBySingleEntityFilter(
@@ -1205,7 +1204,7 @@ public class EntityQueryToolsTest {
 
         @Test
         @DisplayName("Should accept canonical format with dynamic values")
-        void testCanonicalDynamicValues() throws ThingsboardException {
+        void testCanonicalDynamicValues() {
             UUID deviceId = UUID.randomUUID();
             String filterJson = String.format("""
                     {"type":"singleEntity","singleEntity":{"entityType":"DEVICE","id":"%s"}}
@@ -1215,7 +1214,7 @@ public class EntityQueryToolsTest {
                     [{"key":{"type":"TIME_SERIES","key":"temperature"},"valueType":"NUMERIC","predicate":{"operation":"GREATER","value":{"defaultValue":20,"dynamicValue":{"sourceType":"CURRENT_TENANT","sourceAttribute":"tempThreshold","inherit":false}},"type":"NUMERIC"}}]
                     """;
 
-            PageData<EntityData> pageData = createMockPageData();
+            PageDataEntityData pageData = createMockPageData();
             when(restClient.findEntityDataByQuery(any(EntityDataQuery.class))).thenReturn(pageData);
 
             String result = tools.findEntityDataBySingleEntityFilter(
@@ -1232,26 +1231,26 @@ public class EntityQueryToolsTest {
 
     }
 
-    private PageData<EntityData> createMockPageDataWithTelemetry(List<String> telemetryKeys) {
+    private PageDataEntityData createMockPageDataWithTelemetry(List<String> telemetryKeys) {
         List<EntityData> data = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             EntityData ed = new EntityData();
-            ed.setEntityId(new DeviceId(UUID.randomUUID()));
+            ed.setEntityId(new DeviceId().id(UUID.randomUUID()));
 
-            Map<EntityKeyType, Map<String, TsValue>> latest = new HashMap<>();
+            Map<String, Map<String, TsValue>> latest = new HashMap<>();
             Map<String, TsValue> timeseries = new HashMap<>();
 
             for (String key : telemetryKeys) {
-                TsValue tsValue = new TsValue(System.currentTimeMillis(), String.valueOf(20.0 + i));
+                TsValue tsValue = new TsValue().ts(System.currentTimeMillis()).value(String.valueOf(20.0 + i));
                 timeseries.put(key, tsValue);
             }
 
-            latest.put(EntityKeyType.TIME_SERIES, timeseries);
+            latest.put(EntityKeyType.TIME_SERIES.getValue(), timeseries);
             ed.setLatest(latest);
 
             data.add(ed);
         }
-        return new PageData<>(data, 1, 3, false);
+        return new PageDataEntityData(1, 3L, false).data(data);
     }
 
 }

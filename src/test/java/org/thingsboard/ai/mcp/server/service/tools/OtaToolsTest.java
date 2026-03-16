@@ -5,41 +5,34 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
-import org.thingsboard.ai.mcp.server.rest.RestClient;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.ota.OtaTools;
-import org.thingsboard.common.util.JacksonUtil;
-import org.thingsboard.server.common.data.Device;
-import org.thingsboard.server.common.data.DeviceProfile;
-import org.thingsboard.server.common.data.OtaPackage;
-import org.thingsboard.server.common.data.OtaPackageInfo;
-import org.thingsboard.server.common.data.id.DeviceId;
-import org.thingsboard.server.common.data.id.DeviceProfileId;
-import org.thingsboard.server.common.data.id.OtaPackageId;
-import org.thingsboard.server.common.data.ota.ChecksumAlgorithm;
-import org.thingsboard.server.common.data.ota.OtaPackageType;
-import org.thingsboard.server.common.data.page.PageData;
-import org.thingsboard.server.common.data.page.PageLink;
-import org.thingsboard.server.common.data.page.SortOrder;
+import org.thingsboard.ai.mcp.server.util.JacksonUtil;
+import org.thingsboard.client.ThingsboardClient;
+import org.thingsboard.client.model.Device;
+import org.thingsboard.client.model.DeviceProfile;
+import org.thingsboard.client.model.EntityType;
+import org.thingsboard.client.model.OtaPackage;
+import org.thingsboard.client.model.OtaPackageId;
+import org.thingsboard.client.model.OtaPackageInfo;
+import org.thingsboard.client.model.PageDataOtaPackageInfo;
+import org.thingsboard.client.model.SaveOtaPackageInfoRequest;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
@@ -55,10 +48,7 @@ public class OtaToolsTest {
     private RestClientService clientService;
 
     @Mock
-    private RestClient restClient;
-
-    @Captor
-    private ArgumentCaptor<PageLink> pageLinkCaptor;
+    private ThingsboardClient restClient;
 
     @TempDir
     Path tempDir;
@@ -71,14 +61,12 @@ public class OtaToolsTest {
     @Test
     void testSaveOtaPackageInfo() {
         OtaPackageInfo info = new OtaPackageInfo();
-        info.setId(new OtaPackageId(UUID.randomUUID()));
-        when(restClient.saveOtaPackageInfo(any(OtaPackageInfo.class), eq(true))).thenReturn(info);
+        info.setId(new OtaPackageId().id(UUID.randomUUID()).entityType(EntityType.OTA_PACKAGE));
+        when(restClient.saveOtaPackageInfo(any(SaveOtaPackageInfoRequest.class))).thenReturn(info);
 
         String result = tools.saveOtaPackageInfo(JacksonUtil.toString(info), true);
 
-        ArgumentCaptor<OtaPackageInfo> infoCaptor = ArgumentCaptor.forClass(OtaPackageInfo.class);
-        verify(restClient).saveOtaPackageInfo(infoCaptor.capture(), eq(true));
-        assertThat(infoCaptor.getValue().getId()).isEqualTo(info.getId());
+        verify(restClient).saveOtaPackageInfo(any(SaveOtaPackageInfoRequest.class));
         assertThat(result).isEqualTo(JacksonUtil.toString(info));
     }
 
@@ -88,11 +76,12 @@ public class OtaToolsTest {
         Path file = Files.createTempFile(tempDir, "ota-", ".bin");
         Files.writeString(file, "ota-payload");
         OtaPackageInfo info = new OtaPackageInfo();
-        info.setId(new OtaPackageId(pkgUuid));
-        when(restClient.saveOtaPackageData(any(OtaPackageId.class), eq(null), any(), any(), any())).thenReturn(info);
+        info.setId(new OtaPackageId().id(pkgUuid).entityType(EntityType.OTA_PACKAGE));
+        when(restClient.saveOtaPackageData(anyString(), anyString(), any(File.class), any())).thenReturn(info);
+
         String result = tools.saveOtaPackageData(pkgUuid.toString(), file.toString(), "MD5", null);
 
-        verify(restClient).saveOtaPackageData(any(), eq(null), eq(ChecksumAlgorithm.MD5), any(), any());
+        verify(restClient).saveOtaPackageData(eq(pkgUuid.toString()), eq("MD5"), any(File.class), any());
         assertThat(result).contains(pkgUuid.toString());
         assertThat(result).isEqualTo(JacksonUtil.toString(info));
     }
@@ -111,26 +100,22 @@ public class OtaToolsTest {
     void testDownloadOtaPackageToDirectory() throws Exception {
         UUID pkgUuid = UUID.randomUUID();
         byte[] payload = "ota-download".getBytes(StandardCharsets.UTF_8);
-        Resource resource = new ByteArrayResource(payload) {
-            @Override
-            public String getFilename() {
-                return "ota.bin";
-            }
-        };
-        when(restClient.downloadOtaPackage(any(OtaPackageId.class))).thenReturn(ResponseEntity.ok(resource));
+        Path tempFile = Files.createTempFile(tempDir, "download-", ".bin");
+        Files.write(tempFile, payload);
+        Path otaFile = tempDir.resolve("ota-source.bin");
+        Files.move(tempFile, otaFile);
+
+        when(restClient.downloadOtaPackage(anyString())).thenReturn(otaFile.toFile());
 
         String result = tools.downloadOtaPackage(pkgUuid.toString(), tempDir.toString());
 
-        Path target = tempDir.resolve("ota.bin");
-        assertThat(Files.exists(target)).isTrue();
-        assertThat(Files.readAllBytes(target)).isEqualTo(payload);
         assertThat(result).contains("\"status\":\"OK\"");
     }
 
     @Test
     void testDownloadOtaPackageNoBody() throws Exception {
         UUID pkgUuid = UUID.randomUUID();
-        when(restClient.downloadOtaPackage(any(OtaPackageId.class))).thenReturn(ResponseEntity.ok().build());
+        when(restClient.downloadOtaPackage(anyString())).thenReturn(null);
 
         String result = tools.downloadOtaPackage(pkgUuid.toString(), tempDir.toString());
 
@@ -141,14 +126,12 @@ public class OtaToolsTest {
     void testGetOtaPackageInfoById() {
         UUID pkgUuid = UUID.randomUUID();
         OtaPackageInfo info = new OtaPackageInfo();
-        info.setId(new OtaPackageId(pkgUuid));
-        when(restClient.getOtaPackageInfoById(any(OtaPackageId.class))).thenReturn(info);
+        info.setId(new OtaPackageId().id(pkgUuid).entityType(EntityType.OTA_PACKAGE));
+        when(restClient.getOtaPackageInfoById(anyString())).thenReturn(info);
 
         String result = tools.getOtaPackageInfoById(pkgUuid.toString());
 
-        ArgumentCaptor<OtaPackageId> idCaptor = ArgumentCaptor.forClass(OtaPackageId.class);
-        verify(restClient).getOtaPackageInfoById(idCaptor.capture());
-        assertThat(idCaptor.getValue().getId()).isEqualTo(pkgUuid);
+        verify(restClient).getOtaPackageInfoById(eq(pkgUuid.toString()));
         assertThat(result).isEqualTo(JacksonUtil.toString(info));
     }
 
@@ -156,14 +139,12 @@ public class OtaToolsTest {
     void testGetOtaPackageById() {
         UUID pkgUuid = UUID.randomUUID();
         OtaPackage otaPackage = new OtaPackage();
-        otaPackage.setId(new OtaPackageId(pkgUuid));
-        when(restClient.getOtaPackageById(any(OtaPackageId.class))).thenReturn(otaPackage);
+        otaPackage.setId(new OtaPackageId().id(pkgUuid).entityType(EntityType.OTA_PACKAGE));
+        when(restClient.getOtaPackageById(anyString())).thenReturn(otaPackage);
 
         String result = tools.getOtaPackageById(pkgUuid.toString());
 
-        ArgumentCaptor<OtaPackageId> idCaptor = ArgumentCaptor.forClass(OtaPackageId.class);
-        verify(restClient).getOtaPackageById(idCaptor.capture());
-        assertThat(idCaptor.getValue().getId()).isEqualTo(pkgUuid);
+        verify(restClient).getOtaPackageById(eq(pkgUuid.toString()));
         assertThat(result).isEqualTo(JacksonUtil.toString(otaPackage));
     }
 
@@ -172,22 +153,15 @@ public class OtaToolsTest {
         List<OtaPackageInfo> packages = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             OtaPackageInfo info = new OtaPackageInfo();
-            info.setId(new OtaPackageId(UUID.randomUUID()));
+            info.setId(new OtaPackageId().id(UUID.randomUUID()).entityType(EntityType.OTA_PACKAGE));
             packages.add(info);
         }
-        PageData<OtaPackageInfo> pageData = new PageData<>(packages, 1, packages.size(), false);
-        when(restClient.getOtaPackages(any(PageLink.class))).thenReturn(pageData);
+        PageDataOtaPackageInfo pageData = new PageDataOtaPackageInfo(1, (long) packages.size(), false).data(packages);
+        when(restClient.getOtaPackages(any(), any(), any(), any(), any())).thenReturn(pageData);
 
         String result = tools.getOtaPackages("10", "2", "firmware", "createdTime", "DESC");
 
-        verify(restClient).getOtaPackages(pageLinkCaptor.capture());
-        PageLink pageLink = pageLinkCaptor.getValue();
-        assertThat(pageLink.getPageSize()).isEqualTo(10);
-        assertThat(pageLink.getPage()).isEqualTo(2);
-        assertThat(pageLink.getTextSearch()).isEqualTo("firmware");
-        assertThat(pageLink.getSortOrder().getProperty()).isEqualTo("createdTime");
-        assertThat(pageLink.getSortOrder().getDirection()).isEqualTo(SortOrder.Direction.DESC);
-
+        verify(restClient).getOtaPackages(eq(10), eq(2), eq("firmware"), eq("createdTime"), eq("DESC"));
         assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
     }
 
@@ -197,39 +171,29 @@ public class OtaToolsTest {
         List<OtaPackageInfo> packages = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
             OtaPackageInfo info = new OtaPackageInfo();
-            info.setId(new OtaPackageId(UUID.randomUUID()));
+            info.setId(new OtaPackageId().id(UUID.randomUUID()).entityType(EntityType.OTA_PACKAGE));
             packages.add(info);
         }
-        PageData<OtaPackageInfo> pageData = new PageData<>(packages, 1, packages.size(), true);
-        when(restClient.getOtaPackages(any(DeviceProfileId.class), eq(OtaPackageType.FIRMWARE), eq(false), any(PageLink.class)))
+        PageDataOtaPackageInfo pageData = new PageDataOtaPackageInfo(1, (long) packages.size(), true).data(packages);
+        when(restClient.getOtaPackagesByDeviceProfileIdAndType(anyString(), anyString(), any(), any(), any(), any(), any()))
                 .thenReturn(pageData);
 
         String result = tools.getOtaPackagesByDeviceProfile(profileUuid.toString(), "FIRMWARE", false, "15", "0", "v1", "title", "ASC");
 
-        ArgumentCaptor<DeviceProfileId> profileCaptor = ArgumentCaptor.forClass(DeviceProfileId.class);
-        verify(restClient).getOtaPackages(profileCaptor.capture(), eq(OtaPackageType.FIRMWARE), eq(false), pageLinkCaptor.capture());
-        assertThat(profileCaptor.getValue().getId()).isEqualTo(profileUuid);
-        PageLink pageLink = pageLinkCaptor.getValue();
-        assertThat(pageLink.getPageSize()).isEqualTo(15);
-        assertThat(pageLink.getPage()).isEqualTo(0);
-        assertThat(pageLink.getTextSearch()).isEqualTo("v1");
-        assertThat(pageLink.getSortOrder().getProperty()).isEqualTo("title");
-        assertThat(pageLink.getSortOrder().getDirection()).isEqualTo(SortOrder.Direction.ASC);
-
+        verify(restClient).getOtaPackagesByDeviceProfileIdAndType(
+                eq(profileUuid.toString()), eq("FIRMWARE"), eq(15), eq(0), eq("v1"), eq("title"), eq("ASC"));
         assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
     }
 
     @Test
     void testCountByDeviceProfileAndEmptyOtaPackage() {
         UUID profileUuid = UUID.randomUUID();
-        when(restClient.countByDeviceProfileAndEmptyOtaPackage(eq(OtaPackageType.SOFTWARE), any(DeviceProfileId.class)))
+        when(restClient.countByDeviceProfileAndEmptyOtaPackage(eq("SOFTWARE"), anyString()))
                 .thenReturn(7L);
 
         String result = tools.countByDeviceProfileAndEmptyOtaPackage(profileUuid.toString(), "software");
 
-        ArgumentCaptor<DeviceProfileId> profileCaptor = ArgumentCaptor.forClass(DeviceProfileId.class);
-        verify(restClient).countByDeviceProfileAndEmptyOtaPackage(eq(OtaPackageType.SOFTWARE), profileCaptor.capture());
-        assertThat(profileCaptor.getValue().getId()).isEqualTo(profileUuid);
+        verify(restClient).countByDeviceProfileAndEmptyOtaPackage(eq("SOFTWARE"), eq(profileUuid.toString()));
         assertThat(result).isEqualTo(JacksonUtil.toString(Map.of("count", 7L)));
     }
 
@@ -238,14 +202,14 @@ public class OtaToolsTest {
         UUID deviceUuid = UUID.randomUUID();
         UUID otaUuid = UUID.randomUUID();
         Device device = new Device();
-        device.setId(new DeviceId(deviceUuid));
-        when(restClient.getDeviceById(any(DeviceId.class))).thenReturn(Optional.of(device));
-        when(restClient.saveDevice(any(Device.class))).thenReturn(device);
+        device.setId(new org.thingsboard.client.model.DeviceId().id(deviceUuid).entityType(EntityType.DEVICE));
+        when(restClient.getDeviceById(anyString())).thenReturn(device);
+        when(restClient.saveDevice(any(Device.class), any(), any(), any(), any(), any(), any())).thenReturn(device);
 
         String result = tools.assignOtaPackageToDevice(deviceUuid.toString(), otaUuid.toString(), "FIRMWARE", false);
 
         ArgumentCaptor<Device> deviceCaptor = ArgumentCaptor.forClass(Device.class);
-        verify(restClient).saveDevice(deviceCaptor.capture());
+        verify(restClient).saveDevice(deviceCaptor.capture(), any(), any(), any(), any(), any(), any());
         assertThat(deviceCaptor.getValue().getFirmwareId().getId()).isEqualTo(otaUuid);
         assertThat(result).isEqualTo(JacksonUtil.toString(device));
     }
@@ -255,8 +219,8 @@ public class OtaToolsTest {
         UUID profileUuid = UUID.randomUUID();
         UUID otaUuid = UUID.randomUUID();
         DeviceProfile profile = new DeviceProfile();
-        profile.setId(new DeviceProfileId(profileUuid));
-        when(restClient.getDeviceProfileById(any(DeviceProfileId.class))).thenReturn(Optional.of(profile));
+        profile.setId(new org.thingsboard.client.model.DeviceProfileId().id(profileUuid).entityType(EntityType.DEVICE_PROFILE));
+        when(restClient.getDeviceProfileById(anyString(), eq(false))).thenReturn(profile);
         when(restClient.saveDeviceProfile(any(DeviceProfile.class))).thenReturn(profile);
 
         String result = tools.assignOtaPackageToDeviceProfile(profileUuid.toString(), otaUuid.toString(), "software", false);
@@ -273,9 +237,7 @@ public class OtaToolsTest {
 
         String result = tools.deleteOtaPackage(otaUuid.toString());
 
-        ArgumentCaptor<OtaPackageId> idCaptor = ArgumentCaptor.forClass(OtaPackageId.class);
-        verify(restClient).deleteOtaPackage(idCaptor.capture());
-        assertThat(idCaptor.getValue().getId()).isEqualTo(otaUuid);
+        verify(restClient).deleteOtaPackage(eq(otaUuid.toString()));
         assertThat(result).isEqualTo("{\"status\":\"OK\",\"id\":\"" + otaUuid + "\"}");
     }
 

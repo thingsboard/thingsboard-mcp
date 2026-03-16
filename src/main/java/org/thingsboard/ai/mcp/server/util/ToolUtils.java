@@ -5,22 +5,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.commons.lang3.StringUtils;
 import org.thingsboard.ai.mcp.server.data.KeyFilterInput;
-import org.thingsboard.common.util.JacksonUtil;
-import org.thingsboard.common.util.RegexUtils;
-import org.thingsboard.server.common.data.StringUtils;
-import org.thingsboard.server.common.data.exception.ThingsboardErrorCode;
-import org.thingsboard.server.common.data.exception.ThingsboardException;
-import org.thingsboard.server.common.data.page.PageLink;
-import org.thingsboard.server.common.data.page.SortOrder;
-import org.thingsboard.server.common.data.page.TimePageLink;
-import org.thingsboard.server.common.data.query.EntityDataPageLink;
-import org.thingsboard.server.common.data.query.EntityDataSortOrder;
-import org.thingsboard.server.common.data.query.EntityKey;
-import org.thingsboard.server.common.data.query.EntityKeyType;
-import org.thingsboard.server.common.data.query.KeyFilter;
+import org.thingsboard.client.model.EntityDataPageLink;
+import org.thingsboard.client.model.Direction;
+import org.thingsboard.client.model.EntityDataSortOrder;
+import org.thingsboard.client.model.EntityKey;
+import org.thingsboard.client.model.EntityKeyType;
+import org.thingsboard.client.model.KeyFilter;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -30,32 +23,6 @@ public class ToolUtils {
     public static final int PAGE_SIZE = 10;
     public static final int PAGE_NUMBER = 0;
 
-    public static TimePageLink createTimePageLink(String pageSize, String page, String textSearch, String sortProperty, String sortOrder, String startTimeStr, String endTimeStr) throws ThingsboardException {
-        PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        Long startTime = parseLong(startTimeStr);
-        Long endTime = parseLong(endTimeStr);
-        return new TimePageLink(pageLink, startTime, endTime);
-    }
-
-    public static PageLink createPageLink(String pageSizeStr, String pageStr, String textSearch, String sortProperty, String sortOrder) throws ThingsboardException {
-        final int pageSize = sanitizePageSize(parseIntOrDefault(pageSizeStr, PAGE_SIZE));
-        final int page = sanitizePageNumber(parseIntOrDefault(pageStr, PAGE_NUMBER));
-        final String sanitizedTextSearch = sanitizeStringParam(textSearch);
-        final String sanitizedSortProperty = sanitizeStringParam(sortProperty);
-
-        if (StringUtils.isBlank(sanitizedSortProperty)) {
-            return new PageLink(pageSize, page, sanitizedTextSearch);
-        }
-
-        if (!isValidProperty(sanitizedSortProperty)) {
-            throw new IllegalArgumentException("Invalid sort property");
-        }
-
-        final SortOrder.Direction direction = resolveSortDirection(sanitizeStringParam(sortOrder));
-        final SortOrder sort = new SortOrder(sanitizedSortProperty, direction);
-        return new PageLink(pageSize, page, sanitizedTextSearch, sort);
-    }
-
     public static String sanitizeStringParam(String value) {
         if (isNullOrBlank(value)) {
             return null;
@@ -63,10 +30,9 @@ public class ToolUtils {
         return value.trim();
     }
 
-    public static EntityDataPageLink createPageLink(String pageSizeStr, String pageStr, String textSearch, String sortOrderKey, String sortOrderType, String sortOrder) throws ThingsboardException {
+    public static EntityDataPageLink createPageLink(String pageSizeStr, String pageStr, String textSearch, String sortOrderKey, String sortOrderType, String sortOrder) {
         final int pageSize = sanitizePageSize(parseIntOrDefault(pageSizeStr, PAGE_SIZE));
         final int page = sanitizePageNumber(parseIntOrDefault(pageStr, PAGE_NUMBER));
-        // Sanitize string parameters - LLMs may send "null" strings
         final String sanitizedTextSearch = sanitizeStringParam(textSearch);
         final String sanitizedSortOrderKey = sanitizeStringParam(sortOrderKey);
         final String sanitizedSortOrderType = sanitizeStringParam(sortOrderType);
@@ -76,26 +42,33 @@ public class ToolUtils {
         if (StringUtils.isNotEmpty(sanitizedSortOrderKey) && StringUtils.isNotEmpty(sanitizedSortOrderType)) {
             try {
                 EntityKeyType type = EntityKeyType.valueOf(sanitizedSortOrderType);
-                entityKey = new EntityKey(type, sanitizedSortOrderKey);
+                entityKey = new EntityKey().type(type).key(sanitizedSortOrderKey);
             } catch (IllegalArgumentException e) {
-                throw new ThingsboardException("Unsupported entity key type '" + sanitizedSortOrderType + "'! Only " + Arrays.toString(EntityKeyType.values()) + " are allowed. ", ThingsboardErrorCode.BAD_REQUEST_PARAMS);
+                throw new IllegalArgumentException("Unsupported entity key type '" + sanitizedSortOrderType + "'!");
             }
         }
-        EntityDataSortOrder.Direction direction = EntityDataSortOrder.Direction.ASC;
+        Direction direction = Direction.ASC;
         if (StringUtils.isNotEmpty(sanitizedSortOrder)) {
             try {
-                direction = EntityDataSortOrder.Direction.valueOf(sanitizedSortOrder.toUpperCase());
+                direction = Direction.valueOf(sanitizedSortOrder.toUpperCase());
             } catch (IllegalArgumentException e) {
-                throw new ThingsboardException("Unsupported sort order '" + sanitizedSortOrder + "'! Only 'ASC' or 'DESC' types are allowed.", ThingsboardErrorCode.BAD_REQUEST_PARAMS);
+                throw new IllegalArgumentException("Unsupported sort order '" + sanitizedSortOrder + "'! Only 'ASC' or 'DESC' types are allowed.");
             }
         }
 
-        if (entityKey == null) {
-            return new EntityDataPageLink(pageSize, page, sanitizedTextSearch, null);
+        EntityDataPageLink pageLink = new EntityDataPageLink()
+                .pageSize(pageSize)
+                .page(page)
+                .textSearch(sanitizedTextSearch);
+
+        if (entityKey != null) {
+            EntityDataSortOrder entityDataSortOrder = new EntityDataSortOrder()
+                    .key(entityKey)
+                    .direction(direction);
+            pageLink.sortOrder(entityDataSortOrder);
         }
 
-        EntityDataSortOrder entityDataSortOrder = new EntityDataSortOrder(entityKey, direction);
-        return new EntityDataPageLink(pageSize, page, sanitizedTextSearch, entityDataSortOrder);
+        return pageLink;
     }
 
     private static int sanitizePageSize(int value) {
@@ -104,20 +77,6 @@ public class ToolUtils {
 
     private static int sanitizePageNumber(int value) {
         return Math.max(value, 0);
-    }
-
-    private static SortOrder.Direction resolveSortDirection(String sortOrder) throws ThingsboardException {
-        if (StringUtils.isBlank(sortOrder)) {
-            return SortOrder.Direction.ASC;
-        }
-        try {
-            return SortOrder.Direction.valueOf(sortOrder.trim().toUpperCase());
-        } catch (IllegalArgumentException ex) {
-            throw new ThingsboardException(
-                    "Unsupported sort order '" + sortOrder + "'! Only 'ASC' or 'DESC' types are allowed.",
-                    ThingsboardErrorCode.BAD_REQUEST_PARAMS
-            );
-        }
     }
 
     public static Long parseLong(String value, Long defaultValue) {
@@ -152,10 +111,6 @@ public class ToolUtils {
 
     public static Long parseLong(String value) {
         return parseLong(value, null);
-    }
-
-    private static boolean isValidProperty(String key) {
-        return StringUtils.isEmpty(key) || RegexUtils.matches(key, PROPERTY_PATTERN);
     }
 
     public static List<KeyFilter> parseKeyFilters(String keyFiltersJson) {
