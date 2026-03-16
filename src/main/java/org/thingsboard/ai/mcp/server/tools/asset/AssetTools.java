@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
@@ -13,18 +14,13 @@ import org.thingsboard.ai.mcp.server.annotation.ToolGroup;
 import org.thingsboard.ai.mcp.server.data.ThingsBoardEdition;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.McpTools;
-import org.thingsboard.common.util.JacksonUtil;
-import org.thingsboard.server.common.data.StringUtils;
-import org.thingsboard.server.common.data.asset.Asset;
-import org.thingsboard.server.common.data.exception.ThingsboardException;
-import org.thingsboard.server.common.data.id.AssetId;
-import org.thingsboard.server.common.data.id.CustomerId;
-import org.thingsboard.server.common.data.id.EntityGroupId;
-import org.thingsboard.server.common.data.page.PageLink;
+import org.thingsboard.ai.mcp.server.util.JsonUtils;
+import org.thingsboard.ai.mcp.server.util.ToolUtils;
+import org.thingsboard.client.model.Asset;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ASSET_ID_PARAM_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ASSET_NAME_DESCRIPTION;
@@ -40,7 +36,6 @@ import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.PAGE_SI
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.PE_ONLY_AVAILABLE;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.SORT_ORDER_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.SORT_PROPERTY_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.util.ToolUtils.createPageLink;
 
 @Service
 @RequiredArgsConstructor
@@ -67,34 +62,33 @@ public class AssetTools implements McpTools {
             String entityGroupId,
             @ToolParam(required = false, description = "(PE only) " + ENTITY_GROUP_IDS_CREATE_PARAM_DESCRIPTION)
             String entityGroupIds) {
-        Asset asset = JacksonUtil.fromString(assetJson, Asset.class);
+        Asset asset = JsonUtils.fromString(assetJson, Asset.class);
         if (StringUtils.isNotBlank(entityGroupId)) {
-            return JacksonUtil.toString(clientService.getClient().saveAsset(asset, new EntityGroupId(UUID.fromString(entityGroupId)), null));
+            return JsonUtils.toString(clientService.getClient().saveAsset(asset, entityGroupId, null, null, null, null));
         } else if (StringUtils.isNotBlank(entityGroupIds)) {
-            return JacksonUtil.toString(clientService.getClient().saveAsset(asset, null, entityGroupIds));
+            return JsonUtils.toString(clientService.getClient().saveAsset(asset, null, Arrays.asList(entityGroupIds.split(",")), null, null, null));
         } else {
-            return JacksonUtil.toString(clientService.getClient().saveAsset(asset));
+            return JsonUtils.toString(clientService.getClient().saveAsset(asset, null, null, null, null, null));
         }
     }
 
     @Tool(description = "Use this to permanently delete an asset and all its relations by id.")
     public String deleteAsset(@ToolParam(description = ASSET_ID_PARAM_DESCRIPTION) @NotBlank @Valid String assetIdStr) {
         try {
-            AssetId assetId = new AssetId(UUID.fromString(assetIdStr));
-            clientService.getClient().deleteAsset(assetId);
-            return "{\"status\":\"OK\",\"id\":\"" + assetId + "\"}";
+            clientService.getClient().deleteAsset(assetIdStr);
+            return "{\"status\":\"OK\",\"id\":\"" + assetIdStr + "\"}";
         } catch (Exception e) {
             Map<String, Object> err = new HashMap<>();
             err.put("status", "ERROR");
             err.put("id", assetIdStr);
             err.put("message", e.getMessage());
-            return JacksonUtil.toString(err);
+            return JsonUtils.toString(err);
         }
     }
 
     @Tool(description = "Use this to get an asset by its id.")
     public String getAssetById(@ToolParam(description = ASSET_ID_PARAM_DESCRIPTION) @NotBlank String assetId) {
-        return JacksonUtil.toString(clientService.getClient().getAssetById(new AssetId(UUID.fromString(assetId))));
+        return JsonUtils.toString(clientService.getClient().getAssetById(assetId));
     }
 
     @Tool(description = "Use this to get a paginated list of assets owned by the tenant. Filter by type.")
@@ -104,14 +98,19 @@ public class AssetTools implements McpTools {
             @ToolParam(required = false, description = ASSET_TYPE_DESCRIPTION) String type,
             @ToolParam(required = false, description = ASSET_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'name', 'type', 'label', 'customerTitle'") String sortProperty,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
-        PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getTenantAssets(pageLink, type));
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
+        return JsonUtils.toString(clientService.getClient().getTenantAssets(
+                ToolUtils.parseIntOrDefault(pageSize, ToolUtils.PAGE_SIZE),
+                ToolUtils.parseIntOrDefault(page, ToolUtils.PAGE_NUMBER),
+                ToolUtils.sanitizeStringParam(type),
+                ToolUtils.sanitizeStringParam(textSearch),
+                ToolUtils.sanitizeStringParam(sortProperty),
+                ToolUtils.sanitizeStringParam(sortOrder)));
     }
 
     @Tool(description = "Use this to get an asset by its unique name within the tenant.")
     public String getTenantAsset(@NotBlank @ToolParam(description = ASSET_NAME_DESCRIPTION) String assetName) {
-        return JacksonUtil.toString(clientService.getClient().getTenantAsset(assetName));
+        return JsonUtils.toString(clientService.getClient().getTenantAssetByName(assetName));
     }
 
     @Tool(description = "Use this to get a paginated list of assets assigned to a specific customer. Filter by type.")
@@ -122,9 +121,15 @@ public class AssetTools implements McpTools {
             @ToolParam(required = false, description = ASSET_TYPE_DESCRIPTION) String type,
             @ToolParam(required = false, description = ASSET_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'name', 'type', 'label', 'customerTitle'") String sortProperty,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
-        PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getCustomerAssets(new CustomerId(UUID.fromString(customerId)), pageLink, type));
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
+        return JsonUtils.toString(clientService.getClient().getCustomerAssets(
+                customerId,
+                ToolUtils.parseIntOrDefault(pageSize, ToolUtils.PAGE_SIZE),
+                ToolUtils.parseIntOrDefault(page, ToolUtils.PAGE_NUMBER),
+                ToolUtils.sanitizeStringParam(type),
+                ToolUtils.sanitizeStringParam(textSearch),
+                ToolUtils.sanitizeStringParam(sortProperty),
+                ToolUtils.sanitizeStringParam(sortOrder)));
     }
 
     @PeOnly
@@ -135,12 +140,18 @@ public class AssetTools implements McpTools {
             @ToolParam(required = false, description = ASSET_TYPE_DESCRIPTION) String type,
             @ToolParam(required = false, description = ASSET_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'name', 'type', 'label', 'customerTitle'") String sortProperty,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
         if (ThingsBoardEdition.CE == clientService.getEdition()) {
             return PE_ONLY_AVAILABLE;
         }
-        PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getUserAssets(type, pageLink));
+        return JsonUtils.toString(clientService.getClient().getUserAssets(
+                ToolUtils.sanitizeStringParam(pageSize),
+                ToolUtils.sanitizeStringParam(page),
+                ToolUtils.sanitizeStringParam(type),
+                null,
+                ToolUtils.sanitizeStringParam(textSearch),
+                ToolUtils.sanitizeStringParam(sortProperty),
+                ToolUtils.sanitizeStringParam(sortOrder)));
     }
 
     @PeOnly
@@ -151,12 +162,17 @@ public class AssetTools implements McpTools {
             @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero String page,
             @ToolParam(required = false, description = CUSTOMER_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'firstName', 'lastName', 'email'") String sortProperty,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
         if (ThingsBoardEdition.CE == clientService.getEdition()) {
             return PE_ONLY_AVAILABLE;
         }
-        PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getAssetsByEntityGroupId(new EntityGroupId(UUID.fromString(entityGroupId)), pageLink));
+        return JsonUtils.toString(clientService.getClient().getAssetsByEntityGroupId(
+                entityGroupId,
+                ToolUtils.sanitizeStringParam(pageSize),
+                ToolUtils.sanitizeStringParam(page),
+                ToolUtils.sanitizeStringParam(textSearch),
+                ToolUtils.sanitizeStringParam(sortProperty),
+                ToolUtils.sanitizeStringParam(sortOrder)));
     }
 
 }

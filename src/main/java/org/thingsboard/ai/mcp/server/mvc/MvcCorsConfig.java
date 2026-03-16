@@ -1,14 +1,14 @@
 package org.thingsboard.ai.mcp.server.mvc;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.lang.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.thingsboard.server.common.data.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +36,7 @@ class MvcCorsConfig implements WebMvcConfigurer {
 
         return new WebMvcConfigurer() {
             @Override
-            public void addCorsMappings(@NotNull CorsRegistry registry) {
+            public void addCorsMappings(@NonNull CorsRegistry registry) {
                 if (allowAll) {
                     registry.addMapping(sse)
                             .allowedOriginPatterns("*")
@@ -69,19 +69,19 @@ class MvcCorsConfig implements WebMvcConfigurer {
     }
 
     private static String normalizePath(String path) {
-        if (!StringUtils.hasText(path)) {
+        if (StringUtils.isBlank(path)) {
             return "/";
         }
         return path.startsWith("/") ? path : "/" + path;
     }
 
     private static List<String> parseAllowedOrigins(String value) {
-        if (!StringUtils.hasText(value)) {
+        if (StringUtils.isBlank(value)) {
             return List.of("*");
         }
         String[] tokens = Arrays.stream(value.split(","))
                 .map(String::trim)
-                .filter(StringUtils::hasText)
+                .filter(StringUtils::isNotBlank)
                 .toArray(String[]::new);
         return tokens.length == 0 ? List.of("*") : List.of(tokens);
     }

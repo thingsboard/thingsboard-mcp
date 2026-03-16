@@ -1,7 +1,8 @@
 package org.thingsboard.ai.mcp.server.config;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.lang.NonNull;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.tool.annotation.Tool;
@@ -18,7 +19,6 @@ import org.thingsboard.ai.mcp.server.data.EditionChangedEvent;
 import org.thingsboard.ai.mcp.server.data.RemoveToolsEvent;
 import org.thingsboard.ai.mcp.server.data.ThingsBoardEdition;
 import org.thingsboard.ai.mcp.server.tools.McpTools;
-import org.thingsboard.server.common.data.StringUtils;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,7 +42,6 @@ public class EditionAwareToolProvider implements ToolCallbackProvider {
 
     public EditionAwareToolProvider(List<McpTools> tools, ApplicationEventPublisher eventPublisher,
                                     ToolGroupsProperties toolGroupsProperties) {
-        // Filter out tools from disabled groups before building the delegate
         List<McpTools> enabledTools = filterByGroups(tools, toolGroupsProperties);
         this.delegate = MethodToolCallbackProvider.builder().toolObjects(enabledTools.toArray()).build();
         this.peOnlyToolNames = scanEditionToolName(enabledTools, true);
@@ -73,7 +72,7 @@ public class EditionAwareToolProvider implements ToolCallbackProvider {
                     Class<?> targetClass = AopUtils.getTargetClass(tool);
                     ToolGroup groupAnn = AnnotationUtils.findAnnotation(targetClass, ToolGroup.class);
                     if (groupAnn == null) {
-                        return true; // No group annotation = always enabled
+                        return true;
                     }
                     boolean enabled = properties.isGroupEnabled(groupAnn.value());
                     if (!enabled) {
@@ -93,7 +92,7 @@ public class EditionAwareToolProvider implements ToolCallbackProvider {
                 for (var m : targetClass.getMethods()) {
                     Tool toolAnn = AnnotationUtils.findAnnotation(m, Tool.class);
                     if (toolAnn != null) {
-                        String name = StringUtils.hasText(toolAnn.name()) ? toolAnn.name() : m.getName();
+                        String name = StringUtils.isNotBlank(toolAnn.name()) ? toolAnn.name() : m.getName();
                         names.add(name);
                     }
                 }
@@ -112,7 +111,7 @@ public class EditionAwareToolProvider implements ToolCallbackProvider {
         return count;
     }
 
-    @NotNull
+    @NonNull
     @Override
     public ToolCallback[] getToolCallbacks() {
         return Arrays.stream(delegate.getToolCallbacks()).toArray(ToolCallback[]::new);
@@ -142,14 +141,14 @@ public class EditionAwareToolProvider implements ToolCallbackProvider {
                     if (peOnly == null) {
                         continue;
                     }
-                    String name = StringUtils.hasText(toolAnn.name()) ? toolAnn.name() : m.getName();
+                    String name = StringUtils.isNotBlank(toolAnn.name()) ? toolAnn.name() : m.getName();
                     names.add(name);
                 } else {
-                    CeOnly peOnly = AnnotationUtils.findAnnotation(m, CeOnly.class);
-                    if (peOnly == null) {
+                    CeOnly ceOnly = AnnotationUtils.findAnnotation(m, CeOnly.class);
+                    if (ceOnly == null) {
                         continue;
                     }
-                    String name = StringUtils.hasText(toolAnn.name()) ? toolAnn.name() : m.getName();
+                    String name = StringUtils.isNotBlank(toolAnn.name()) ? toolAnn.name() : m.getName();
                     names.add(name);
                 }
             }

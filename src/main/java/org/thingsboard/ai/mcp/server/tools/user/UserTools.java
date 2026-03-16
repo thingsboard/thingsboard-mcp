@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
@@ -13,20 +14,13 @@ import org.thingsboard.ai.mcp.server.annotation.ToolGroup;
 import org.thingsboard.ai.mcp.server.data.ThingsBoardEdition;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.McpTools;
-import org.thingsboard.common.util.JacksonUtil;
-import org.thingsboard.server.common.data.StringUtils;
-import org.thingsboard.server.common.data.User;
-import org.thingsboard.server.common.data.exception.ThingsboardException;
-import org.thingsboard.server.common.data.id.AlarmId;
-import org.thingsboard.server.common.data.id.CustomerId;
-import org.thingsboard.server.common.data.id.EntityGroupId;
-import org.thingsboard.server.common.data.id.TenantId;
-import org.thingsboard.server.common.data.id.UserId;
-import org.thingsboard.server.common.data.page.PageLink;
+import org.thingsboard.ai.mcp.server.util.JsonUtils;
+import org.thingsboard.client.model.User;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.ALARM_ID_PARAM_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.CUSTOMER_ID_PARAM_DESCRIPTION;
@@ -41,7 +35,8 @@ import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.SORT_OR
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.SORT_PROPERTY_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.TENANT_ID_PARAM_DESCRIPTION;
 import static org.thingsboard.ai.mcp.server.constant.ControllerConstants.USER_ID_PARAM_DESCRIPTION;
-import static org.thingsboard.ai.mcp.server.util.ToolUtils.createPageLink;
+import static org.thingsboard.ai.mcp.server.util.ToolUtils.parseIntOrDefault;
+import static org.thingsboard.ai.mcp.server.util.ToolUtils.sanitizeStringParam;
 
 @Service
 @RequiredArgsConstructor
@@ -69,34 +64,35 @@ public class UserTools implements McpTools {
             @ToolParam(required = false, description = "(PE only) " + ENTITY_GROUP_IDS_CREATE_PARAM_DESCRIPTION)
             @NotBlank String entityGroupIds) {
         sendActivationEmail = sendActivationEmail == null || sendActivationEmail;
-        User user = JacksonUtil.fromString(userJson, User.class);
+        User user = JsonUtils.fromString(userJson, User.class);
+        String sendActivationMailStr = String.valueOf(sendActivationEmail);
         if (StringUtils.isNotBlank(entityGroupId)) {
-            return JacksonUtil.toString(clientService.getClient().saveUser(user, sendActivationEmail, new EntityGroupId(UUID.fromString(entityGroupId)), null));
+            return JsonUtils.toString(clientService.getClient().saveUser(user, sendActivationMailStr, entityGroupId, null));
         } else if (StringUtils.isNotBlank(entityGroupIds)) {
-            return JacksonUtil.toString(clientService.getClient().saveUser(user, sendActivationEmail, null, entityGroupIds));
+            List<String> groupIdsList = Arrays.asList(entityGroupIds.split(","));
+            return JsonUtils.toString(clientService.getClient().saveUser(user, sendActivationMailStr, null, groupIdsList));
         } else {
-            return JacksonUtil.toString(clientService.getClient().saveUser(user, sendActivationEmail));
+            return JsonUtils.toString(clientService.getClient().saveUser(user, sendActivationMailStr, null, null));
         }
     }
 
     @Tool(description = "Use this to permanently delete a user by id.")
     public String deleteUser(@ToolParam(description = USER_ID_PARAM_DESCRIPTION) @NotBlank @Valid String userIdStr) {
         try {
-            UserId userId = new UserId(UUID.fromString(userIdStr));
-            clientService.getClient().deleteUser(userId);
-            return "{\"status\":\"OK\",\"id\":\"" + userId + "\"}";
+            clientService.getClient().deleteUser(userIdStr);
+            return "{\"status\":\"OK\",\"id\":\"" + userIdStr + "\"}";
         } catch (Exception e) {
             Map<String, Object> err = new HashMap<>();
             err.put("status", "ERROR");
             err.put("id", userIdStr);
             err.put("message", e.getMessage());
-            return JacksonUtil.toString(err);
+            return JsonUtils.toString(err);
         }
     }
 
     @Tool(description = "Use this to get a user by id.")
     public String getUserById(@ToolParam(description = USER_ID_PARAM_DESCRIPTION) String userId) {
-        return JacksonUtil.toString(clientService.getClient().getUserById(new UserId(UUID.fromString(userId))));
+        return JsonUtils.toString(clientService.getClient().getUserById(userId));
     }
 
     @Tool(description = "Use this to get a paginated list of users. Scope depends on caller's authority.")
@@ -105,9 +101,13 @@ public class UserTools implements McpTools {
             @ToolParam(required = false, description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero String page,
             @ToolParam(required = false, description = CUSTOMER_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'firstName', 'lastName', 'email'") String sortProperty,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
-        PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getUsers(pageLink));
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
+        return JsonUtils.toString(clientService.getClient().getAllCustomerUsers(
+                parseIntOrDefault(pageSize, 10),
+                parseIntOrDefault(page, 0),
+                sanitizeStringParam(textSearch),
+                sanitizeStringParam(sortProperty),
+                sanitizeStringParam(sortOrder)));
     }
 
     @Tool(description = "Use this to get a paginated list of tenant administrator users for a specified tenant.")
@@ -117,9 +117,14 @@ public class UserTools implements McpTools {
             @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero String page,
             @ToolParam(required = false, description = CUSTOMER_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'firstName', 'lastName', 'email'") String sortProperty,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
-        PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getTenantAdmins(TenantId.fromUUID(UUID.fromString(tenantId)), pageLink));
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
+        return JsonUtils.toString(clientService.getClient().getTenantAdmins(
+                tenantId,
+                parseIntOrDefault(pageSize, 10),
+                parseIntOrDefault(page, 0),
+                sanitizeStringParam(textSearch),
+                sanitizeStringParam(sortProperty),
+                sanitizeStringParam(sortOrder)));
     }
 
     @Tool(description = "Use this to get a paginated list of users assigned to a specific customer.")
@@ -129,9 +134,14 @@ public class UserTools implements McpTools {
             @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero String page,
             @ToolParam(required = false, description = CUSTOMER_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'firstName', 'lastName', 'email'") String sortProperty,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
-        PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getCustomerUsers(new CustomerId(UUID.fromString(customerId)), pageLink));
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
+        return JsonUtils.toString(clientService.getClient().getCustomerUsers(
+                customerId,
+                parseIntOrDefault(pageSize, 10),
+                parseIntOrDefault(page, 0),
+                sanitizeStringParam(textSearch),
+                sanitizeStringParam(sortProperty),
+                sanitizeStringParam(sortOrder)));
     }
 
     @PeOnly
@@ -141,12 +151,16 @@ public class UserTools implements McpTools {
             @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero String page,
             @ToolParam(required = false, description = CUSTOMER_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'firstName', 'lastName', 'email'") String sortProperty,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
         if (ThingsBoardEdition.CE == clientService.getEdition()) {
             return PE_ONLY_AVAILABLE;
         }
-        PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getAllCustomerUsers(pageLink));
+        return JsonUtils.toString(clientService.getClient().getAllCustomerUsers(
+                parseIntOrDefault(pageSize, 10),
+                parseIntOrDefault(page, 0),
+                sanitizeStringParam(textSearch),
+                sanitizeStringParam(sortProperty),
+                sanitizeStringParam(sortOrder)));
     }
 
     @Tool(description = "Use this to get users that can be assigned to a specific alarm. Searches by email, firstName, lastName.")
@@ -156,9 +170,14 @@ public class UserTools implements McpTools {
             @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero String page,
             @ToolParam(required = false, description = CUSTOMER_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'firstName', 'lastName', 'email'") String sortProperty,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
-        PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getUsersForAssign(new AlarmId(UUID.fromString(alarmId)), pageLink));
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
+        return JsonUtils.toString(clientService.getClient().getUsersForAssign(
+                alarmId,
+                parseIntOrDefault(pageSize, 10),
+                parseIntOrDefault(page, 0),
+                sanitizeStringParam(textSearch),
+                sanitizeStringParam(sortProperty),
+                sanitizeStringParam(sortOrder)));
     }
 
     @PeOnly
@@ -169,12 +188,17 @@ public class UserTools implements McpTools {
             @ToolParam(description = PAGE_NUMBER_DESCRIPTION) @PositiveOrZero String page,
             @ToolParam(required = false, description = CUSTOMER_TEXT_SEARCH_DESCRIPTION) String textSearch,
             @ToolParam(required = false, description = SORT_PROPERTY_DESCRIPTION + ". Allowed values: 'createdTime', 'firstName', 'lastName', 'email'") String sortProperty,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
         if (ThingsBoardEdition.CE == clientService.getEdition()) {
             return PE_ONLY_AVAILABLE;
         }
-        PageLink pageLink = createPageLink(pageSize, page, textSearch, sortProperty, sortOrder);
-        return JacksonUtil.toString(clientService.getClient().getUsersByEntityGroupId(new EntityGroupId(UUID.fromString(entityGroupId)), pageLink));
+        return JsonUtils.toString(clientService.getClient().getUsersByEntityGroupId(
+                entityGroupId,
+                parseIntOrDefault(pageSize, 10),
+                parseIntOrDefault(page, 0),
+                sanitizeStringParam(textSearch),
+                sanitizeStringParam(sortProperty),
+                sanitizeStringParam(sortOrder)));
     }
 
 }

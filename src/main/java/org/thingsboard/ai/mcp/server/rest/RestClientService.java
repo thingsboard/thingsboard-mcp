@@ -2,25 +2,26 @@ package org.thingsboard.ai.mcp.server.rest;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.thingsboard.ai.mcp.server.data.EditionChangedEvent;
 import org.thingsboard.ai.mcp.server.data.ThingsBoardEdition;
-import org.thingsboard.server.common.data.StringUtils;
+import org.thingsboard.client.ThingsboardClient;
 
-import java.time.Duration;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.concurrent.TimeUnit;
+
+import static org.thingsboard.ai.mcp.server.util.JsonUtils.getMapper;
 
 @Slf4j
 @Service
@@ -41,51 +42,24 @@ public class RestClientService {
     @Value("${thingsboard.password:}")
     private String password;
 
-    @Value("${thingsboard.login-interval-seconds:1800}")
-    private int intervalSeconds;
-
     @Value("${thingsboard.connection.max-retries:3}")
     private int maxRetries;
 
     @Value("${thingsboard.connection.retry-delay-seconds:5}")
     private int retryDelaySeconds;
 
-    @Value("${thingsboard.connection.connect-timeout-seconds:10}")
-    private int connectTimeoutSeconds;
-
-    @Value("${thingsboard.connection.read-timeout-seconds:60}")
-    private int readTimeoutSeconds;
-
     @Getter
-    private RestClient client;
+    private ThingsboardClient client;
     private ThingsBoardEdition edition;
     @Getter
     private String version;
-    private ScheduledExecutorService scheduledExecutorService;
-    private boolean usingCredentials;
 
     @PostConstruct
     public void init() {
         try {
             initClientWithRetry();
-            if (usingCredentials) {
-                scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-                scheduledExecutorService.scheduleAtFixedRate(() -> {
-                    try {
-                        client.login(username, password);
-                    } catch (Exception ignored) {
-                    }
-                }, intervalSeconds, intervalSeconds, TimeUnit.SECONDS);
-            }
         } catch (Exception e) {
             log.error("Failed to init client service", e);
-        }
-    }
-
-    @PreDestroy
-    public void destroy() {
-        if (scheduledExecutorService != null) {
-            scheduledExecutorService.shutdown();
         }
     }
 
@@ -115,39 +89,48 @@ public class RestClientService {
     }
 
     private void initClient() {
-        usingCredentials = false;
         try {
-            RestTemplate restTemplate = new RestTemplateBuilder()
-                    .connectTimeout(Duration.ofSeconds(connectTimeoutSeconds))
-                    .readTimeout(Duration.ofSeconds(readTimeoutSeconds))
-                    .build();
-            log.debug("Created RestTemplate with connect timeout: {}s, read timeout: {}s", connectTimeoutSeconds, readTimeoutSeconds);
-
             if (StringUtils.isNotBlank(url)) {
                 if (StringUtils.isNotBlank(apiKey)) {
-                    client = RestClient.withApiKey(restTemplate, url, apiKey);
+                    client = ThingsboardClient.builder().url(url).apiKey(apiKey).build();
                 } else if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
-                    usingCredentials = true;
-                    client = new RestClient(restTemplate, url);
-                    client.login(username, password);
+                    client = ThingsboardClient.builder().url(url).credentials(username, password).build();
                 }
             }
-            JsonNode jsonNode = client.getSystemVersionInfo().orElse(null);
-            if (jsonNode != null) {
+            detectEdition();
+            log.info("Connected to ThingsBoard [{} {}] at {}", edition.getName(), version, url);
+        } catch (Exception e) {
+            if (StringUtils.isNotBlank(apiKey)) {
+                log.error("Failed to login to ThingsBoard {} using API key", url, e);
+            } else {
+                log.error("Failed to login to ThingsBoard {} using credentials for user '{}'", url, username, e);
+            }
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void detectEdition() {
+        try {
+            String baseUrl = url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(baseUrl + "/api/system/info"))
+                    .header("X-Authorization", "Bearer " + client.getToken())
+                    .GET()
+                    .build();
+            HttpResponse<String> response = HttpClient.newHttpClient()
+                    .send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                JsonNode jsonNode = getMapper().readTree(response.body());
                 edition = ThingsBoardEdition.fromType(jsonNode.get("type").asText());
                 version = jsonNode.get("version").asText();
             } else {
                 edition = ThingsBoardEdition.CE;
                 version = "latest";
             }
-            log.info("Connected to ThingsBoard [{} {}] at {}", edition.getName(), version, url);
         } catch (Exception e) {
-            if (usingCredentials) {
-                log.error("Failed to login to ThingsBoard {} using credentials for user '{}'", url, username, e);
-            } else {
-                log.error("Failed to login to ThingsBoard {} using API key", url, e);
-            }
-            throw new RuntimeException(e);
+            log.warn("Failed to detect ThingsBoard edition, defaulting to CE", e);
+            edition = ThingsBoardEdition.CE;
+            version = "latest";
         }
     }
 

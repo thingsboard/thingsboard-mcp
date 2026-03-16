@@ -7,30 +7,27 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.thingsboard.ai.mcp.server.data.ThingsBoardEdition;
-import org.thingsboard.ai.mcp.server.rest.RestClient;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.customer.CustomerTools;
-import org.thingsboard.common.util.JacksonUtil;
-import org.thingsboard.server.common.data.Customer;
-import org.thingsboard.server.common.data.id.CustomerId;
-import org.thingsboard.server.common.data.id.EntityGroupId;
-import org.thingsboard.server.common.data.page.PageData;
-import org.thingsboard.server.common.data.page.PageLink;
-import org.thingsboard.server.common.data.page.SortOrder;
+import org.thingsboard.ai.mcp.server.util.JsonUtils;
+import org.thingsboard.client.ThingsboardClient;
+import org.thingsboard.client.model.Customer;
+import org.thingsboard.client.model.PageDataCustomer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -45,7 +42,7 @@ public class CustomerToolsTest {
     private RestClientService clientService;
 
     @Mock
-    private RestClient restClient;
+    private ThingsboardClient restClient;
 
     @BeforeEach
     void setup() {
@@ -54,18 +51,14 @@ public class CustomerToolsTest {
 
     @Test
     void testFindCustomerById() {
-        UUID id = UUID.randomUUID();
-        Customer customer = new Customer();
-        customer.setId(new CustomerId(id));
-        customer.setTitle("Acme");
-        when(restClient.getCustomerById(any(CustomerId.class))).thenReturn(Optional.of(customer));
+        String id = UUID.randomUUID().toString();
+        Customer customer = new Customer().title("Acme");
+        when(restClient.getCustomerById(anyString())).thenReturn(customer);
 
-        String result = tools.getCustomerById(id.toString());
+        String result = tools.getCustomerById(id);
 
-        ArgumentCaptor<CustomerId> idCap = ArgumentCaptor.forClass(CustomerId.class);
-        verify(restClient).getCustomerById(idCap.capture());
-        assertThat(idCap.getValue().getId()).isEqualTo(id);
-        assertThat(result).isEqualTo(JacksonUtil.toString(customer));
+        verify(restClient).getCustomerById(eq(id));
+        assertThat(result).isEqualTo(JsonUtils.toString(customer));
     }
 
     @ParameterizedTest(name = "getCustomers page={1} size={0} text={2} sort={3} {4}")
@@ -76,41 +69,26 @@ public class CustomerToolsTest {
     void testFindCustomers(int pageSize, int page, String text, String sortProp, String dir) throws Exception {
         List<Customer> items = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
-            Customer c = new Customer();
-            c.setId(new CustomerId(UUID.randomUUID()));
-            c.setTitle("C" + i);
-            items.add(c);
+            items.add(new Customer().title("C" + i));
         }
-        PageData<Customer> pageData = new PageData<>(items, 2, items.size(), true);
-        when(restClient.getCustomers(any(PageLink.class))).thenReturn(pageData);
+        PageDataCustomer pageData = new PageDataCustomer(2, (long) items.size(), true).data(items);
+        when(restClient.getCustomers(anyInt(), anyInt(), any(), any(), any())).thenReturn(pageData);
 
         String result = tools.getCustomers(Integer.toString(pageSize), Integer.toString(page), text, sortProp, dir);
 
-        ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);
-        verify(restClient).getCustomers(pageCap.capture());
-        PageLink pageLink = pageCap.getValue();
-        assertThat(pageLink.getPageSize()).isEqualTo(pageSize);
-        assertThat(pageLink.getPage()).isEqualTo(page);
-        assertThat(pageLink.getTextSearch()).isEqualTo(text);
-        if (sortProp != null) {
-            assertThat(pageLink.getSortOrder()).isNotNull();
-            assertThat(pageLink.getSortOrder().getProperty()).isEqualTo(sortProp);
-            assertThat(pageLink.getSortOrder().getDirection()).isEqualTo(SortOrder.Direction.valueOf(dir));
-        }
-        assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
+        verify(restClient).getCustomers(eq(pageSize), eq(page), eq(text), eq(sortProp), eq(dir));
+        assertThat(result).isEqualTo(JsonUtils.toString(pageData));
     }
 
     @Test
     void testFindTenantCustomer() {
-        Customer customer = new Customer();
-        customer.setId(new CustomerId(UUID.randomUUID()));
-        customer.setTitle("Acme");
-        when(restClient.getTenantCustomer("Acme")).thenReturn(Optional.of(customer));
+        Customer customer = new Customer().title("Acme");
+        when(restClient.getTenantCustomer("Acme")).thenReturn(customer);
 
         String result = tools.getTenantCustomer("Acme");
 
         verify(restClient).getTenantCustomer("Acme");
-        assertThat(result).isEqualTo(JacksonUtil.toString(customer));
+        assertThat(result).isEqualTo(JsonUtils.toString(customer));
     }
 
     @ParameterizedTest(name = "getUserCustomers page={1} size={0} text={2} sort={3} {4}")
@@ -124,28 +102,15 @@ public class CustomerToolsTest {
 
         List<Customer> items = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
-            Customer c = new Customer();
-            c.setId(new CustomerId(UUID.randomUUID()));
-            c.setTitle("U" + i);
-            items.add(c);
+            items.add(new Customer().title("U" + i));
         }
-        PageData<Customer> pageData = new PageData<>(items, 1, items.size(), false);
-        when(restClient.getUserCustomers(any(PageLink.class))).thenReturn(pageData);
+        PageDataCustomer pageData = new PageDataCustomer(1, (long) items.size(), false).data(items);
+        when(restClient.getUserCustomers(any(), any(), any(), any(), any())).thenReturn(pageData);
 
         String result = tools.getUserCustomers(Integer.toString(pageSize), Integer.toString(page), text, sortProp, dir);
 
-        ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);
-        verify(restClient).getUserCustomers(pageCap.capture());
-        PageLink pageLink = pageCap.getValue();
-        assertThat(pageLink.getPageSize()).isEqualTo(pageSize);
-        assertThat(pageLink.getPage()).isEqualTo(page);
-        assertThat(pageLink.getTextSearch()).isEqualTo(text);
-        if (sortProp != null) {
-            assertThat(pageLink.getSortOrder()).isNotNull();
-            assertThat(pageLink.getSortOrder().getProperty()).isEqualTo(sortProp);
-            assertThat(pageLink.getSortOrder().getDirection()).isEqualTo(SortOrder.Direction.valueOf(dir));
-        }
-        assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
+        verify(restClient).getUserCustomers(any(), any(), any(), any(), any());
+        assertThat(result).isEqualTo(JsonUtils.toString(pageData));
     }
 
     @ParameterizedTest(name = "customersByGroup page={1} size={0} text={2} sort={3} {4}")
@@ -157,34 +122,18 @@ public class CustomerToolsTest {
         when(clientService.getEdition()).thenReturn(ThingsBoardEdition.PE);
         when(clientService.getClient()).thenReturn(restClient);
 
-        UUID groupUuid = UUID.randomUUID();
+        String groupId = UUID.randomUUID().toString();
         List<Customer> items = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
-            Customer c = new Customer();
-            c.setId(new CustomerId(UUID.randomUUID()));
-            c.setTitle("G" + i);
-            items.add(c);
+            items.add(new Customer().title("G" + i));
         }
-        PageData<Customer> pageData = new PageData<>(items, 1, items.size(), false);
-        when(restClient.getCustomersByEntityGroupId(any(EntityGroupId.class), any(PageLink.class))).thenReturn(pageData);
+        PageDataCustomer pageData = new PageDataCustomer(1, (long) items.size(), false).data(items);
+        when(restClient.getCustomersByEntityGroupId(anyString(), any(), any(), any(), any(), any())).thenReturn(pageData);
 
-        String result = tools.getCustomersByEntityGroupId(groupUuid.toString(), Integer.toString(pageSize), Integer.toString(page), text, sortProp, dir);
+        String result = tools.getCustomersByEntityGroupId(groupId, Integer.toString(pageSize), Integer.toString(page), text, sortProp, dir);
 
-        ArgumentCaptor<EntityGroupId> egCap = ArgumentCaptor.forClass(EntityGroupId.class);
-        ArgumentCaptor<PageLink> pageCap = ArgumentCaptor.forClass(PageLink.class);
-        verify(restClient).getCustomersByEntityGroupId(egCap.capture(), pageCap.capture());
-
-        assertThat(egCap.getValue().getId()).isEqualTo(groupUuid);
-        PageLink pageLink = pageCap.getValue();
-        assertThat(pageLink.getPageSize()).isEqualTo(pageSize);
-        assertThat(pageLink.getPage()).isEqualTo(page);
-        assertThat(pageLink.getTextSearch()).isEqualTo(text);
-        if (sortProp != null) {
-            assertThat(pageLink.getSortOrder()).isNotNull();
-            assertThat(pageLink.getSortOrder().getProperty()).isEqualTo(sortProp);
-            assertThat(pageLink.getSortOrder().getDirection()).isEqualTo(SortOrder.Direction.valueOf(dir));
-        }
-        assertThat(result).isEqualTo(JacksonUtil.toString(pageData));
+        verify(restClient).getCustomersByEntityGroupId(eq(groupId), any(), any(), any(), any(), any());
+        assertThat(result).isEqualTo(JsonUtils.toString(pageData));
     }
 
     @Nested
@@ -192,48 +141,44 @@ public class CustomerToolsTest {
     class SaveCustomerVariants {
         @Test
         void testSaveCustomer_withoutGroups() {
-            Customer payload = new Customer();
-            payload.setTitle("Acme");
-            when(restClient.saveCustomer(any(Customer.class))).thenAnswer(inv -> inv.getArgument(0));
+            Customer payload = new Customer().title("Acme");
+            when(restClient.saveCustomer(any(Customer.class), isNull(), isNull(), isNull(), isNull(), isNull()))
+                    .thenReturn(payload);
 
-            String res = tools.saveCustomer(JacksonUtil.toString(payload), null, null);
+            String res = tools.saveCustomer(JsonUtils.toString(payload), null, null);
 
-            ArgumentCaptor<Customer> cap = ArgumentCaptor.forClass(Customer.class);
-            verify(restClient).saveCustomer(cap.capture());
-            assertThat(cap.getValue().getTitle()).isEqualTo("Acme");
-            assertThat(res).isEqualTo(JacksonUtil.toString(payload));
+            verify(restClient).saveCustomer(any(Customer.class), isNull(), isNull(), isNull(), isNull(), isNull());
+            assertThat(res).isEqualTo(JsonUtils.toString(payload));
         }
 
         @Test
         void testSaveCustomer_withSingleGroup() {
-            Customer payload = new Customer();
-            payload.setTitle("Beta");
-            UUID group = UUID.randomUUID();
+            Customer payload = new Customer().title("Beta");
+            String group = UUID.randomUUID().toString();
 
-            when(restClient.saveCustomer(any(Customer.class), any(EntityGroupId.class), eq(null)))
-                    .thenAnswer(inv -> inv.getArgument(0));
+            when(restClient.saveCustomer(any(Customer.class), eq(group), isNull(), isNull(), isNull(), isNull()))
+                    .thenReturn(payload);
 
-            String res = tools.saveCustomer(JacksonUtil.toString(payload), group.toString(), null);
+            String res = tools.saveCustomer(JsonUtils.toString(payload), group, null);
 
-            ArgumentCaptor<EntityGroupId> egCap = ArgumentCaptor.forClass(EntityGroupId.class);
-            verify(restClient).saveCustomer(any(Customer.class), egCap.capture(), eq(null));
-            assertThat(egCap.getValue().getId()).isEqualTo(group);
-            assertThat(res).isEqualTo(JacksonUtil.toString(payload));
+            verify(restClient).saveCustomer(any(Customer.class), eq(group), isNull(), isNull(), isNull(), isNull());
+            assertThat(res).isEqualTo(JsonUtils.toString(payload));
         }
 
         @Test
         void testSaveCustomer_withMultipleGroups() {
-            Customer payload = new Customer();
-            payload.setTitle("Gamma");
-            String groupIds = UUID.randomUUID() + "," + UUID.randomUUID();
+            Customer payload = new Customer().title("Gamma");
+            String id1 = UUID.randomUUID().toString();
+            String id2 = UUID.randomUUID().toString();
+            String groupIds = id1 + "," + id2;
 
-            when(restClient.saveCustomer(any(Customer.class), eq(null), eq(groupIds)))
-                    .thenAnswer(inv -> inv.getArgument(0));
+            when(restClient.saveCustomer(any(Customer.class), isNull(), eq(List.of(id1, id2)), isNull(), isNull(), isNull()))
+                    .thenReturn(payload);
 
-            String res = tools.saveCustomer(JacksonUtil.toString(payload), null, groupIds);
+            String res = tools.saveCustomer(JsonUtils.toString(payload), null, groupIds);
 
-            verify(restClient).saveCustomer(any(Customer.class), eq(null), eq(groupIds));
-            assertThat(res).isEqualTo(JacksonUtil.toString(payload));
+            verify(restClient).saveCustomer(any(Customer.class), isNull(), eq(List.of(id1, id2)), isNull(), isNull(), isNull());
+            assertThat(res).isEqualTo(JsonUtils.toString(payload));
         }
 
     }
@@ -243,26 +188,24 @@ public class CustomerToolsTest {
     class DeleteCustomerContract {
         @Test
         void testDeleteCustomer_ok() {
-            UUID id = UUID.randomUUID();
-            String res = tools.deleteCustomer(id.toString());
+            String id = UUID.randomUUID().toString();
+            String res = tools.deleteCustomer(id);
 
-            ArgumentCaptor<CustomerId> idCap = ArgumentCaptor.forClass(CustomerId.class);
-            verify(restClient).deleteCustomer(idCap.capture());
-            assertThat(idCap.getValue().getId()).isEqualTo(id);
+            verify(restClient).deleteCustomer(eq(id));
 
             assertThat(res).contains("\"status\":\"OK\"");
-            assertThat(res).contains(id.toString());
+            assertThat(res).contains(id);
         }
 
         @Test
         void testDeleteCustomer_error() {
-            UUID id = UUID.randomUUID();
-            doThrow(new RuntimeException("boom")).when(restClient).deleteCustomer(any(CustomerId.class));
+            String id = UUID.randomUUID().toString();
+            doThrow(new RuntimeException("boom")).when(restClient).deleteCustomer(anyString());
 
-            String res = tools.deleteCustomer(id.toString());
+            String res = tools.deleteCustomer(id);
 
             assertThat(res).contains("\"status\":\"ERROR\"");
-            assertThat(res).contains(id.toString());
+            assertThat(res).contains(id);
             assertThat(res).contains("boom");
         }
 

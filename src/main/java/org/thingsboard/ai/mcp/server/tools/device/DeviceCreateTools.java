@@ -8,17 +8,17 @@ import org.springframework.stereotype.Service;
 import org.thingsboard.ai.mcp.server.annotation.ToolGroup;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.McpTools;
-import org.thingsboard.common.util.JacksonUtil;
-import org.thingsboard.server.common.data.Customer;
-import org.thingsboard.server.common.data.Device;
-import org.thingsboard.server.common.data.EntityType;
-import org.thingsboard.server.common.data.group.EntityGroupInfo;
-import org.thingsboard.server.common.data.id.CustomerId;
-import org.thingsboard.server.common.data.id.DeviceProfileId;
-import org.thingsboard.server.common.data.id.EntityGroupId;
+import org.thingsboard.ai.mcp.server.util.JsonUtils;
+import org.thingsboard.client.ApiException;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.thingsboard.client.model.Customer;
+import org.thingsboard.client.model.CustomerId;
+import org.thingsboard.client.model.Device;
+import org.thingsboard.client.model.DeviceProfileId;
+import org.thingsboard.client.model.EntityGroupInfo;
+import org.thingsboard.client.model.EntityType;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -45,43 +45,55 @@ public class DeviceCreateTools implements McpTools {
         var client = clientService.getClient();
 
         try {
-            Optional<Device> existingOpt = client.getTenantDevice(name);
             Device device;
             boolean created;
 
-            if (existingOpt.isPresent()) {
-                device = existingOpt.get();
+            try {
+                device = client.getTenantDeviceByName(name);
                 created = false;
-            } else {
+            } catch (ApiException e) {
                 device = new Device();
-                device.setName(name);
-                if (type != null && !type.isBlank()) device.setType(type);
-                if (label != null && !label.isBlank()) device.setLabel(label);
-
+                device.name(name);
+                if (type != null && !type.isBlank()) device.type(type);
+                if (label != null && !label.isBlank()) device.label(label);
 
                 if (deviceProfileId != null && !deviceProfileId.isBlank()) {
-                    device.setDeviceProfileId(new DeviceProfileId(UUID.fromString(deviceProfileId)));
+                    device.setDeviceProfileId(new DeviceProfileId().id(UUID.fromString(deviceProfileId)).entityType(EntityType.DEVICE_PROFILE));
                 }
 
+                String resolvedCustomerId = null;
                 if (customerId != null && !customerId.isBlank()) {
-                    device.setCustomerId(new CustomerId(UUID.fromString(customerId)));
+                    resolvedCustomerId = customerId;
                 } else if (customerTitle != null && !customerTitle.isBlank()) {
-                    var cust = client.getTenantCustomer(customerTitle).orElseGet(() -> {
+                    Customer cust;
+                    try {
+                        cust = client.getTenantCustomer(customerTitle);
+                    } catch (ApiException ex) {
                         Customer c = new Customer();
-                        c.setTitle(customerTitle);
-                        return client.saveCustomer(c);
-                    });
-                    device.setCustomerId(cust.getId());
+                        c.title(customerTitle);
+                        cust = client.saveCustomer(c, null, null, null, null, null);
+                    }
+                    resolvedCustomerId = cust.getId().getId().toString();
                 }
 
-                device = client.createDevice(device);
+                // customerId is read-only on Device model — set it via JSON round-trip
+                if (resolvedCustomerId != null) {
+                    ObjectNode deviceNode = JsonUtils.getMapper().valueToTree(device);
+                    ObjectNode custIdNode = JsonUtils.getMapper().createObjectNode();
+                    custIdNode.put("id", resolvedCustomerId);
+                    custIdNode.put("entityType", "CUSTOMER");
+                    deviceNode.set("customerId", custIdNode);
+                    device = JsonUtils.getMapper().treeToValue(deviceNode, Device.class);
+                }
+
+                device = client.saveDevice(device, null, null, null, null, null, null);
                 created = true;
             }
 
             if ((groupId != null && !groupId.isBlank()) || (groupName != null && !groupName.isBlank())) {
-                EntityGroupId egId = resolveDeviceGroupId(groupId, groupName);
+                String egId = resolveDeviceGroupId(groupId, groupName);
                 if (egId != null) {
-                    client.addEntitiesToEntityGroup(egId, List.of(device.getId()));
+                    client.addEntitiesToEntityGroup(egId, List.of(device.getId().getId().toString()));
                 }
             }
 
@@ -93,29 +105,32 @@ public class DeviceCreateTools implements McpTools {
             result.put("label", device.getLabel());
             result.put("customerId", device.getCustomerId() != null ? device.getCustomerId().getId().toString() : null);
             result.put("deviceProfileId", device.getDeviceProfileId() != null ? device.getDeviceProfileId().getId().toString() : null);
-            return JacksonUtil.toString(result);
+            return JsonUtils.toString(result);
 
         } catch (Exception e) {
             var error = new java.util.LinkedHashMap<String, Object>();
             error.put("error", e.getClass().getSimpleName());
             error.put("message", e.getMessage());
-            return JacksonUtil.toString(error);
+            return JsonUtils.toString(error);
         }
     }
 
-    private EntityGroupId resolveDeviceGroupId(String groupId, String groupName) {
+    private String resolveDeviceGroupId(String groupId, String groupName) {
         var client = clientService.getClient();
 
         try {
             if (groupId != null && !groupId.isBlank()) {
-                return new EntityGroupId(UUID.fromString(groupId));
+                return groupId;
             }
             if (groupName != null && !groupName.isBlank()) {
-                return client.getEntityGroupsByType(EntityType.DEVICE).stream()
-                        .filter(g -> groupName.equalsIgnoreCase(g.getName()))
-                        .map(EntityGroupInfo::getId)
-                        .findFirst()
-                        .orElse(null);
+                List<EntityGroupInfo> groups = client.getAllEntityGroupsByType(EntityType.DEVICE.getValue(), null);
+                if (groups != null) {
+                    return groups.stream()
+                            .filter(g -> groupName.equalsIgnoreCase(g.getName()))
+                            .map(g -> g.getId().getId().toString())
+                            .findFirst()
+                            .orElse(null);
+                }
             }
         } catch (Exception ignored) {}
         return null;

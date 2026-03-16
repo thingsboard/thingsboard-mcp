@@ -11,32 +11,31 @@ import org.thingsboard.ai.mcp.server.annotation.PeOnly;
 import org.thingsboard.ai.mcp.server.annotation.ToolGroup;
 import org.thingsboard.ai.mcp.server.rest.RestClientService;
 import org.thingsboard.ai.mcp.server.tools.McpTools;
-import org.thingsboard.common.util.JacksonUtil;
-import org.thingsboard.server.common.data.exception.ThingsboardException;
-import org.thingsboard.server.common.data.query.ApiUsageStateFilter;
-import org.thingsboard.server.common.data.query.AssetSearchQueryFilter;
-import org.thingsboard.server.common.data.query.AssetTypeFilter;
-import org.thingsboard.server.common.data.query.DeviceSearchQueryFilter;
-import org.thingsboard.server.common.data.query.DeviceTypeFilter;
-import org.thingsboard.server.common.data.query.EdgeSearchQueryFilter;
-import org.thingsboard.server.common.data.query.EdgeTypeFilter;
-import org.thingsboard.server.common.data.query.EntitiesByGroupNameFilter;
-import org.thingsboard.server.common.data.query.EntityCountQuery;
-import org.thingsboard.server.common.data.query.EntityDataPageLink;
-import org.thingsboard.server.common.data.query.EntityDataQuery;
-import org.thingsboard.server.common.data.query.EntityGroupFilter;
-import org.thingsboard.server.common.data.query.EntityGroupListFilter;
-import org.thingsboard.server.common.data.query.EntityGroupNameFilter;
-import org.thingsboard.server.common.data.query.EntityKey;
-import org.thingsboard.server.common.data.query.EntityListFilter;
-import org.thingsboard.server.common.data.query.EntityNameFilter;
-import org.thingsboard.server.common.data.query.EntityTypeFilter;
-import org.thingsboard.server.common.data.query.EntityViewSearchQueryFilter;
-import org.thingsboard.server.common.data.query.EntityViewTypeFilter;
-import org.thingsboard.server.common.data.query.KeyFilter;
-import org.thingsboard.server.common.data.query.RelationsQueryFilter;
-import org.thingsboard.server.common.data.query.SingleEntityFilter;
-import org.thingsboard.server.common.data.query.StateEntityOwnerFilter;
+import org.thingsboard.ai.mcp.server.util.JsonUtils;
+import org.thingsboard.client.model.ApiUsageStateFilter;
+import org.thingsboard.client.model.AssetSearchQueryFilter;
+import org.thingsboard.client.model.AssetTypeFilter;
+import org.thingsboard.client.model.DeviceSearchQueryFilter;
+import org.thingsboard.client.model.DeviceTypeFilter;
+import org.thingsboard.client.model.EdgeSearchQueryFilter;
+import org.thingsboard.client.model.EdgeTypeFilter;
+import org.thingsboard.client.model.EntitiesByGroupNameFilter;
+import org.thingsboard.client.model.EntityCountQuery;
+import org.thingsboard.client.model.EntityDataPageLink;
+import org.thingsboard.client.model.EntityDataQuery;
+import org.thingsboard.client.model.EntityGroupFilter;
+import org.thingsboard.client.model.EntityGroupListFilter;
+import org.thingsboard.client.model.EntityGroupNameFilter;
+import org.thingsboard.client.model.EntityKey;
+import org.thingsboard.client.model.EntityListFilter;
+import org.thingsboard.client.model.EntityNameFilter;
+import org.thingsboard.client.model.EntityTypeFilter;
+import org.thingsboard.client.model.EntityViewSearchQueryFilter;
+import org.thingsboard.client.model.EntityViewTypeFilter;
+import org.thingsboard.client.model.KeyFilter;
+import org.thingsboard.client.model.RelationsQueryFilter;
+import org.thingsboard.client.model.SingleEntityFilter;
+import org.thingsboard.client.model.StateEntityOwnerFilter;
 
 import java.util.List;
 
@@ -93,14 +92,19 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "The case insensitive 'substring' filter based on the entity data.") String textSearch,
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
-        SingleEntityFilter singleEntityFilter = JacksonUtil.fromString(singleEntityFilterJson, SingleEntityFilter.class);
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
+        SingleEntityFilter singleEntityFilter = JsonUtils.fromString(singleEntityFilterJson, SingleEntityFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
         List<EntityKey> latestValues = parseEntityKeys(latestValuesJson);
-        EntityDataQuery query = new EntityDataQuery(singleEntityFilter, pageLink, entityFields, latestValues, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
+        EntityDataQuery query = new EntityDataQuery()
+                .entityFilter(singleEntityFilter)
+                .pageLink(pageLink)
+                .entityFields(entityFields)
+                .latestValues(latestValues)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @PeOnly
@@ -115,14 +119,19 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "The case insensitive 'substring' filter based on the entity data.") String textSearch,
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
-        EntityGroupFilter entityGroupFilter = JacksonUtil.fromString(entityGroupFilterJson, EntityGroupFilter.class);
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
+        EntityGroupFilter entityGroupFilter = JsonUtils.fromString(entityGroupFilterJson, EntityGroupFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
         List<EntityKey> latestValues = parseEntityKeys(latestValuesJson);
-        EntityDataQuery query = new EntityDataQuery(entityGroupFilter, pageLink, entityFields, latestValues, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
+        EntityDataQuery query = new EntityDataQuery()
+                .entityFilter(entityGroupFilter)
+                .pageLink(pageLink)
+                .entityFields(entityFields)
+                .latestValues(latestValues)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = EDQ_ROUTING + "Use this to find entity data for multiple entities by their ids." + EDQ_GUIDES)
@@ -136,14 +145,19 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "The case insensitive 'substring' filter based on the entity data.") String textSearch,
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
-        EntityListFilter entityListFilter = JacksonUtil.fromString(entityListFilterJson, EntityListFilter.class);
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
+        EntityListFilter entityListFilter = JsonUtils.fromString(entityListFilterJson, EntityListFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
         List<EntityKey> latestValues = parseEntityKeys(latestValuesJson);
-        EntityDataQuery query = new EntityDataQuery(entityListFilter, pageLink, entityFields, latestValues, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
+        EntityDataQuery query = new EntityDataQuery()
+                .entityFilter(entityListFilter)
+                .pageLink(pageLink)
+                .entityFields(entityFields)
+                .latestValues(latestValues)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = EDQ_ROUTING + "Use this to find entity data by name prefix ('starts with'). For DEVICE/ASSET/EDGE/ENTITY_VIEW with known profile, use the corresponding type filter instead." + EDQ_GUIDES)
@@ -157,14 +171,19 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "The case insensitive 'substring' filter based on the entity data.") String textSearch,
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
-        EntityNameFilter entityNameFilter = JacksonUtil.fromString(entityNameFilterJson, EntityNameFilter.class);
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
+        EntityNameFilter entityNameFilter = JsonUtils.fromString(entityNameFilterJson, EntityNameFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
         List<EntityKey> latestValues = parseEntityKeys(latestValuesJson);
-        EntityDataQuery query = new EntityDataQuery(entityNameFilter, pageLink, entityFields, latestValues, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
+        EntityDataQuery query = new EntityDataQuery()
+                .entityFilter(entityNameFilter)
+                .pageLink(pageLink)
+                .entityFields(entityFields)
+                .latestValues(latestValues)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = EDQ_ROUTING + "Use this to find entity data for all entities of a type (DEVICE, ASSET, CUSTOMER, USER, DASHBOARD, ENTITY_VIEW, EDGE, TENANT)." + EDQ_GUIDES)
@@ -178,14 +197,19 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "The case insensitive 'substring' filter based on the entity data.") String textSearch,
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
-        EntityTypeFilter entityTypeFilter = JacksonUtil.fromString(entityTypeFilterJson, EntityTypeFilter.class);
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
+        EntityTypeFilter entityTypeFilter = JsonUtils.fromString(entityTypeFilterJson, EntityTypeFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
         List<EntityKey> latestValues = parseEntityKeys(latestValuesJson);
-        EntityDataQuery query = new EntityDataQuery(entityTypeFilter, pageLink, entityFields, latestValues, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
+        EntityDataQuery query = new EntityDataQuery()
+                .entityFilter(entityTypeFilter)
+                .pageLink(pageLink)
+                .entityFields(entityFields)
+                .latestValues(latestValues)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @PeOnly
@@ -200,14 +224,19 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "The case insensitive 'substring' filter based on the entity data.") String textSearch,
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
-        EntityGroupListFilter entityGroupListFilter = JacksonUtil.fromString(entityGroupListFilterJson, EntityGroupListFilter.class);
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
+        EntityGroupListFilter entityGroupListFilter = JsonUtils.fromString(entityGroupListFilterJson, EntityGroupListFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
         List<EntityKey> latestValues = parseEntityKeys(latestValuesJson);
-        EntityDataQuery query = new EntityDataQuery(entityGroupListFilter, pageLink, entityFields, latestValues, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
+        EntityDataQuery query = new EntityDataQuery()
+                .entityFilter(entityGroupListFilter)
+                .pageLink(pageLink)
+                .entityFields(entityFields)
+                .latestValues(latestValues)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @PeOnly
@@ -222,14 +251,19 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "The case insensitive 'substring' filter based on the entity data.") String textSearch,
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
-        EntityGroupNameFilter entityGroupNameFilter = JacksonUtil.fromString(entityGroupNameFilterJson, EntityGroupNameFilter.class);
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
+        EntityGroupNameFilter entityGroupNameFilter = JsonUtils.fromString(entityGroupNameFilterJson, EntityGroupNameFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
         List<EntityKey> latestValues = parseEntityKeys(latestValuesJson);
-        EntityDataQuery query = new EntityDataQuery(entityGroupNameFilter, pageLink, entityFields, latestValues, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
+        EntityDataQuery query = new EntityDataQuery()
+                .entityFilter(entityGroupNameFilter)
+                .pageLink(pageLink)
+                .entityFields(entityFields)
+                .latestValues(latestValues)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @PeOnly
@@ -244,14 +278,19 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "The case insensitive 'substring' filter based on the entity data.") String textSearch,
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
-        EntitiesByGroupNameFilter entitiesByGroupNameFilter = JacksonUtil.fromString(entitiesByGroupNameFilterJson, EntitiesByGroupNameFilter.class);
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
+        EntitiesByGroupNameFilter entitiesByGroupNameFilter = JsonUtils.fromString(entitiesByGroupNameFilterJson, EntitiesByGroupNameFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
         List<EntityKey> latestValues = parseEntityKeys(latestValuesJson);
-        EntityDataQuery query = new EntityDataQuery(entitiesByGroupNameFilter, pageLink, entityFields, latestValues, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
+        EntityDataQuery query = new EntityDataQuery()
+                .entityFilter(entitiesByGroupNameFilter)
+                .pageLink(pageLink)
+                .entityFields(entityFields)
+                .latestValues(latestValues)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = EDQ_ROUTING + "Use this to find entity data for the owner (Tenant or Customer) of a specified entity." + EDQ_GUIDES)
@@ -265,14 +304,19 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "The case insensitive 'substring' filter based on the entity data.") String textSearch,
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
-        StateEntityOwnerFilter stateEntityOwnerFilter = JacksonUtil.fromString(stateEntityOwnerFilterJson, StateEntityOwnerFilter.class);
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
+        StateEntityOwnerFilter stateEntityOwnerFilter = JsonUtils.fromString(stateEntityOwnerFilterJson, StateEntityOwnerFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
         List<EntityKey> latestValues = parseEntityKeys(latestValuesJson);
-        EntityDataQuery query = new EntityDataQuery(stateEntityOwnerFilter, pageLink, entityFields, latestValues, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
+        EntityDataQuery query = new EntityDataQuery()
+                .entityFilter(stateEntityOwnerFilter)
+                .pageLink(pageLink)
+                .entityFields(entityFields)
+                .latestValues(latestValues)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = EDQ_ROUTING + "Use this to find entity data for assets by profile/type and optional name prefix." + EDQ_GUIDES)
@@ -286,14 +330,19 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "The case insensitive 'substring' filter based on the entity data.") String textSearch,
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
-        AssetTypeFilter assetTypeFilter = JacksonUtil.fromString(assetTypeFilterJson, AssetTypeFilter.class);
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
+        AssetTypeFilter assetTypeFilter = JsonUtils.fromString(assetTypeFilterJson, AssetTypeFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
         List<EntityKey> latestValues = parseEntityKeys(latestValuesJson);
-        EntityDataQuery query = new EntityDataQuery(assetTypeFilter, pageLink, entityFields, latestValues, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
+        EntityDataQuery query = new EntityDataQuery()
+                .entityFilter(assetTypeFilter)
+                .pageLink(pageLink)
+                .entityFields(entityFields)
+                .latestValues(latestValues)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = EDQ_ROUTING + "Use this to find entity data for devices by profile/type and optional name prefix." + EDQ_GUIDES)
@@ -307,14 +356,19 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "The case insensitive 'substring' filter based on the entity data.") String textSearch,
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
-        DeviceTypeFilter deviceTypeFilter = JacksonUtil.fromString(deviceTypeFilterJson, DeviceTypeFilter.class);
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
+        DeviceTypeFilter deviceTypeFilter = JsonUtils.fromString(deviceTypeFilterJson, DeviceTypeFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
         List<EntityKey> latestValues = parseEntityKeys(latestValuesJson);
-        EntityDataQuery query = new EntityDataQuery(deviceTypeFilter, pageLink, entityFields, latestValues, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
+        EntityDataQuery query = new EntityDataQuery()
+                .entityFilter(deviceTypeFilter)
+                .pageLink(pageLink)
+                .entityFields(entityFields)
+                .latestValues(latestValues)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = EDQ_ROUTING + "Use this to find entity data for edges by type and optional name prefix." + EDQ_GUIDES)
@@ -328,14 +382,19 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "The case insensitive 'substring' filter based on the entity data.") String textSearch,
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
-        EdgeTypeFilter edgeTypeFilter = JacksonUtil.fromString(edgeTypeFilterJson, EdgeTypeFilter.class);
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
+        EdgeTypeFilter edgeTypeFilter = JsonUtils.fromString(edgeTypeFilterJson, EdgeTypeFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
         List<EntityKey> latestValues = parseEntityKeys(latestValuesJson);
-        EntityDataQuery query = new EntityDataQuery(edgeTypeFilter, pageLink, entityFields, latestValues, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
+        EntityDataQuery query = new EntityDataQuery()
+                .entityFilter(edgeTypeFilter)
+                .pageLink(pageLink)
+                .entityFields(entityFields)
+                .latestValues(latestValues)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = EDQ_ROUTING + "Use this to find entity data for entity views by type and optional name prefix." + EDQ_GUIDES)
@@ -349,14 +408,19 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "The case insensitive 'substring' filter based on the entity data.") String textSearch,
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
-        EntityViewTypeFilter entityViewTypeFilter = JacksonUtil.fromString(entityViewTypeFilterJson, EntityViewTypeFilter.class);
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
+        EntityViewTypeFilter entityViewTypeFilter = JsonUtils.fromString(entityViewTypeFilterJson, EntityViewTypeFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
         List<EntityKey> latestValues = parseEntityKeys(latestValuesJson);
-        EntityDataQuery query = new EntityDataQuery(entityViewTypeFilter, pageLink, entityFields, latestValues, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
+        EntityDataQuery query = new EntityDataQuery()
+                .entityFilter(entityViewTypeFilter)
+                .pageLink(pageLink)
+                .entityFields(entityFields)
+                .latestValues(latestValues)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = "Use this to find API usage data. If customer id provided, returns customer's usage; otherwise tenant's." + EDQ_GUIDES)
@@ -370,14 +434,19 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "The case insensitive 'substring' filter based on the entity data.") String textSearch,
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
-        ApiUsageStateFilter apiUsageStateFilter = JacksonUtil.fromString(apiUsageStateFilterJson, ApiUsageStateFilter.class);
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
+        ApiUsageStateFilter apiUsageStateFilter = JsonUtils.fromString(apiUsageStateFilterJson, ApiUsageStateFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
         List<EntityKey> latestValues = parseEntityKeys(latestValuesJson);
-        EntityDataQuery query = new EntityDataQuery(apiUsageStateFilter, pageLink, entityFields, latestValues, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
+        EntityDataQuery query = new EntityDataQuery()
+                .entityFilter(apiUsageStateFilter)
+                .pageLink(pageLink)
+                .entityFields(entityFields)
+                .latestValues(latestValues)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = EDQ_ROUTING + "Use this to find entity data for entities related to a root entity via relations." + EDQ_GUIDES)
@@ -391,14 +460,19 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "The case insensitive 'substring' filter based on the entity data.") String textSearch,
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
-        RelationsQueryFilter relationsQueryFilter = JacksonUtil.fromString(relationsQueryFilterJson, RelationsQueryFilter.class);
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
+        RelationsQueryFilter relationsQueryFilter = JsonUtils.fromString(relationsQueryFilterJson, RelationsQueryFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
         List<EntityKey> latestValues = parseEntityKeys(latestValuesJson);
-        EntityDataQuery query = new EntityDataQuery(relationsQueryFilter, pageLink, entityFields, latestValues, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
+        EntityDataQuery query = new EntityDataQuery()
+                .entityFilter(relationsQueryFilter)
+                .pageLink(pageLink)
+                .entityFields(entityFields)
+                .latestValues(latestValues)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = EDQ_ROUTING + "Use this to find entity data for assets related to a root entity. Filters by relation type and asset types." + EDQ_GUIDES)
@@ -412,14 +486,19 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "The case insensitive 'substring' filter based on the entity data.") String textSearch,
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
-        AssetSearchQueryFilter assetSearchQueryFilter = JacksonUtil.fromString(assetSearchQueryFilterJson, AssetSearchQueryFilter.class);
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
+        AssetSearchQueryFilter assetSearchQueryFilter = JsonUtils.fromString(assetSearchQueryFilterJson, AssetSearchQueryFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
         List<EntityKey> latestValues = parseEntityKeys(latestValuesJson);
-        EntityDataQuery query = new EntityDataQuery(assetSearchQueryFilter, pageLink, entityFields, latestValues, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
+        EntityDataQuery query = new EntityDataQuery()
+                .entityFilter(assetSearchQueryFilter)
+                .pageLink(pageLink)
+                .entityFields(entityFields)
+                .latestValues(latestValues)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = EDQ_ROUTING + "Use this to find entity data for devices related to a root entity. Filters by relation type and device types." + EDQ_GUIDES)
@@ -433,14 +512,19 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "The case insensitive 'substring' filter based on the entity data.") String textSearch,
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
-        DeviceSearchQueryFilter deviceSearchQueryFilter = JacksonUtil.fromString(deviceSearchQueryFilterJson, DeviceSearchQueryFilter.class);
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
+        DeviceSearchQueryFilter deviceSearchQueryFilter = JsonUtils.fromString(deviceSearchQueryFilterJson, DeviceSearchQueryFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
         List<EntityKey> latestValues = parseEntityKeys(latestValuesJson);
-        EntityDataQuery query = new EntityDataQuery(deviceSearchQueryFilter, pageLink, entityFields, latestValues, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
+        EntityDataQuery query = new EntityDataQuery()
+                .entityFilter(deviceSearchQueryFilter)
+                .pageLink(pageLink)
+                .entityFields(entityFields)
+                .latestValues(latestValues)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = EDQ_ROUTING + "Use this to find entity data for entity views related to a root entity. Filters by relation type and view types." + EDQ_GUIDES)
@@ -454,14 +538,19 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "The case insensitive 'substring' filter based on the entity data.") String textSearch,
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
-        EntityViewSearchQueryFilter entityViewSearchQueryFilter = JacksonUtil.fromString(entityViewSearchQueryFilterJson, EntityViewSearchQueryFilter.class);
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
+        EntityViewSearchQueryFilter entityViewSearchQueryFilter = JsonUtils.fromString(entityViewSearchQueryFilterJson, EntityViewSearchQueryFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
         List<EntityKey> latestValues = parseEntityKeys(latestValuesJson);
-        EntityDataQuery query = new EntityDataQuery(entityViewSearchQueryFilter, pageLink, entityFields, latestValues, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
+        EntityDataQuery query = new EntityDataQuery()
+                .entityFilter(entityViewSearchQueryFilter)
+                .pageLink(pageLink)
+                .entityFields(entityFields)
+                .latestValues(latestValues)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     @Tool(description = EDQ_ROUTING + "Use this to find entity data for edges related to a root entity. Filters by relation type and edge types." + EDQ_GUIDES)
@@ -475,14 +564,19 @@ public class EntityQueryTools implements McpTools {
             @ToolParam(required = false, description = "The case insensitive 'substring' filter based on the entity data.") String textSearch,
             @ToolParam(required = false, description = "Sort order key") String sortOrderKey,
             @ToolParam(required = false, description = "Sort order key type. Allowed values: ATTRIBUTE, CLIENT_ATTRIBUTE, SHARED_ATTRIBUTE, SERVER_ATTRIBUTE, TIME_SERIES, ENTITY_FIELD, ALARM_FIELD") String sortOrderType,
-            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) throws ThingsboardException {
-        EdgeSearchQueryFilter edgeSearchQueryFilter = JacksonUtil.fromString(edgeSearchQueryFilterJson, EdgeSearchQueryFilter.class);
+            @ToolParam(required = false, description = SORT_ORDER_DESCRIPTION) String sortOrder) {
+        EdgeSearchQueryFilter edgeSearchQueryFilter = JsonUtils.fromString(edgeSearchQueryFilterJson, EdgeSearchQueryFilter.class);
         EntityDataPageLink pageLink = createPageLink(pageSize, page, textSearch, sortOrderKey, sortOrderType, sortOrder);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
         List<EntityKey> entityFields = parseEntityKeys(entityFieldsJson);
         List<EntityKey> latestValues = parseEntityKeys(latestValuesJson);
-        EntityDataQuery query = new EntityDataQuery(edgeSearchQueryFilter, pageLink, entityFields, latestValues, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().findEntityDataByQuery(query));
+        EntityDataQuery query = new EntityDataQuery()
+                .entityFilter(edgeSearchQueryFilter)
+                .pageLink(pageLink)
+                .entityFields(entityFields)
+                .latestValues(latestValues)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().findEntityDataByQuery(query));
     }
 
     // Entity Count Query:
@@ -490,10 +584,12 @@ public class EntityQueryTools implements McpTools {
     public String countBySingleEntityFilter(
             @ToolParam(description = SINGLE_ENTITY) @NotBlank String singleEntityFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        SingleEntityFilter singleEntityFilter = JacksonUtil.fromString(singleEntityFilterJson, SingleEntityFilter.class);
+        SingleEntityFilter singleEntityFilter = JsonUtils.fromString(singleEntityFilterJson, SingleEntityFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
-        EntityCountQuery query = new EntityCountQuery(singleEntityFilter, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
+        EntityCountQuery query = new EntityCountQuery()
+                .entityFilter(singleEntityFilter)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @PeOnly
@@ -501,40 +597,48 @@ public class EntityQueryTools implements McpTools {
     public String countByEntityGroupFilter(
             @ToolParam(description = ENTITY_GROUP_FILTER) @NotBlank String entityGroupFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        EntityGroupFilter entityGroupFilter = JacksonUtil.fromString(entityGroupFilterJson, EntityGroupFilter.class);
+        EntityGroupFilter entityGroupFilter = JsonUtils.fromString(entityGroupFilterJson, EntityGroupFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
-        EntityCountQuery query = new EntityCountQuery(entityGroupFilter, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
+        EntityCountQuery query = new EntityCountQuery()
+                .entityFilter(entityGroupFilter)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @Tool(description = "Use this to count entities by their ids with optional keyFilters. " + COUNT_GUIDES)
     public String countByEntityListFilter(
             @ToolParam(description = ENTITY_LIST) @NotBlank String entityListFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        EntityListFilter entityListFilter = JacksonUtil.fromString(entityListFilterJson, EntityListFilter.class);
+        EntityListFilter entityListFilter = JsonUtils.fromString(entityListFilterJson, EntityListFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
-        EntityCountQuery query = new EntityCountQuery(entityListFilter, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
+        EntityCountQuery query = new EntityCountQuery()
+                .entityFilter(entityListFilter)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @Tool(description = "Use this to count entities matching a name prefix with optional keyFilters. " + COUNT_GUIDES)
     public String countByEntityNameFilter(
             @ToolParam(description = ENTITY_NAME) @NotBlank String entityNameFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        EntityNameFilter entityNameFilter = JacksonUtil.fromString(entityNameFilterJson, EntityNameFilter.class);
+        EntityNameFilter entityNameFilter = JsonUtils.fromString(entityNameFilterJson, EntityNameFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
-        EntityCountQuery query = new EntityCountQuery(entityNameFilter, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
+        EntityCountQuery query = new EntityCountQuery()
+                .entityFilter(entityNameFilter)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @Tool(description = "Use this to count all entities of a type (DEVICE, ASSET, CUSTOMER, etc.) with optional keyFilters. " + COUNT_GUIDES)
     public String countByEntityTypeFilter(
             @ToolParam(description = ENTITY_TYPE_FILTER) @NotBlank String entityTypeFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        EntityTypeFilter entityTypeFilter = JacksonUtil.fromString(entityTypeFilterJson, EntityTypeFilter.class);
+        EntityTypeFilter entityTypeFilter = JsonUtils.fromString(entityTypeFilterJson, EntityTypeFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
-        EntityCountQuery query = new EntityCountQuery(entityTypeFilter, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
+        EntityCountQuery query = new EntityCountQuery()
+                .entityFilter(entityTypeFilter)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @PeOnly
@@ -542,10 +646,12 @@ public class EntityQueryTools implements McpTools {
     public String countByEntityGroupListFilter(
             @ToolParam(description = ENTITY_GROUP_LIST_FILTER) @NotBlank String entityGroupListFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        EntityGroupListFilter entityGroupListFilter = JacksonUtil.fromString(entityGroupListFilterJson, EntityGroupListFilter.class);
+        EntityGroupListFilter entityGroupListFilter = JsonUtils.fromString(entityGroupListFilterJson, EntityGroupListFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
-        EntityCountQuery query = new EntityCountQuery(entityGroupListFilter, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
+        EntityCountQuery query = new EntityCountQuery()
+                .entityFilter(entityGroupListFilter)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @PeOnly
@@ -553,10 +659,12 @@ public class EntityQueryTools implements McpTools {
     public String countByEntityGroupNameFilter(
             @ToolParam(description = ENTITY_GROUP_NAME_FILTER) @NotBlank String entityGroupNameFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        EntityGroupNameFilter entityGroupNameFilter = JacksonUtil.fromString(entityGroupNameFilterJson, EntityGroupNameFilter.class);
+        EntityGroupNameFilter entityGroupNameFilter = JsonUtils.fromString(entityGroupNameFilterJson, EntityGroupNameFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
-        EntityCountQuery query = new EntityCountQuery(entityGroupNameFilter, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
+        EntityCountQuery query = new EntityCountQuery()
+                .entityFilter(entityGroupNameFilter)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @PeOnly
@@ -564,110 +672,132 @@ public class EntityQueryTools implements McpTools {
     public String countByEntitiesGroupNameFilter(
             @ToolParam(description = ENTITIES_BY_GROUP_NAME_FILTER) @NotBlank String entitiesByGroupNameFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        EntitiesByGroupNameFilter entitiesByGroupNameFilter = JacksonUtil.fromString(entitiesByGroupNameFilterJson, EntitiesByGroupNameFilter.class);
+        EntitiesByGroupNameFilter entitiesByGroupNameFilter = JsonUtils.fromString(entitiesByGroupNameFilterJson, EntitiesByGroupNameFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
-        EntityCountQuery query = new EntityCountQuery(entitiesByGroupNameFilter, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
+        EntityCountQuery query = new EntityCountQuery()
+                .entityFilter(entitiesByGroupNameFilter)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @Tool(description = "Use this to count assets by profile/type and optional name prefix with keyFilters. " + COUNT_GUIDES)
     public String countByAssetTypeFilter(
             @ToolParam(description = ASSET_TYPE) @NotBlank String assetTypeFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        AssetTypeFilter assetTypeFilter = JacksonUtil.fromString(assetTypeFilterJson, AssetTypeFilter.class);
+        AssetTypeFilter assetTypeFilter = JsonUtils.fromString(assetTypeFilterJson, AssetTypeFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
-        EntityCountQuery query = new EntityCountQuery(assetTypeFilter, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
+        EntityCountQuery query = new EntityCountQuery()
+                .entityFilter(assetTypeFilter)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @Tool(description = "Use this to count devices by profile/type and optional name prefix with keyFilters. " + COUNT_GUIDES)
     public String countByDeviceTypeFilter(
             @ToolParam(description = DEVICE_TYPE) @NotBlank String deviceTypeFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        DeviceTypeFilter deviceTypeFilter = JacksonUtil.fromString(deviceTypeFilterJson, DeviceTypeFilter.class);
+        DeviceTypeFilter deviceTypeFilter = JsonUtils.fromString(deviceTypeFilterJson, DeviceTypeFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
-        EntityCountQuery query = new EntityCountQuery(deviceTypeFilter, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
+        EntityCountQuery query = new EntityCountQuery()
+                .entityFilter(deviceTypeFilter)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @Tool(description = "Use this to count edges by type and optional name prefix with keyFilters. " + COUNT_GUIDES)
     public String countByEdgeTypeFilter(
             @ToolParam(description = EDGE_TYPE) @NotBlank String edgeTypeFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        EdgeTypeFilter edgeTypeFilter = JacksonUtil.fromString(edgeTypeFilterJson, EdgeTypeFilter.class);
+        EdgeTypeFilter edgeTypeFilter = JsonUtils.fromString(edgeTypeFilterJson, EdgeTypeFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
-        EntityCountQuery query = new EntityCountQuery(edgeTypeFilter, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
+        EntityCountQuery query = new EntityCountQuery()
+                .entityFilter(edgeTypeFilter)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @Tool(description = "Use this to count entity views by type and optional name prefix with keyFilters. " + COUNT_GUIDES)
     public String countByEntityViewTypeFilter(
             @ToolParam(description = ENTITY_VIEW_TYPE) @NotBlank String entityViewTypeFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        EntityViewTypeFilter entityViewTypeFilter = JacksonUtil.fromString(entityViewTypeFilterJson, EntityViewTypeFilter.class);
+        EntityViewTypeFilter entityViewTypeFilter = JsonUtils.fromString(entityViewTypeFilterJson, EntityViewTypeFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
-        EntityCountQuery query = new EntityCountQuery(entityViewTypeFilter, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
+        EntityCountQuery query = new EntityCountQuery()
+                .entityFilter(entityViewTypeFilter)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @Tool(description = "Use this to get API usage count. Customer-scoped if customer id set, otherwise tenant-scoped. " + COUNT_GUIDES)
     public String countByApiUsageStateFilter(
             @ToolParam(description = API_USAGE) @NotBlank String apiUsageStateFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        ApiUsageStateFilter apiUsageStateFilter = JacksonUtil.fromString(apiUsageStateFilterJson, ApiUsageStateFilter.class);
+        ApiUsageStateFilter apiUsageStateFilter = JsonUtils.fromString(apiUsageStateFilterJson, ApiUsageStateFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
-        EntityCountQuery query = new EntityCountQuery(apiUsageStateFilter, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
+        EntityCountQuery query = new EntityCountQuery()
+                .entityFilter(apiUsageStateFilter)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @Tool(description = "Use this to count entities related to a root entity with optional keyFilters. " + COUNT_GUIDES)
     public String countByRelationsQueryFilter(
             @ToolParam(description = RELATIONS_QUERY_FILTER) @NotBlank String relationsQueryFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        RelationsQueryFilter relationsQueryFilter = JacksonUtil.fromString(relationsQueryFilterJson, RelationsQueryFilter.class);
+        RelationsQueryFilter relationsQueryFilter = JsonUtils.fromString(relationsQueryFilterJson, RelationsQueryFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
-        EntityCountQuery query = new EntityCountQuery(relationsQueryFilter, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
+        EntityCountQuery query = new EntityCountQuery()
+                .entityFilter(relationsQueryFilter)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @Tool(description = "Use this to count assets related to a root entity by relation type and asset types. " + COUNT_GUIDES)
     public String countByAssetSearchQueryFilter(
             @ToolParam(description = ASSET_QUERY_FILTER) @NotBlank String assetSearchQueryFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        AssetSearchQueryFilter assetSearchQueryFilter = JacksonUtil.fromString(assetSearchQueryFilterJson, AssetSearchQueryFilter.class);
+        AssetSearchQueryFilter assetSearchQueryFilter = JsonUtils.fromString(assetSearchQueryFilterJson, AssetSearchQueryFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
-        EntityCountQuery query = new EntityCountQuery(assetSearchQueryFilter, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
+        EntityCountQuery query = new EntityCountQuery()
+                .entityFilter(assetSearchQueryFilter)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @Tool(description = "Use this to count devices related to a root entity by relation type and device types. " + COUNT_GUIDES)
     public String countByDeviceSearchQueryFilter(
             @ToolParam(description = DEVICE_QUERY_FILTER) @NotBlank String deviceSearchQueryFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        DeviceSearchQueryFilter deviceSearchQueryFilter = JacksonUtil.fromString(deviceSearchQueryFilterJson, DeviceSearchQueryFilter.class);
+        DeviceSearchQueryFilter deviceSearchQueryFilter = JsonUtils.fromString(deviceSearchQueryFilterJson, DeviceSearchQueryFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
-        EntityCountQuery query = new EntityCountQuery(deviceSearchQueryFilter, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
+        EntityCountQuery query = new EntityCountQuery()
+                .entityFilter(deviceSearchQueryFilter)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @Tool(description = "Use this to count entity views related to a root entity by relation type and view types. " + COUNT_GUIDES)
     public String countByEntityViewSearchQueryFilter(
             @ToolParam(description = EV_QUERY_FILTER) @NotBlank String entityViewSearchQueryFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        EntityViewSearchQueryFilter entityViewSearchQueryFilter = JacksonUtil.fromString(entityViewSearchQueryFilterJson, EntityViewSearchQueryFilter.class);
+        EntityViewSearchQueryFilter entityViewSearchQueryFilter = JsonUtils.fromString(entityViewSearchQueryFilterJson, EntityViewSearchQueryFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
-        EntityCountQuery query = new EntityCountQuery(entityViewSearchQueryFilter, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
+        EntityCountQuery query = new EntityCountQuery()
+                .entityFilter(entityViewSearchQueryFilter)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
     @Tool(description = "Use this to count edges related to a root entity by relation type and edge types. " + COUNT_GUIDES)
     public String countByEdgeQueryFilter(
             @ToolParam(description = EDGE_QUERY_FILTER) @NotBlank String edgeSearchQueryFilterJson,
             @ToolParam(required = false, description = KEY_FILTERS_JSON) String keyFiltersJson) {
-        EdgeSearchQueryFilter edgeSearchQueryFilter = JacksonUtil.fromString(edgeSearchQueryFilterJson, EdgeSearchQueryFilter.class);
+        EdgeSearchQueryFilter edgeSearchQueryFilter = JsonUtils.fromString(edgeSearchQueryFilterJson, EdgeSearchQueryFilter.class);
         List<KeyFilter> keyFilters = parseKeyFilters(keyFiltersJson);
-        EntityCountQuery query = new EntityCountQuery(edgeSearchQueryFilter, keyFilters);
-        return JacksonUtil.toString(clientService.getClient().countEntitiesByQuery(query));
+        EntityCountQuery query = new EntityCountQuery()
+                .entityFilter(edgeSearchQueryFilter)
+                .keyFilters(keyFilters);
+        return JsonUtils.toString(clientService.getClient().countEntitiesByQuery(query));
     }
 
 }

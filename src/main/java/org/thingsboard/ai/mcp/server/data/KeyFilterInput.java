@@ -2,21 +2,27 @@ package org.thingsboard.ai.mcp.server.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import org.thingsboard.server.common.data.query.BooleanFilterPredicate;
-import org.thingsboard.server.common.data.query.ComplexFilterPredicate;
-import org.thingsboard.server.common.data.query.DynamicValue;
-import org.thingsboard.server.common.data.query.DynamicValueSourceType;
-import org.thingsboard.server.common.data.query.EntityKey;
-import org.thingsboard.server.common.data.query.EntityKeyType;
-import org.thingsboard.server.common.data.query.EntityKeyValueType;
-import org.thingsboard.server.common.data.query.FilterPredicateType;
-import org.thingsboard.server.common.data.query.FilterPredicateValue;
-import org.thingsboard.server.common.data.query.KeyFilter;
-import org.thingsboard.server.common.data.query.KeyFilterPredicate;
-import org.thingsboard.server.common.data.query.NumericFilterPredicate;
-import org.thingsboard.server.common.data.query.StringFilterPredicate;
-
 import lombok.NoArgsConstructor;
+import org.thingsboard.client.model.BooleanFilterPredicate;
+import org.thingsboard.client.model.BooleanOperation;
+import org.thingsboard.client.model.ComplexFilterPredicate;
+import org.thingsboard.client.model.ComplexOperation;
+import org.thingsboard.client.model.DynamicValueBoolean;
+import org.thingsboard.client.model.DynamicValueDouble;
+import org.thingsboard.client.model.DynamicValueSourceType;
+import org.thingsboard.client.model.DynamicValueString;
+import org.thingsboard.client.model.EntityKey;
+import org.thingsboard.client.model.EntityKeyType;
+import org.thingsboard.client.model.EntityKeyValueType;
+import org.thingsboard.client.model.FilterPredicateValueBoolean;
+import org.thingsboard.client.model.FilterPredicateValueDouble;
+import org.thingsboard.client.model.FilterPredicateValueString;
+import org.thingsboard.client.model.KeyFilter;
+import org.thingsboard.client.model.KeyFilterPredicate;
+import org.thingsboard.client.model.NumericFilterPredicate;
+import org.thingsboard.client.model.NumericOperation;
+import org.thingsboard.client.model.StringFilterPredicate;
+import org.thingsboard.client.model.StringOperation;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,201 +71,115 @@ public class KeyFilterInput {
     private List<KeyFilterInput> nestedPredicates;
 
     public KeyFilter toKeyFilter() {
-        KeyFilter filter = new KeyFilter();
+        EntityKey entityKey = new EntityKey()
+                .type(EntityKeyType.valueOf(keyType))
+                .key(key);
 
-        EntityKey entityKey = new EntityKey(
-                EntityKeyType.valueOf(keyType), key);
-        filter.setKey(entityKey);
+        KeyFilter filter = new KeyFilter().key(entityKey);
 
         if (valueType != null) {
-            filter.setValueType(EntityKeyValueType.valueOf(valueType));
+            filter.valueType(EntityKeyValueType.valueOf(valueType));
         }
 
         KeyFilterPredicate predicate = buildPredicate();
-        filter.setPredicate(predicate);
+        filter.predicate(predicate);
 
         return filter;
     }
 
-    public KeyFilterInput(KeyFilter filter) {
-        if (filter == null) {
-            throw new IllegalArgumentException("filter cannot be null");
-        }
-        if (filter.getKey() == null) {
-            throw new IllegalArgumentException("filter.key cannot be null");
-        }
-        if (filter.getPredicate() == null) {
-            throw new IllegalArgumentException("filter.predicate cannot be null");
-        }
-
-        this.keyType = filter.getKey().getType() != null ? filter.getKey().getType().name() : null;
-        this.key = filter.getKey().getKey();
-
-        this.valueType = filter.getValueType() != null ? filter.getValueType().name() : null;
-
-        var p = filter.getPredicate();
-        this.predicateType = p.getType().name();
-
-        switch (p.getType()) {
-            case STRING -> {
-                var sp = (StringFilterPredicate) p;
-                this.operation = sp.getOperation().name();
-                this.ignoreCase = sp.isIgnoreCase();
-
-                var v = sp.getValue();
-                if (v != null) {
-                    this.defaultValue = v.getDefaultValue();
-                    this.userValue = v.getUserValue();
-                    var dv = v.getDynamicValue();
-                    if (dv != null) {
-                        this.dynamicValueInherit = dv.isInherit();
-                        this.dynamicValueSourceType = dv.getSourceType() != null ? dv.getSourceType().name() : null;
-                        this.dynamicValueSourceAttribute = dv.getSourceAttribute();
-                    }
-                }
-            }
-            case NUMERIC -> {
-                var np = (NumericFilterPredicate) p;
-                this.operation = np.getOperation().name();
-
-                var v = np.getValue();
-                if (v != null) {
-                    this.defaultValue = v.getDefaultValue();
-                    this.userValue = v.getUserValue();
-                    var dv = v.getDynamicValue();
-                    if (dv != null) {
-                        this.dynamicValueInherit = dv.isInherit();
-                        this.dynamicValueSourceType = dv.getSourceType() != null ? dv.getSourceType().name() : null;
-                        this.dynamicValueSourceAttribute = dv.getSourceAttribute();
-                    }
-                }
-            }
-            case BOOLEAN -> {
-                var bp = (BooleanFilterPredicate) p;
-                this.operation = bp.getOperation().name();
-
-                var v = bp.getValue();
-                if (v != null) {
-                    this.defaultValue = v.getDefaultValue();
-                    this.userValue = v.getUserValue();
-                    var dv = v.getDynamicValue();
-                    if (dv != null) {
-                        this.dynamicValueInherit = dv.isInherit();
-                        this.dynamicValueSourceType = dv.getSourceType() != null ? dv.getSourceType().name() : null;
-                        this.dynamicValueSourceAttribute = dv.getSourceAttribute();
-                    }
-                }
-            }
-            case COMPLEX -> {
-                var cp = (ComplexFilterPredicate) p;
-                this.complexOperation = cp.getOperation().name();
-                if (cp.getPredicates() != null && !cp.getPredicates().isEmpty()) {
-                    this.nestedPredicates = cp.getPredicates().stream()
-                            .map(kfp -> {
-                                KeyFilter kf = new KeyFilter();
-                                kf.setKey(filter.getKey());
-                                kf.setValueType(filter.getValueType());
-                                kf.setPredicate(kfp);
-                                return new KeyFilterInput(kf);
-                            })
-                            .toList();
-                }
-            }
-        }
-    }
-
-    private KeyFilterPredicate buildPredicate() {
-        FilterPredicateType type = FilterPredicateType.valueOf(predicateType);
-
-        return switch (type) {
-            case STRING -> buildStringPredicate();
-            case NUMERIC -> buildNumericPredicate();
-            case BOOLEAN -> buildBooleanPredicate();
-            case COMPLEX -> buildComplexPredicate();
+    KeyFilterPredicate buildPredicate() {
+        return switch (predicateType) {
+            case "STRING" -> buildStringPredicate();
+            case "NUMERIC" -> buildNumericPredicate();
+            case "BOOLEAN" -> buildBooleanPredicate();
+            case "COMPLEX" -> buildComplexPredicate();
+            default -> throw new IllegalArgumentException("Unknown predicate type: " + predicateType);
         };
     }
 
     private StringFilterPredicate buildStringPredicate() {
-        StringFilterPredicate predicate = new StringFilterPredicate();
-        predicate.setOperation(StringFilterPredicate.StringOperation.valueOf(operation));
-        predicate.setIgnoreCase(ignoreCase != null && ignoreCase);
+        FilterPredicateValueString value = new FilterPredicateValueString()
+                .defaultValue(castString(defaultValue))
+                .userValue(castString(userValue));
 
-        FilterPredicateValue<String> value = buildFilterValue(String.class);
-        predicate.setValue(value);
+        if (dynamicValueSourceType != null) {
+            DynamicValueString dv = new DynamicValueString()
+                    .sourceType(DynamicValueSourceType.valueOf(dynamicValueSourceType))
+                    .sourceAttribute(dynamicValueSourceAttribute)
+                    .inherit(dynamicValueInherit != null && dynamicValueInherit);
+            value.dynamicValue(dv);
+        }
 
-        return predicate;
+        return new StringFilterPredicate()
+                .operation(StringOperation.valueOf(operation))
+                .ignoreCase(ignoreCase != null && ignoreCase)
+                .value(value);
     }
 
     private NumericFilterPredicate buildNumericPredicate() {
-        NumericFilterPredicate predicate = new NumericFilterPredicate();
-        predicate.setOperation(NumericFilterPredicate.NumericOperation.valueOf(operation));
+        FilterPredicateValueDouble value = new FilterPredicateValueDouble()
+                .defaultValue(castDouble(defaultValue))
+                .userValue(castDouble(userValue));
 
-        FilterPredicateValue<Double> value = buildFilterValue(Double.class);
-        predicate.setValue(value);
+        if (dynamicValueSourceType != null) {
+            DynamicValueDouble dv = new DynamicValueDouble()
+                    .sourceType(DynamicValueSourceType.valueOf(dynamicValueSourceType))
+                    .sourceAttribute(dynamicValueSourceAttribute)
+                    .inherit(dynamicValueInherit != null && dynamicValueInherit);
+            value.dynamicValue(dv);
+        }
 
-        return predicate;
+        return new NumericFilterPredicate()
+                .operation(NumericOperation.valueOf(operation))
+                .value(value);
     }
 
     private BooleanFilterPredicate buildBooleanPredicate() {
-        BooleanFilterPredicate predicate = new BooleanFilterPredicate();
-        predicate.setOperation(BooleanFilterPredicate.BooleanOperation.valueOf(operation));
+        FilterPredicateValueBoolean value = new FilterPredicateValueBoolean()
+                .defaultValue(castBoolean(defaultValue))
+                .userValue(castBoolean(userValue));
 
-        FilterPredicateValue<Boolean> value = buildFilterValue(Boolean.class);
-        predicate.setValue(value);
+        if (dynamicValueSourceType != null) {
+            DynamicValueBoolean dv = new DynamicValueBoolean()
+                    .sourceType(DynamicValueSourceType.valueOf(dynamicValueSourceType))
+                    .sourceAttribute(dynamicValueSourceAttribute)
+                    .inherit(dynamicValueInherit != null && dynamicValueInherit);
+            value.dynamicValue(dv);
+        }
 
-        return predicate;
+        return new BooleanFilterPredicate()
+                .operation(BooleanOperation.valueOf(operation))
+                .value(value);
     }
 
     private ComplexFilterPredicate buildComplexPredicate() {
-        ComplexFilterPredicate predicate = new ComplexFilterPredicate();
-        predicate.setOperation(ComplexFilterPredicate.ComplexOperation.valueOf(complexOperation));
+        ComplexFilterPredicate predicate = new ComplexFilterPredicate()
+                .operation(ComplexOperation.valueOf(complexOperation));
 
         if (nestedPredicates != null && !nestedPredicates.isEmpty()) {
             List<KeyFilterPredicate> predicates = nestedPredicates.stream()
                     .map(KeyFilterInput::buildPredicate)
                     .collect(Collectors.toList());
-            predicate.setPredicates(predicates);
+            predicate.predicates(predicates);
         }
 
         return predicate;
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> FilterPredicateValue<T> buildFilterValue(Class<T> clazz) {
-        T defaultVal = castValue(defaultValue, clazz);
-        T userVal = castValue(userValue, clazz);
-        DynamicValue<T> dynamicVal = null;
-
-        if (dynamicValueSourceType != null) {
-            DynamicValueSourceType sourceType = DynamicValueSourceType.valueOf(dynamicValueSourceType);
-            boolean inherit = dynamicValueInherit != null && dynamicValueInherit;
-            dynamicVal = new DynamicValue<>(sourceType, dynamicValueSourceAttribute, inherit);
-        }
-
-        return new FilterPredicateValue<>(defaultVal, userVal, dynamicVal);
+    private static String castString(Object value) {
+        return value == null ? null : String.valueOf(value);
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> T castValue(Object value, Class<T> clazz) {
-        if (value == null) {
-            return null;
-        }
+    private static Double castDouble(Object value) {
+        if (value == null) return null;
+        if (value instanceof Number n) return n.doubleValue();
+        return Double.valueOf(String.valueOf(value));
+    }
 
-        if (clazz == String.class) {
-            return (T) String.valueOf(value);
-        } else if (clazz == Double.class) {
-            if (value instanceof Number) {
-                return (T) Double.valueOf(((Number) value).doubleValue());
-            }
-            return (T) Double.valueOf(String.valueOf(value));
-        } else if (clazz == Boolean.class) {
-            if (value instanceof Boolean) {
-                return (T) value;
-            }
-            return (T) Boolean.valueOf(String.valueOf(value));
-        }
-
-        return (T) value;
+    private static Boolean castBoolean(Object value) {
+        if (value == null) return null;
+        if (value instanceof Boolean b) return b;
+        return Boolean.valueOf(String.valueOf(value));
     }
 
 }
