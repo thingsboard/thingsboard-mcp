@@ -8,6 +8,10 @@ Connect AI agents to your [ThingsBoard](https://thingsboard.io) IoT platform via
 
 Works with Claude Desktop, Cursor, VS Code Copilot, Claude Code, and any MCP-compatible client.
 
+## Hosted deployment
+
+A hosted deployment is available on [Fronteir AI](https://fronteir.ai/mcp/thingsboard-thingsboard-mcp).
+
 ## Quick Start
 
 You need a ThingsBoard instance ([Cloud](https://thingsboard.cloud), [EU Cloud](https://eu.thingsboard.cloud), [self-hosted CE/PE](https://thingsboard.io/docs/user-guide/install/installation-options/), or [Edge](https://thingsboard.io/docs/user-guide/install/edge/installation-options/)) and an API key (ThingsBoard 4.3+) or username/password.
